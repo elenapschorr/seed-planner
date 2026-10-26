@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SeedPlanner.Api/SeedPlanner.Api.csproj" />
+    <Project Path="src/SeedPlanner.Domain/SeedPlanner.Domain.csproj" />
+    <Project Path="src/SeedPlanner.Infrastructure/SeedPlanner.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SeedPlanner.Tests/SeedPlanner.Tests.csproj" />
+  </Folder>
+</Solution>
