@@ -1,0 +1,31 @@
+﻿namespace SeedPlanner.Domain;
+
+public class Plant
+{
+    public int Id { get; set; }
+    public int PlantTypeId { get; set; }
+    public PlantType PlantType { get; set; } = null!;
+    public required string Name { get; set; }
+
+    public SeedType SeedType { get; set; }
+    public StockStatus StockStatus { get; set; }
+    public CultivationMethod? CultivationMethod { get; set; }
+    public Exposure? Exposure { get; set; }
+    public Exposure? EffectiveExposure => Exposure ?? PlantType?.Exposure;
+
+    public int? GerminationDaysMin { get; set; }
+    public int? GerminationDaysMax { get; set; }
+    public int? MaturityDaysMin { get; set; }
+    public int? MaturityDaysMax { get; set; }
+
+    public int? RowSpacingCm { get; set; }
+    public int? PlantSpacingCm { get; set; }
+    public int? PotSizeMinCm { get; set; }
+    public int? PotSizeMaxCm { get; set; }
+
+    public List<SeasonWindow> SeasonWindows { get; } = [];
+
+    // Rule: buy seed only for plants that can be propagated from own seed.
+    public bool ShouldBuy =>
+        StockStatus == StockStatus.OutOfStock && SeedType == SeedType.OpenPollinated;
+}
