@@ -1,0 +1,47 @@
+@page
+@model SeedPlanner.Api.Pages.PlantTypes.IndexModel
+@using SeedPlanner.Domain
+@{
+    ViewData["Title"] = L["PlantTypes_Title"].Value;
+}
+
+<h1 class="mb-3">@L["PlantTypes_Title"]</h1>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md">
+        <input type="search" name="q" value="@Model.Q" class="form-control" placeholder="@L["Search"].Value" />
+    </div>
+    <div class="col-md-auto">
+        <select name="category" class="form-select" onchange="this.form.submit()">
+            <option value="">@L["AllCategories"]</option>
+            @foreach (var c in Enum.GetValues<PlantCategory>())
+            {
+                <option value="@c" selected="@(Model.Category == c)">@L["Category_" + c]</option>
+            }
+        </select>
+    </div>
+</form>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>@L["Col_Name"]</th>
+            <th>@L["Col_Category"]</th>
+            <th>@L["Col_NutrientDemand"]</th>
+            <th>@L["Col_Exposure"]</th>
+            <th class="text-end">@L["Col_Plants"]</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model.Rows)
+        {
+            <tr>
+                <td><strong>@r.Name</strong></td>
+                <td>@(r.Category is null ? "–" : L["Category_" + r.Category].Value)</td>
+                <td>@(r.NutrientDemand is null ? "–" : L["NutrientDemand_" + r.NutrientDemand].Value)</td>
+                <td>@(r.Exposure is null ? "–" : L["Exposure_" + r.Exposure].Value)</td>
+                <td class="text-end">@r.PlantCount</td>
+            </tr>
+        }
+    </tbody>
+</table>

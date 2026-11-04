@@ -7,7 +7,7 @@
   <data name="Nav_PlantTypes" xml:space="preserve"><value>Типы растений</value></data>
   <data name="Nav_Plants" xml:space="preserve"><value>Сорта</value></data>
   <data name="Home_Title" xml:space="preserve"><value>Seed Planner</value></data>
-  <data name="Home_Intro" xml:space="preserve"><value>Управляй коллекцией семян и планируй, что сеять.</value></data>
+  <data name="Home_Intro" xml:space="preserve"><value>Управляй коллекцией семян и планируй что посеять.</value></data>
   <data name="PlantTypes_Title" xml:space="preserve"><value>Типы растений</value></data>
   <data name="Plants_Title" xml:space="preserve"><value>Сорта</value></data>
   <data name="Search" xml:space="preserve"><value>Поиск …</value></data>
@@ -21,9 +21,9 @@
   <data name="Category_LeafyVegetable" xml:space="preserve"><value>Листовые овощи</value></data>
   <data name="Category_Herb" xml:space="preserve"><value>Пряные травы</value></data>
   <data name="Category_Berry" xml:space="preserve"><value>Ягоды</value></data>
-  <data name="NutrientDemand_Heavy" xml:space="preserve"><value>Прожорливая</value></data>
-  <data name="NutrientDemand_Medium" xml:space="preserve"><value>Средняя</value></data>
-  <data name="NutrientDemand_Light" xml:space="preserve"><value>Нетребовательная</value></data>
+  <data name="NutrientDemand_Heavy" xml:space="preserve"><value>Сильные потребители</value></data>
+  <data name="NutrientDemand_Medium" xml:space="preserve"><value>Средние потребители</value></data>
+  <data name="NutrientDemand_Light" xml:space="preserve"><value>Слабые потребители/Почвоулучшители</value></data>
   <data name="Exposure_FullSun" xml:space="preserve"><value>Солнце</value></data>
   <data name="Exposure_PartialShade" xml:space="preserve"><value>Полутень</value></data>
 </root>
