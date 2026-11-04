@@ -1,0 +1,76 @@
+@page
+@model SeedPlanner.Api.Pages.Plants.IndexModel
+@using SeedPlanner.Domain
+@{
+    ViewData["Title"] = L["Plants_Title"].Value;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">@L["Plants_Title"]</h1>
+    <a class="btn btn-success" asp-page="Edit">@L["Action_New"]</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md">
+        <input type="search" name="q" value="@Model.Q" class="form-control" placeholder="@L["Search"].Value" />
+    </div>
+    <div class="col-md-auto">
+        <select name="typeId" class="form-select" onchange="this.form.submit()">
+            <option value="">@L["AllTypes"]</option>
+            @foreach (var t in Model.TypeOptions)
+            {
+                <option value="@t.Id" selected="@(Model.TypeId == t.Id)">@t.Name</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-auto">
+        <select name="stock" class="form-select" onchange="this.form.submit()">
+            <option value="">@L["AllStock"]</option>
+            @foreach (var s in Enum.GetValues<StockStatus>())
+            {
+                <option value="@s" selected="@(Model.Stock == s)">@L["StockStatus_" + s]</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-auto">
+        <select name="month" class="form-select" onchange="this.form.submit()">
+            <option value="">@L["AllMonths"]</option>
+            @for (var month = 1; month <= 12; month++)
+            {
+                <option value="@month" selected="@(Model.Month == month)">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)</option>
+            }
+        </select>
+    </div>
+</form>
+
+<div class="table-responsive">
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>@L["Col_Name"]</th>
+            <th>@L["Col_PlantType"]</th>
+            <th>@L["Col_SeedType"]</th>
+            <th>@L["Col_Stock"]</th>
+            <th>@L["Col_Cultivation"]</th>
+            <th>@L["Col_Exposure"]</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model.Rows)
+        {
+            <tr>
+                <td><strong>@r.Name</strong></td>
+                <td>@r.TypeName</td>
+                <td>@L["SeedType_" + r.SeedType]</td>
+                <td>@L["StockStatus_" + r.StockStatus]</td>
+                <td>@(r.CultivationMethod is null ? "–" : L["CultivationMethod_" + r.CultivationMethod].Value)</td>
+                <td>@(r.Exposure is null ? "–" : L["Exposure_" + r.Exposure].Value)</td>
+                <td>@if (r.ShouldBuy) { <span class="badge text-bg-warning">@L["Badge_ToBuy"]</span> }</td>
+                <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id">@L["Action_Edit"]</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>

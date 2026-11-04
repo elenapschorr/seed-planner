@@ -26,4 +26,42 @@
   <data name="NutrientDemand_Light" xml:space="preserve"><value>Light feeder</value></data>
   <data name="Exposure_FullSun" xml:space="preserve"><value>Full sun</value></data>
   <data name="Exposure_PartialShade" xml:space="preserve"><value>Partial shade</value></data>
+  <data name="AllTypes" xml:space="preserve"><value>All plant types</value></data>
+  <data name="AllStock" xml:space="preserve"><value>All stock</value></data>
+  <data name="Col_PlantType" xml:space="preserve"><value>Plant type</value></data>
+  <data name="Col_SeedType" xml:space="preserve"><value>Seed type</value></data>
+  <data name="Col_Stock" xml:space="preserve"><value>Stock</value></data>
+  <data name="Col_Cultivation" xml:space="preserve"><value>Cultivation</value></data>
+  <data name="Badge_ToBuy" xml:space="preserve"><value>To buy</value></data>
+  <data name="SeedType_OpenPollinated" xml:space="preserve"><value>Open-pollinated</value></data>
+  <data name="SeedType_F1Hybrid" xml:space="preserve"><value>F1 hybrid</value></data>
+  <data name="StockStatus_InStock" xml:space="preserve"><value>In stock</value></data>
+  <data name="StockStatus_OutOfStock" xml:space="preserve"><value>Out of stock</value></data>
+  <data name="StockStatus_Retired" xml:space="preserve"><value>Retired</value></data>
+  <data name="CultivationMethod_StartIndoors" xml:space="preserve"><value>Start indoors</value></data>
+  <data name="CultivationMethod_DirectSow" xml:space="preserve"><value>Direct sow</value></data>
+  <data name="CultivationMethod_Container" xml:space="preserve"><value>Container</value></data>
+  <data name="CultivationMethod_ColdFrame" xml:space="preserve"><value>Cold frame</value></data>
+  <data name="AllMonths" xml:space="preserve"><value>Sowing: any month</value></data>
+  <data name="Home_SowNow" xml:space="preserve"><value>What can I sow now?</value></data>
+  <data name="Action_New" xml:space="preserve"><value>New plant</value></data>
+  <data name="Action_Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Action_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Action_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Action_Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Confirm_Delete" xml:space="preserve"><value>Delete this plant?</value></data>
+  <data name="Edit_TitleNew" xml:space="preserve"><value>New plant</value></data>
+  <data name="Edit_TitleEdit" xml:space="preserve"><value>Edit plant</value></data>
+  <data name="Field_GerminationDays" xml:space="preserve"><value>Germination days (min / max)</value></data>
+  <data name="Field_MaturityDays" xml:space="preserve"><value>Days to maturity (min / max)</value></data>
+  <data name="Field_RowSpacing" xml:space="preserve"><value>Row spacing (cm)</value></data>
+  <data name="Field_PlantSpacing" xml:space="preserve"><value>Plant spacing (cm)</value></data>
+  <data name="Field_PotSize" xml:space="preserve"><value>Pot size in cm (min / max)</value></data>
+  <data name="Field_Sowing1" xml:space="preserve"><value>Sowing window 1 (from / to)</value></data>
+  <data name="Field_Sowing2" xml:space="preserve"><value>Sowing window 2 (from / to)</value></data>
+  <data name="Field_Harvest1" xml:space="preserve"><value>Harvest window 1 (from / to)</value></data>
+  <data name="Field_Harvest2" xml:space="preserve"><value>Harvest window 2 (from / to)</value></data>
+  <data name="Error_NameExists" xml:space="preserve"><value>This plant type already has a plant with this name.</value></data>
+  <data name="Error_WindowIncomplete" xml:space="preserve"><value>Please enter both months or none.</value></data>
+  <data name="Error_MinGreaterMax" xml:space="preserve"><value>The minimum must not be greater than the maximum.</value></data>
 </root>

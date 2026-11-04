@@ -206,6 +206,7 @@ def read_plant_types(ws, names, report):
             "demand_per_person_min": number(ws, row, H_DEMAND_MIN, "Helper", "Bedarf min", report, as_int=False),
             "demand_per_person_max": number(ws, row, H_DEMAND_MAX, "Helper", "Bedarf max", report, as_int=False),
             "demand_unit": unit,
+            "exposure": None,  # filled in later from the varieties (see assign_exposure)
         }
         if record["demand_per_person_min"] is None and record["demand_per_person_max"] is None:
             record["demand_unit"] = None  # no demand recorded, so no unit either
@@ -251,7 +252,7 @@ def read_plants(ws, types, report):
             report.add("INFO", "Samen", row, "Kultur", "Value missing; left empty.")
         seed = mapped(SEED_TYPE, text(ws, row, S_SEED), "Samen", row, "Kreuzung", report, True)
         stock = mapped(STOCK, text(ws, row, S_STOCK), "Samen", row, "Bestand", report, True)
-        exposure = mapped(EXPOSURE, text(ws, row, S_EXPOSURE), "Samen", row, "Standort", report, True)
+        exposure = mapped(EXPOSURE, text(ws, row, S_EXPOSURE), "Samen", row, "Standort", report, False)
 
         # Germination lives on the plant type (sheet "Helper"); "Samen" only repeats it.
         germ_here = mapped(GERMINATION, text(ws, row, S_GERMINATION), "Samen", row, "Keimung", report, False)
@@ -293,6 +294,31 @@ def read_plants(ws, types, report):
     return plants
 
 
+def assign_exposure(types, plants, report):
+    """The plant type gets the most common exposure of its varieties (default).
+    A variety keeps its own exposure only if it differs from the type's default."""
+    from collections import Counter
+    for type_name, t in types.items():
+        counts = Counter(p["exposure"] for p in plants
+                         if p["type_name"] == type_name and p["exposure"])
+        if not counts:
+            continue
+        ranked = counts.most_common()
+        if len(ranked) > 1 and ranked[0][1] == ranked[1][1]:
+            report.add("INFO", "Samen", 0, type_name,
+                       f"Exposure tie {dict(counts)}; type default set to FullSun, please review.")
+            t["exposure"] = "FullSun"
+        else:
+            t["exposure"] = ranked[0][0]
+        if len(ranked) > 1:
+            report.add("INFO", "Samen", 0, type_name,
+                       f"Varieties differ {dict(counts)}; default {t['exposure']}, others keep their own value.")
+    for p in plants:
+        t = types[p["type_name"]]
+        if p["exposure"] == t["exposure"]:
+            p["exposure"] = None
+
+
 # ---------------------------------------------------------------------------
 # SQL output
 # ---------------------------------------------------------------------------
@@ -314,7 +340,7 @@ def insert(table, columns, values):
 def write_sql(path, types, plants):
     type_cols = ["name", "category", "nutrient_demand", "germination_type",
                  "growth_days_min", "growth_days_max",
-                 "demand_per_person_min", "demand_per_person_max", "demand_unit"]
+                 "demand_per_person_min", "demand_per_person_max", "demand_unit", "exposure"]
     plant_cols = ["seed_type", "stock_status", "cultivation_method", "exposure",
                   "germination_days_min", "germination_days_max",
                   "maturity_days_min", "maturity_days_max",
@@ -382,6 +408,7 @@ def main():
     names = read_names(args.names, report)
     types = read_plant_types(workbook["Helper"], names, report)
     plants = read_plants(workbook["Samen"], types, report)
+    assign_exposure(types, plants, report)
 
     used = {p["type_name"] for p in plants}
     windows = sum(len(p["windows"]) for p in plants)

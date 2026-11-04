@@ -26,6 +26,6 @@ public class Plant
     public List<SeasonWindow> SeasonWindows { get; } = [];
 
     // Rule: buy seed only for plants that can be propagated from own seed.
-    public bool ShouldBuy =>
-        StockStatus == StockStatus.OutOfStock && SeedType == SeedType.OpenPollinated;
+    public bool ShouldBuy => StockStatus == StockStatus.OutOfStock && SeedType == SeedType.OpenPollinated;
+    public bool CanSowIn(int month) => SeasonWindows.Any(w => w.Kind == WindowKind.Sowing && w.Contains(month));
 }
