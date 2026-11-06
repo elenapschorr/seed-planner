@@ -15,4 +15,13 @@ jobs:
           dotnet-version: 10.0.x
       - run: dotnet restore
       - run: dotnet build --no-restore --configuration Release
+      # The isolation tests start PostgreSQL in Docker (available on GitHub runners)
       - run: dotnet test --no-build --configuration Release
+
+  docker-image:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the Docker image
+        run: docker build -t seed-planner:${{ github.sha }} .
