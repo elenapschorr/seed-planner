@@ -37,6 +37,13 @@ builder.Services.AddDbContext<SeedPlannerDbContext>(options =>
 
 var app = builder.Build();
 
+if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<SeedPlanner.Infrastructure.SeedPlannerDbContext>();
+    db.Database.Migrate();
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -51,6 +58,12 @@ app.UseRequestLocalization(o => o
     .SetDefaultCulture("en")
     .AddSupportedCultures(supportedCultures)
     .AddSupportedUICultures(supportedCultures));
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapStaticAssets();
+app.MapRazorPages().WithStaticAssets();
 
 // Language switcher: stores the choice in a cookie, then goes back to the page
 app.MapGet("/culture", (string c, string? returnUrl, HttpContext ctx) =>
@@ -64,11 +77,5 @@ app.MapGet("/culture", (string c, string? returnUrl, HttpContext ctx) =>
 
     return Results.LocalRedirect(string.IsNullOrEmpty(returnUrl) ? "/" : returnUrl);
 });
-app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapStaticAssets();
-app.MapRazorPages().WithStaticAssets();
 
 app.Run();
