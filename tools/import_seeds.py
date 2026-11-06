@@ -8,9 +8,12 @@ The database stores English names only. The CSV file (columns german, english, r
 gives the English name of each plant type and the translations that go into
 the table plant_type_translations (languages de, en, ru).
 
+The plants belong to one user, identified by e-mail address. The user must have registered
+in the application before the generated SQL is run.
+
 Usage:
-    python import_seeds.py data/Samen.xlsx
-    python import_seeds.py data/Samen.xlsx --names tools/plant_type_names.csv --out data/import.sql
+    python import_seeds.py data/Samen.xlsx --owner-email you@example.com
+    python import_seeds.py data/Samen.xlsx --owner-email you@example.com --names tools/plant_type_names.csv --out data/import.sql
 
 Requires: pip install openpyxl
 """
@@ -337,7 +340,7 @@ def insert(table, columns, values):
     return f"INSERT INTO {table} ({cols}) VALUES ({vals});"
 
 
-def write_sql(path, types, plants):
+def write_sql(path, types, plants, owner_email):
     type_cols = ["name", "category", "nutrient_demand", "germination_type",
                  "growth_days_min", "growth_days_max",
                  "demand_per_person_min", "demand_per_person_max", "demand_unit", "exposure"]
@@ -371,16 +374,20 @@ def write_sql(path, types, plants):
             out.append(insert("plant_type_translations", ["plant_type_id", "language", "name"],
                               [type_id, lit(language), lit(translated)]))
 
+    # ASP.NET Core Identity stores the e-mail address in upper case in normalized_email
+    owner_id = f"(SELECT id FROM asp_net_users WHERE normalized_email = {lit(owner_email.strip().upper())})"
+
     out += ["", "-- Plants"]
     for p in plants:
         type_id = f"(SELECT id FROM plant_types WHERE name = {lit(types[p['type_name']]['name'])})"
-        out.append(insert("plants", ["plant_type_id", "name"] + plant_cols,
-                          [type_id, lit(p["name"])] + [lit(p[c]) for c in plant_cols]))
+        out.append(insert("plants", ["owner_id", "plant_type_id", "name"] + plant_cols,
+                          [owner_id, type_id, lit(p["name"])] + [lit(p[c]) for c in plant_cols]))
 
     out += ["", "-- Season windows"]
     for p in plants:
         plant_id = ("(SELECT p.id FROM plants p JOIN plant_types t ON t.id = p.plant_type_id "
-                    f"WHERE t.name = {lit(types[p['type_name']]['name'])} AND p.name = {lit(p['name'])})")
+                    f"WHERE t.name = {lit(types[p['type_name']]['name'])} AND p.name = {lit(p['name'])} "
+                    f"AND p.owner_id = {owner_id})")
         for kind, start, end in p["windows"]:
             out.append(insert("season_windows", ["plant_id", "kind", "start_month", "end_month"],
                               [plant_id, lit(kind), lit(start), lit(end)]))
@@ -393,6 +400,8 @@ def write_sql(path, types, plants):
 def main():
     parser = argparse.ArgumentParser(description="Create a SQL import file from the seed Excel file.")
     parser.add_argument("excel", help="path to the Excel file, e.g. data/Samen.xlsx")
+    parser.add_argument("--owner-email", required=True,
+                        help="e-mail address of the registered user who owns the plants")
     parser.add_argument("--names", default="tools/plant_type_names.csv",
                         help="CSV with german;english;russian plant type names")
     parser.add_argument("--out", default="data/import.sql", help="SQL file to write")
@@ -423,7 +432,7 @@ def main():
     ]
 
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-    write_sql(args.out, types, plants)
+    write_sql(args.out, types, plants, args.owner_email)
     lines = summary + [""] + report.format()
     Path(args.report).write_text("\n".join(lines) + "\n", encoding="utf-8")
 

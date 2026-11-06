@@ -101,7 +101,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
     public async Task<IActionResult> OnPostDeleteAsync(int id)
     {
-        var plant = await db.Plants.FindAsync(id);
+        var plant = await db.Plants.FirstOrDefaultAsync(p => p.Id == id);   // filtered: only own plants
         if (plant is not null)
         {
             db.Plants.Remove(plant);   // season windows are deleted with it (cascade)

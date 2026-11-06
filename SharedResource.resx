@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Nav_PlantTypes" xml:space="preserve"><value>Plant types</value></data>
+  <data name="Nav_Plants" xml:space="preserve"><value>Plants</value></data>
+  <data name="Home_Title" xml:space="preserve"><value>Seed Planner</value></data>
+  <data name="Home_Intro" xml:space="preserve"><value>Manage your seed collection and plan what to sow.</value></data>
+  <data name="PlantTypes_Title" xml:space="preserve"><value>Plant types</value></data>
+  <data name="Plants_Title" xml:space="preserve"><value>Plants</value></data>
+  <data name="Search" xml:space="preserve"><value>Search …</value></data>
+  <data name="AllCategories" xml:space="preserve"><value>All categories</value></data>
+  <data name="Col_Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Col_Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Col_NutrientDemand" xml:space="preserve"><value>Nutrient demand</value></data>
+  <data name="Col_Exposure" xml:space="preserve"><value>Exposure</value></data>
+  <data name="Col_Plants" xml:space="preserve"><value>Plants</value></data>
+  <data name="Category_Vegetable" xml:space="preserve"><value>Vegetable</value></data>
+  <data name="Category_LeafyVegetable" xml:space="preserve"><value>Leafy vegetable</value></data>
+  <data name="Category_Herb" xml:space="preserve"><value>Herb</value></data>
+  <data name="Category_Berry" xml:space="preserve"><value>Berry</value></data>
+  <data name="NutrientDemand_Heavy" xml:space="preserve"><value>Heavy feeder</value></data>
+  <data name="NutrientDemand_Medium" xml:space="preserve"><value>Medium feeder</value></data>
+  <data name="NutrientDemand_Light" xml:space="preserve"><value>Light feeder</value></data>
+  <data name="Exposure_FullSun" xml:space="preserve"><value>Full sun</value></data>
+  <data name="Exposure_PartialShade" xml:space="preserve"><value>Partial shade</value></data>
+  <data name="AllTypes" xml:space="preserve"><value>All plant types</value></data>
+  <data name="AllStock" xml:space="preserve"><value>All stock</value></data>
+  <data name="Col_PlantType" xml:space="preserve"><value>Plant type</value></data>
+  <data name="Col_SeedType" xml:space="preserve"><value>Seed type</value></data>
+  <data name="Col_Stock" xml:space="preserve"><value>Stock</value></data>
+  <data name="Col_Cultivation" xml:space="preserve"><value>Cultivation</value></data>
+  <data name="Badge_ToBuy" xml:space="preserve"><value>To buy</value></data>
+  <data name="SeedType_OpenPollinated" xml:space="preserve"><value>Open-pollinated</value></data>
+  <data name="SeedType_F1Hybrid" xml:space="preserve"><value>F1 hybrid</value></data>
+  <data name="StockStatus_InStock" xml:space="preserve"><value>In stock</value></data>
+  <data name="StockStatus_OutOfStock" xml:space="preserve"><value>Out of stock</value></data>
+  <data name="StockStatus_Retired" xml:space="preserve"><value>Retired</value></data>
+  <data name="CultivationMethod_StartIndoors" xml:space="preserve"><value>Start indoors</value></data>
+  <data name="CultivationMethod_DirectSow" xml:space="preserve"><value>Direct sow</value></data>
+  <data name="CultivationMethod_Container" xml:space="preserve"><value>Container</value></data>
+  <data name="CultivationMethod_ColdFrame" xml:space="preserve"><value>Cold frame</value></data>
+  <data name="AllMonths" xml:space="preserve"><value>Sowing: any month</value></data>
+  <data name="Home_SowNow" xml:space="preserve"><value>What can I sow now?</value></data>
+  <data name="Action_New" xml:space="preserve"><value>New plant</value></data>
+  <data name="Action_Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Action_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Action_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Action_Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Confirm_Delete" xml:space="preserve"><value>Delete this plant?</value></data>
+  <data name="Edit_TitleNew" xml:space="preserve"><value>New plant</value></data>
+  <data name="Edit_TitleEdit" xml:space="preserve"><value>Edit plant</value></data>
+  <data name="Field_GerminationDays" xml:space="preserve"><value>Germination days (min / max)</value></data>
+  <data name="Field_MaturityDays" xml:space="preserve"><value>Days to maturity (min / max)</value></data>
+  <data name="Field_RowSpacing" xml:space="preserve"><value>Row spacing (cm)</value></data>
+  <data name="Field_PlantSpacing" xml:space="preserve"><value>Plant spacing (cm)</value></data>
+  <data name="Field_PotSize" xml:space="preserve"><value>Pot size in cm (min / max)</value></data>
+  <data name="Field_Sowing1" xml:space="preserve"><value>Sowing window 1 (from / to)</value></data>
+  <data name="Field_Sowing2" xml:space="preserve"><value>Sowing window 2 (from / to)</value></data>
+  <data name="Field_Harvest1" xml:space="preserve"><value>Harvest window 1 (from / to)</value></data>
+  <data name="Field_Harvest2" xml:space="preserve"><value>Harvest window 2 (from / to)</value></data>
+  <data name="Error_NameExists" xml:space="preserve"><value>This plant type already has a plant with this name.</value></data>
+  <data name="Error_WindowIncomplete" xml:space="preserve"><value>Please enter both months or none.</value></data>
+  <data name="Error_MinGreaterMax" xml:space="preserve"><value>The minimum must not be greater than the maximum.</value></data>
+  <data name="Nav_Login" xml:space="preserve"><value>Log in</value></data>
+  <data name="Nav_Logout" xml:space="preserve"><value>Log out</value></data>
+  <data name="Login_Title" xml:space="preserve"><value>Log in</value></data>
+  <data name="Login_User" xml:space="preserve"><value>User name</value></data>
+  <data name="Login_Password" xml:space="preserve"><value>Password</value></data>
+  <data name="Login_Submit" xml:space="preserve"><value>Log in</value></data>
+  <data name="Login_Failed" xml:space="preserve"><value>User name or password is wrong.</value></data>
+  <data name="Nav_Register" xml:space="preserve"><value>Register</value></data>
+  <data name="Login_Email" xml:space="preserve"><value>E-mail</value></data>
+  <data name="Login_LockedOut" xml:space="preserve"><value>Too many failed attempts. Please try again in a few minutes.</value></data>
+  <data name="Register_Title" xml:space="preserve"><value>Register</value></data>
+  <data name="Register_Submit" xml:space="preserve"><value>Register</value></data>
+  <data name="Register_ConfirmPassword" xml:space="preserve"><value>Repeat password</value></data>
+  <data name="Register_InviteCode" xml:space="preserve"><value>Invitation code</value></data>
+  <data name="Register_Invalid" xml:space="preserve"><value>The invitation code is not valid.</value></data>
+</root>

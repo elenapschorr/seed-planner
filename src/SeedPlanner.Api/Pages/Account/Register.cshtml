@@ -1,0 +1,37 @@
+@page
+@model SeedPlanner.Api.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = L["Register_Title"].Value;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+        <h1 class="mb-3">@L["Register_Title"]</h1>
+
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label">@L["Login_Email"]</label>
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" autofocus />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label">@L["Login_Password"]</label>
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.ConfirmPassword" class="form-label">@L["Register_ConfirmPassword"]</label>
+                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.InviteCode" class="form-label">@L["Register_InviteCode"]</label>
+                <input asp-for="Input.InviteCode" class="form-control" autocomplete="off" />
+                <span asp-validation-for="Input.InviteCode" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-success">@L["Register_Submit"]</button>
+        </form>
+    </div>
+</div>

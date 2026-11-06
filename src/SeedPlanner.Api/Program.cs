@@ -5,7 +5,31 @@ using Microsoft.AspNetCore.Localization;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddLocalization(o => o.ResourcesPath = "Resources");
-builder.Services.AddRazorPages().AddViewLocalization();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<SeedPlanner.Infrastructure.ICurrentUser, SeedPlanner.Api.Security.CurrentUser>();
+
+builder.Services
+    .AddIdentity<Microsoft.AspNetCore.Identity.IdentityUser, Microsoft.AspNetCore.Identity.IdentityRole>(o =>
+    {
+        o.User.RequireUniqueEmail = true;
+        o.Password.RequiredLength = 10;
+        o.Password.RequireNonAlphanumeric = false;
+        o.Password.RequireUppercase = false;
+        o.Lockout.MaxFailedAccessAttempts = 5;
+    })
+    .AddEntityFrameworkStores<SeedPlanner.Infrastructure.SeedPlannerDbContext>();
+
+builder.Services.ConfigureApplicationCookie(o =>
+{
+    o.LoginPath = "/Account/Login";
+    o.AccessDeniedPath = "/Account/Login";
+    o.ExpireTimeSpan = TimeSpan.FromDays(14);
+    o.SlidingExpiration = true;
+    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
+
+builder.Services.AddRazorPages(o => o.Conventions.AuthorizeFolder("/Plants"))
+    .AddViewLocalization();
 builder.Services.AddDbContext<SeedPlannerDbContext>(options =>
     options
         .UseNpgsql(builder.Configuration.GetConnectionString("Default"))
@@ -41,6 +65,7 @@ app.MapGet("/culture", (string c, string? returnUrl, HttpContext ctx) =>
     return Results.LocalRedirect(string.IsNullOrEmpty(returnUrl) ? "/" : returnUrl);
 });
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

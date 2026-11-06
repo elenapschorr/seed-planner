@@ -1,0 +1,29 @@
+@page
+@model SeedPlanner.Api.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = L["Login_Title"].Value;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+        <h1 class="mb-3">@L["Login_Title"]</h1>
+
+        <form method="post">
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label">@L["Login_Email"]</label>
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" autofocus />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label">@L["Login_Password"]</label>
+                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-success">@L["Login_Submit"]</button>
+            <a class="ms-2" asp-page="Register">@L["Nav_Register"]</a>
+        </form>
+    </div>
+</div>

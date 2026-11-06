@@ -64,4 +64,19 @@
   <data name="Error_NameExists" xml:space="preserve"><value>У этого типа растений уже есть сорт с таким названием.</value></data>
   <data name="Error_WindowIncomplete" xml:space="preserve"><value>Укажите оба месяца или ни одного.</value></data>
   <data name="Error_MinGreaterMax" xml:space="preserve"><value>Минимум не может быть больше максимума.</value></data>
+  <data name="Nav_Login" xml:space="preserve"><value>Войти</value></data>
+  <data name="Nav_Logout" xml:space="preserve"><value>Выйти</value></data>
+  <data name="Login_Title" xml:space="preserve"><value>Вход</value></data>
+  <data name="Login_User" xml:space="preserve"><value>Имя пользователя</value></data>
+  <data name="Login_Password" xml:space="preserve"><value>Пароль</value></data>
+  <data name="Login_Submit" xml:space="preserve"><value>Войти</value></data>
+  <data name="Login_Failed" xml:space="preserve"><value>Неверное имя пользователя или пароль.</value></data>
+  <data name="Nav_Register" xml:space="preserve"><value>Регистрация</value></data>
+  <data name="Login_Email" xml:space="preserve"><value>Электронная почта</value></data>
+  <data name="Login_LockedOut" xml:space="preserve"><value>Слишком много неудачных попыток. Повторите через несколько минут.</value></data>
+  <data name="Register_Title" xml:space="preserve"><value>Регистрация</value></data>
+  <data name="Register_Submit" xml:space="preserve"><value>Зарегистрироваться</value></data>
+  <data name="Register_ConfirmPassword" xml:space="preserve"><value>Повторите пароль</value></data>
+  <data name="Register_InviteCode" xml:space="preserve"><value>Код приглашения</value></data>
+  <data name="Register_Invalid" xml:space="preserve"><value>Код приглашения недействителен.</value></data>
 </root>

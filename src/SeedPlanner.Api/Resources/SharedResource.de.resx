@@ -27,7 +27,7 @@
   <data name="Exposure_FullSun" xml:space="preserve"><value>Sonne</value></data>
   <data name="Exposure_PartialShade" xml:space="preserve"><value>Halbschatten</value></data>
   <data name="AllTypes" xml:space="preserve"><value>Alle Pflanzentypen</value></data>
-  <data name="AllStock" xml:space="preserve"><value>Aller Bestand</value></data>
+  <data name="AllStock" xml:space="preserve"><value>Bestand</value></data>
   <data name="Col_PlantType" xml:space="preserve"><value>Pflanzentyp</value></data>
   <data name="Col_SeedType" xml:space="preserve"><value>Samentyp</value></data>
   <data name="Col_Stock" xml:space="preserve"><value>Bestand</value></data>

@@ -13,4 +13,5 @@ public class SeasonWindow
         StartMonth <= EndMonth
             ? month >= StartMonth && month <= EndMonth
             : month >= StartMonth || month <= EndMonth;
+    public Plant? Plant { get; set; }
 }
