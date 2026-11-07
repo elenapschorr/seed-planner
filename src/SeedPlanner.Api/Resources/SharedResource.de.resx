@@ -125,4 +125,44 @@
   <data name="AllSeedTypes" xml:space="preserve"><value>Alle Samentypen</value></data>
   <data name="AllCultivations" xml:space="preserve"><value>Alle Anbauarten</value></data>
   <data name="Filter_OnlyToBuy" xml:space="preserve"><value>Nur zu kaufen</value></data>
+  <data name="Nav_Pots" xml:space="preserve"><value>Töpfe</value></data>
+  <data name="Nav_Saucers" xml:space="preserve"><value>Untersetzer</value></data>
+  <data name="Nav_RaisedBeds" xml:space="preserve"><value>Hochbeete</value></data>
+  <data name="Pots_Title" xml:space="preserve"><value>Töpfe</value></data>
+  <data name="Saucers_Title" xml:space="preserve"><value>Untersetzer</value></data>
+  <data name="RaisedBeds_Title" xml:space="preserve"><value>Hochbeete</value></data>
+  <data name="Pots_Summary" xml:space="preserve"><value>{0} Töpfe, davon {1} frei</value></data>
+  <data name="Saucers_Summary" xml:space="preserve"><value>{0} Untersetzer</value></data>
+  <data name="RaisedBeds_Summary" xml:space="preserve"><value>Gesamtfläche {0} m²</value></data>
+  <data name="Pots_Towers" xml:space="preserve"><value>{0} × {1}er-Turm</value></data>
+  <data name="Pots_Overbooked" xml:space="preserve"><value>Mehr belegte Töpfe eingetragen, als vorhanden sind</value></data>
+  <data name="Col_Kind" xml:space="preserve"><value>Art</value></data>
+  <data name="Col_Shape" xml:space="preserve"><value>Form</value></data>
+  <data name="Col_Size" xml:space="preserve"><value>Maße oben × unten × Höhe (cm)</value></data>
+  <data name="Col_Volume" xml:space="preserve"><value>Volumen (l)</value></data>
+  <data name="Col_Quantity" xml:space="preserve"><value>Anzahl</value></data>
+  <data name="Col_InUse" xml:space="preserve"><value>Belegt</value></data>
+  <data name="Col_Free" xml:space="preserve"><value>Frei</value></data>
+  <data name="Col_Color" xml:space="preserve"><value>Farbe</value></data>
+  <data name="Col_Code" xml:space="preserve"><value>Kennung</value></data>
+  <data name="Col_Saucer" xml:space="preserve"><value>Untersetzer</value></data>
+  <data name="Col_UsedFor" xml:space="preserve"><value>Belegung</value></data>
+  <data name="Col_Note" xml:space="preserve"><value>Notiz</value></data>
+  <data name="Col_Diameter" xml:space="preserve"><value>Durchmesser (cm)</value></data>
+  <data name="Col_AssignedPots" xml:space="preserve"><value>Zugeordnete Töpfe</value></data>
+  <data name="Col_Width" xml:space="preserve"><value>Breite (cm)</value></data>
+  <data name="Col_Length" xml:space="preserve"><value>Länge (cm)</value></data>
+  <data name="Col_Height" xml:space="preserve"><value>Höhe (cm)</value></data>
+  <data name="Col_Area" xml:space="preserve"><value>Fläche (m²)</value></data>
+  <data name="Col_SoilVolume" xml:space="preserve"><value>Erde (l)</value></data>
+  <data name="PotKind_Pot" xml:space="preserve"><value>Topf</value></data>
+  <data name="PotKind_Bowl" xml:space="preserve"><value>Schale</value></data>
+  <data name="PotShape_Round" xml:space="preserve"><value>rund (konisch)</value></data>
+  <data name="PotShape_Rectangular" xml:space="preserve"><value>eckig</value></data>
+  <data name="BedShape_Oval" xml:space="preserve"><value>oval</value></data>
+  <data name="BedShape_Rectangular" xml:space="preserve"><value>eckig</value></data>
+  <data name="AllKinds" xml:space="preserve"><value>Alle Arten</value></data>
+  <data name="AllShapes" xml:space="preserve"><value>Alle Formen</value></data>
+  <data name="AllColors" xml:space="preserve"><value>Alle Farben</value></data>
+  <data name="Filter_OnlyFree" xml:space="preserve"><value>Nur mit freien Töpfen</value></data>
 </root>

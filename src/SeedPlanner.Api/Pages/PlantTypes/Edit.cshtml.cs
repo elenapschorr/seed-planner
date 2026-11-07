@@ -110,9 +110,10 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         var type = await db.PlantTypes.Include(t => t.Translations).FirstOrDefaultAsync(t => t.Id == id);
         if (type is null) return RedirectToPage("Index");
 
-        // Plants of all users count here (the query filter would only show the signed-in user's plants).
+        // Plants and pots of all users count here (the query filter would only show the signed-in user's rows).
         // Deleting a type that is in use would delete those plants with it.
-        if (await db.Plants.IgnoreQueryFilters().AnyAsync(p => p.PlantTypeId == id))
+        if (await db.Plants.IgnoreQueryFilters().AnyAsync(p => p.PlantTypeId == id) ||
+            await db.PotUses.IgnoreQueryFilters().AnyAsync(u => u.PlantTypeId == id))
         {
             ModelState.AddModelError(string.Empty, L["PlantTypeError_InUse"]);
             LoadOptions();

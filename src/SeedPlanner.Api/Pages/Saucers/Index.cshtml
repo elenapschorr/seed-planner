@@ -1,0 +1,58 @@
+@page
+@model SeedPlanner.Api.Pages.Saucers.IndexModel
+@using System.Globalization
+@{
+    ViewData["Title"] = L["Saucers_Title"].Value;
+
+    var sort_diameter = Model.SortRoute("diameter");
+    var sort_color = Model.SortRoute("color");
+    var sort_quantity = Model.SortRoute("quantity");
+    var sort_pots = Model.SortRoute("pots");
+    var sort_note = Model.SortRoute("note");
+}
+
+<h1 class="mb-1">@L["Saucers_Title"]</h1>
+<p class="text-muted">@L["Saucers_Summary", Model.TotalSaucers]</p>
+
+<form method="get" class="row g-2 mb-3">
+    <input type="hidden" name="sort" value="@Model.Sort" />
+    <input type="hidden" name="dir" value="@Model.Dir" />
+    <div class="col-md">
+        <input type="search" name="q" value="@Model.Q" class="form-control" placeholder="@L["Search"].Value" />
+    </div>
+    <div class="col-md-auto">
+        <select name="color" class="form-select" onchange="this.form.submit()">
+            <option value="">@L["AllColors"]</option>
+            @foreach (var c in Model.ColorOptions)
+            {
+                <option value="@c" selected="@string.Equals(Model.ColorFilter, c, StringComparison.CurrentCultureIgnoreCase)">@c</option>
+            }
+        </select>
+    </div>
+</form>
+
+<div class="table-responsive">
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th><a asp-page="/Saucers/Index" asp-all-route-data="sort_diameter" class="text-decoration-none text-reset">@L["Col_Diameter"]@Model.Arrow("diameter")</a></th>
+            <th><a asp-page="/Saucers/Index" asp-all-route-data="sort_color" class="text-decoration-none text-reset">@L["Col_Color"]@Model.Arrow("color")</a></th>
+            <th class="text-end"><a asp-page="/Saucers/Index" asp-all-route-data="sort_quantity" class="text-decoration-none text-reset">@L["Col_Quantity"]@Model.Arrow("quantity")</a></th>
+            <th class="text-end"><a asp-page="/Saucers/Index" asp-all-route-data="sort_pots" class="text-decoration-none text-reset">@L["Col_AssignedPots"]@Model.Arrow("pots")</a></th>
+            <th><a asp-page="/Saucers/Index" asp-all-route-data="sort_note" class="text-decoration-none text-reset">@L["Col_Note"]@Model.Arrow("note")</a></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model.Rows)
+        {
+            <tr>
+                <td><strong>@r.DiameterCm.ToString("0.#", CultureInfo.CurrentCulture)</strong></td>
+                <td>@(r.Color ?? "–")</td>
+                <td class="text-end">@r.Quantity</td>
+                <td class="text-end">@r.PotCount</td>
+                <td>@(r.Note ?? "")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>

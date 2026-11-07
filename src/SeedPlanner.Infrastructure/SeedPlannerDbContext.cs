@@ -13,6 +13,10 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
     public DbSet<SeasonWindow> SeasonWindows => Set<SeasonWindow>();
     public DbSet<PlantTypeTranslation> PlantTypeTranslations => Set<PlantTypeTranslation>();
     public DbSet<PlantTypeCompanion> PlantTypeCompanions => Set<PlantTypeCompanion>();
+    public DbSet<Pot> Pots => Set<Pot>();
+    public DbSet<PotUse> PotUses => Set<PotUse>();
+    public DbSet<Saucer> Saucers => Set<Saucer>();
+    public DbSet<RaisedBed> RaisedBeds => Set<RaisedBed>();
 
     // Used by the query filters. EF evaluates it for each context instance (= each request).
     // Nobody signed in gives null, and then the filters match no rows at all.
@@ -80,6 +84,69 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(w => w.Kind).HasConversion<string>();
             e.HasQueryFilter(w => w.Plant!.OwnerId == CurrentUserId);
         });
+
+        // Pots, saucers and raised beds: personal data like the plants
+        modelBuilder.Entity<Pot>(e =>
+        {
+            e.Property(p => p.Kind).HasConversion<string>();
+            e.Property(p => p.Shape).HasConversion<string>();
+            e.Property(p => p.TopCm).HasPrecision(6, 1);
+            e.Property(p => p.BottomCm).HasPrecision(6, 1);
+            e.Property(p => p.HeightCm).HasPrecision(6, 1);
+            e.Property(p => p.Color).HasMaxLength(50);
+            e.Property(p => p.Code).HasMaxLength(50);
+            e.Property(p => p.Note).HasMaxLength(200);
+            e.HasMany(p => p.Uses).WithOne(u => u.Pot).HasForeignKey(u => u.PotId).OnDelete(DeleteBehavior.Cascade);
+            // Deleting a saucer keeps the pots; they just have no saucer any more
+            e.HasOne(p => p.Saucer).WithMany().HasForeignKey(p => p.SaucerId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<IdentityUser>().WithMany().HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            e.ToTable(t =>
+            {
+                t.HasCheckConstraint("ck_pots_quantity", "quantity >= 0");
+                t.HasCheckConstraint("ck_pots_set_size", "set_size >= 1");
+                t.HasCheckConstraint("ck_pots_measures",
+                    "(top_cm IS NULL OR top_cm > 0) AND (bottom_cm IS NULL OR bottom_cm > 0) AND (height_cm IS NULL OR height_cm > 0)");
+            });
+            e.HasQueryFilter(p => p.OwnerId == CurrentUserId);
+        });
+
+        modelBuilder.Entity<PotUse>(e =>
+        {
+            e.Property(u => u.Note).HasMaxLength(200);
+            // A plant type that a pot uses cannot be deleted
+            e.HasOne(u => u.PlantType).WithMany().HasForeignKey(u => u.PlantTypeId).OnDelete(DeleteBehavior.Restrict);
+            e.ToTable(t => t.HasCheckConstraint("ck_pot_uses_quantity", "quantity >= 1"));
+            e.HasQueryFilter(u => u.Pot!.OwnerId == CurrentUserId);
+        });
+
+        modelBuilder.Entity<Saucer>(e =>
+        {
+            e.Property(s => s.DiameterCm).HasPrecision(6, 1);
+            e.Property(s => s.Color).HasMaxLength(50);
+            e.Property(s => s.Note).HasMaxLength(200);
+            e.HasOne<IdentityUser>().WithMany().HasForeignKey(s => s.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            e.ToTable(t =>
+            {
+                t.HasCheckConstraint("ck_saucers_diameter", "diameter_cm > 0");
+                t.HasCheckConstraint("ck_saucers_quantity", "quantity >= 0");
+            });
+            e.HasQueryFilter(s => s.OwnerId == CurrentUserId);
+        });
+
+        modelBuilder.Entity<RaisedBed>(e =>
+        {
+            e.Property(b => b.Shape).HasConversion<string>();
+            e.Property(b => b.Name).HasMaxLength(100);
+            e.Property(b => b.WidthCm).HasPrecision(6, 1);
+            e.Property(b => b.LengthCm).HasPrecision(6, 1);
+            e.Property(b => b.HeightCm).HasPrecision(6, 1);
+            e.Property(b => b.Note).HasMaxLength(200);
+            e.HasIndex(b => new { b.OwnerId, b.Name }).IsUnique();
+            e.HasOne<IdentityUser>().WithMany().HasForeignKey(b => b.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            e.ToTable(t => t.HasCheckConstraint("ck_raised_beds_measures",
+                "width_cm > 0 AND length_cm > 0 AND height_cm > 0"));
+            e.HasQueryFilter(b => b.OwnerId == CurrentUserId);
+        });
     }
 
     // New plants always belong to the signed-in user, so no page can forget to set the owner
@@ -97,6 +164,14 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
 
     private void SetOwnerOfNewPlants()
     {
+        // Pots, saucers and raised beds
+        foreach (var entry in ChangeTracker.Entries<IOwnedByUser>()
+                     .Where(e => e.State == EntityState.Added && string.IsNullOrEmpty(e.Entity.OwnerId)))
+        {
+            entry.Entity.OwnerId = currentUser.UserId
+                ?? throw new InvalidOperationException("Only a signed-in user can save personal data.");
+        }
+
         foreach (var entry in ChangeTracker.Entries<Plant>()
                      .Where(e => e.State == EntityState.Added && string.IsNullOrEmpty(e.Entity.OwnerId)))
         {

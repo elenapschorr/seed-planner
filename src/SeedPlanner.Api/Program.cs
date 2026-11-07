@@ -42,7 +42,13 @@ builder.Services.AddAuthorizationBuilder()
             ctx.User.FindFirst(ClaimTypes.Email)?.Value is { } email &&
             adminEmails.Contains(email, StringComparer.OrdinalIgnoreCase)));
 
-builder.Services.AddRazorPages(o => o.Conventions.AuthorizeFolder("/Plants"))
+builder.Services.AddRazorPages(o =>
+    {
+        o.Conventions.AuthorizeFolder("/Plants");
+        o.Conventions.AuthorizeFolder("/Pots");
+        o.Conventions.AuthorizeFolder("/Saucers");
+        o.Conventions.AuthorizeFolder("/RaisedBeds");
+    })
     .AddViewLocalization();
 builder.Services.AddDbContext<SeedPlannerDbContext>(options =>
     options

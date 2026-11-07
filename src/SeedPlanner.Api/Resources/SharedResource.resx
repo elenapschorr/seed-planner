@@ -125,4 +125,44 @@
   <data name="AllSeedTypes" xml:space="preserve"><value>Any seed type</value></data>
   <data name="AllCultivations" xml:space="preserve"><value>Any cultivation</value></data>
   <data name="Filter_OnlyToBuy" xml:space="preserve"><value>Only to buy</value></data>
+  <data name="Nav_Pots" xml:space="preserve"><value>Pots</value></data>
+  <data name="Nav_Saucers" xml:space="preserve"><value>Saucers</value></data>
+  <data name="Nav_RaisedBeds" xml:space="preserve"><value>Raised beds</value></data>
+  <data name="Pots_Title" xml:space="preserve"><value>Pots</value></data>
+  <data name="Saucers_Title" xml:space="preserve"><value>Saucers</value></data>
+  <data name="RaisedBeds_Title" xml:space="preserve"><value>Raised beds</value></data>
+  <data name="Pots_Summary" xml:space="preserve"><value>{0} pots, {1} of them free</value></data>
+  <data name="Saucers_Summary" xml:space="preserve"><value>{0} saucers</value></data>
+  <data name="RaisedBeds_Summary" xml:space="preserve"><value>Total area {0} m²</value></data>
+  <data name="Pots_Towers" xml:space="preserve"><value>{0} towers of {1}</value></data>
+  <data name="Pots_Overbooked" xml:space="preserve"><value>More pots are recorded as in use than there are</value></data>
+  <data name="Col_Kind" xml:space="preserve"><value>Kind</value></data>
+  <data name="Col_Shape" xml:space="preserve"><value>Shape</value></data>
+  <data name="Col_Size" xml:space="preserve"><value>Size top × bottom × height (cm)</value></data>
+  <data name="Col_Volume" xml:space="preserve"><value>Volume (l)</value></data>
+  <data name="Col_Quantity" xml:space="preserve"><value>Quantity</value></data>
+  <data name="Col_InUse" xml:space="preserve"><value>In use</value></data>
+  <data name="Col_Free" xml:space="preserve"><value>Free</value></data>
+  <data name="Col_Color" xml:space="preserve"><value>Color</value></data>
+  <data name="Col_Code" xml:space="preserve"><value>Code</value></data>
+  <data name="Col_Saucer" xml:space="preserve"><value>Saucer</value></data>
+  <data name="Col_UsedFor" xml:space="preserve"><value>Used for</value></data>
+  <data name="Col_Note" xml:space="preserve"><value>Note</value></data>
+  <data name="Col_Diameter" xml:space="preserve"><value>Diameter (cm)</value></data>
+  <data name="Col_AssignedPots" xml:space="preserve"><value>Assigned pots</value></data>
+  <data name="Col_Width" xml:space="preserve"><value>Width (cm)</value></data>
+  <data name="Col_Length" xml:space="preserve"><value>Length (cm)</value></data>
+  <data name="Col_Height" xml:space="preserve"><value>Height (cm)</value></data>
+  <data name="Col_Area" xml:space="preserve"><value>Area (m²)</value></data>
+  <data name="Col_SoilVolume" xml:space="preserve"><value>Soil (l)</value></data>
+  <data name="PotKind_Pot" xml:space="preserve"><value>Pot</value></data>
+  <data name="PotKind_Bowl" xml:space="preserve"><value>Bowl</value></data>
+  <data name="PotShape_Round" xml:space="preserve"><value>Round (tapered)</value></data>
+  <data name="PotShape_Rectangular" xml:space="preserve"><value>Rectangular</value></data>
+  <data name="BedShape_Oval" xml:space="preserve"><value>Oval</value></data>
+  <data name="BedShape_Rectangular" xml:space="preserve"><value>Rectangular</value></data>
+  <data name="AllKinds" xml:space="preserve"><value>Any kind</value></data>
+  <data name="AllShapes" xml:space="preserve"><value>Any shape</value></data>
+  <data name="AllColors" xml:space="preserve"><value>Any color</value></data>
+  <data name="Filter_OnlyFree" xml:space="preserve"><value>Only with free pots</value></data>
 </root>

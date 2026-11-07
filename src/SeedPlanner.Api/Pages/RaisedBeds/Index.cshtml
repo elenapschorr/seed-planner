@@ -1,0 +1,68 @@
+@page
+@model SeedPlanner.Api.Pages.RaisedBeds.IndexModel
+@using System.Globalization
+@using SeedPlanner.Domain
+@{
+    ViewData["Title"] = L["RaisedBeds_Title"].Value;
+
+    var sort_name = Model.SortRoute("name");
+    var sort_shape = Model.SortRoute("shape");
+    var sort_width = Model.SortRoute("width");
+    var sort_length = Model.SortRoute("length");
+    var sort_height = Model.SortRoute("height");
+    var sort_area = Model.SortRoute("area");
+    var sort_volume = Model.SortRoute("volume");
+    var sort_note = Model.SortRoute("note");
+}
+
+<h1 class="mb-1">@L["RaisedBeds_Title"]</h1>
+<p class="text-muted">@L["RaisedBeds_Summary", Model.TotalArea.ToString("0.0", CultureInfo.CurrentCulture)]</p>
+
+<form method="get" class="row g-2 mb-3">
+    <input type="hidden" name="sort" value="@Model.Sort" />
+    <input type="hidden" name="dir" value="@Model.Dir" />
+    <div class="col-md">
+        <input type="search" name="q" value="@Model.Q" class="form-control" placeholder="@L["Search"].Value" />
+    </div>
+    <div class="col-md-auto">
+        <select name="shape" class="form-select" onchange="this.form.submit()">
+            <option value="">@L["AllShapes"]</option>
+            @foreach (var s in Enum.GetValues<BedShape>())
+            {
+                <option value="@s" selected="@(Model.ShapeFilter == s)">@L["BedShape_" + s]</option>
+            }
+        </select>
+    </div>
+</form>
+
+<div class="table-responsive">
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_name" class="text-decoration-none text-reset">@L["Col_Name"]@Model.Arrow("name")</a></th>
+            <th><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_shape" class="text-decoration-none text-reset">@L["Col_Shape"]@Model.Arrow("shape")</a></th>
+            <th class="text-end"><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_width" class="text-decoration-none text-reset">@L["Col_Width"]@Model.Arrow("width")</a></th>
+            <th class="text-end"><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_length" class="text-decoration-none text-reset">@L["Col_Length"]@Model.Arrow("length")</a></th>
+            <th class="text-end"><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_height" class="text-decoration-none text-reset">@L["Col_Height"]@Model.Arrow("height")</a></th>
+            <th class="text-end"><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_area" class="text-decoration-none text-reset">@L["Col_Area"]@Model.Arrow("area")</a></th>
+            <th class="text-end"><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_volume" class="text-decoration-none text-reset">@L["Col_SoilVolume"]@Model.Arrow("volume")</a></th>
+            <th><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_note" class="text-decoration-none text-reset">@L["Col_Note"]@Model.Arrow("note")</a></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model.Rows)
+        {
+            <tr>
+                <td><strong>@r.Name</strong></td>
+                <td>@L["BedShape_" + r.Shape]</td>
+                <td class="text-end">@r.WidthCm.ToString("0.#", CultureInfo.CurrentCulture)</td>
+                <td class="text-end">@r.LengthCm.ToString("0.#", CultureInfo.CurrentCulture)</td>
+                <td class="text-end">@r.HeightCm.ToString("0.#", CultureInfo.CurrentCulture)</td>
+                <td class="text-end">@r.AreaSquareMeters.ToString("0.00", CultureInfo.CurrentCulture)</td>
+                <td class="text-end">@r.VolumeLiters.ToString("0", CultureInfo.CurrentCulture)</td>
+                <td>@(r.Note ?? "")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>

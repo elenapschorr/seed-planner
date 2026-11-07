@@ -125,4 +125,44 @@
   <data name="AllSeedTypes" xml:space="preserve"><value>Любой тип семян</value></data>
   <data name="AllCultivations" xml:space="preserve"><value>Любой способ</value></data>
   <data name="Filter_OnlyToBuy" xml:space="preserve"><value>Только купить</value></data>
+  <data name="Nav_Pots" xml:space="preserve"><value>Горшки</value></data>
+  <data name="Nav_Saucers" xml:space="preserve"><value>Поддоны</value></data>
+  <data name="Nav_RaisedBeds" xml:space="preserve"><value>Высокие грядки</value></data>
+  <data name="Pots_Title" xml:space="preserve"><value>Горшки</value></data>
+  <data name="Saucers_Title" xml:space="preserve"><value>Поддоны</value></data>
+  <data name="RaisedBeds_Title" xml:space="preserve"><value>Высокие грядки</value></data>
+  <data name="Pots_Summary" xml:space="preserve"><value>{0} горшков, из них свободно {1}</value></data>
+  <data name="Saucers_Summary" xml:space="preserve"><value>Поддонов: {0}</value></data>
+  <data name="RaisedBeds_Summary" xml:space="preserve"><value>Общая площадь {0} м²</value></data>
+  <data name="Pots_Towers" xml:space="preserve"><value>{0} башен по {1}</value></data>
+  <data name="Pots_Overbooked" xml:space="preserve"><value>В использовании записано больше горшков, чем есть</value></data>
+  <data name="Col_Kind" xml:space="preserve"><value>Вид</value></data>
+  <data name="Col_Shape" xml:space="preserve"><value>Форма</value></data>
+  <data name="Col_Size" xml:space="preserve"><value>Размеры верх × низ × высота (см)</value></data>
+  <data name="Col_Volume" xml:space="preserve"><value>Объём (л)</value></data>
+  <data name="Col_Quantity" xml:space="preserve"><value>Кол-во</value></data>
+  <data name="Col_InUse" xml:space="preserve"><value>Занято</value></data>
+  <data name="Col_Free" xml:space="preserve"><value>Свободно</value></data>
+  <data name="Col_Color" xml:space="preserve"><value>Цвет</value></data>
+  <data name="Col_Code" xml:space="preserve"><value>Код</value></data>
+  <data name="Col_Saucer" xml:space="preserve"><value>Поддон</value></data>
+  <data name="Col_UsedFor" xml:space="preserve"><value>Занято под</value></data>
+  <data name="Col_Note" xml:space="preserve"><value>Заметка</value></data>
+  <data name="Col_Diameter" xml:space="preserve"><value>Диаметр (см)</value></data>
+  <data name="Col_AssignedPots" xml:space="preserve"><value>Закреплённые горшки</value></data>
+  <data name="Col_Width" xml:space="preserve"><value>Ширина (см)</value></data>
+  <data name="Col_Length" xml:space="preserve"><value>Длина (см)</value></data>
+  <data name="Col_Height" xml:space="preserve"><value>Высота (см)</value></data>
+  <data name="Col_Area" xml:space="preserve"><value>Площадь (м²)</value></data>
+  <data name="Col_SoilVolume" xml:space="preserve"><value>Почва (л)</value></data>
+  <data name="PotKind_Pot" xml:space="preserve"><value>Горшок</value></data>
+  <data name="PotKind_Bowl" xml:space="preserve"><value>Чаша</value></data>
+  <data name="PotShape_Round" xml:space="preserve"><value>Круглый (конический)</value></data>
+  <data name="PotShape_Rectangular" xml:space="preserve"><value>Прямоугольный</value></data>
+  <data name="BedShape_Oval" xml:space="preserve"><value>Овальная</value></data>
+  <data name="BedShape_Rectangular" xml:space="preserve"><value>Прямоугольная</value></data>
+  <data name="AllKinds" xml:space="preserve"><value>Любой вид</value></data>
+  <data name="AllShapes" xml:space="preserve"><value>Любая форма</value></data>
+  <data name="AllColors" xml:space="preserve"><value>Любой цвет</value></data>
+  <data name="Filter_OnlyFree" xml:space="preserve"><value>Только со свободными</value></data>
 </root>
