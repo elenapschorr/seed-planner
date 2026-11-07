@@ -14,6 +14,8 @@
 </div>
 
 <form method="get" class="row g-2 mb-3">
+    <input type="hidden" name="sort" value="@Model.Sort" />
+    <input type="hidden" name="dir" value="@Model.Dir" />
     <div class="col-md">
         <input type="search" name="q" value="@Model.Q" class="form-control" placeholder="@L["Search"].Value" />
     </div>
@@ -26,16 +28,47 @@
             }
         </select>
     </div>
+    <div class="col-md-auto">
+        <select name="nutrient" class="form-select" onchange="this.form.submit()">
+            <option value="">@L["AllNutrientDemands"]</option>
+            @foreach (var n in Enum.GetValues<NutrientDemand>())
+            {
+                <option value="@n" selected="@(Model.NutrientFilter == n)">@L["NutrientDemand_" + n]</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-auto">
+        <select name="exposure" class="form-select" onchange="this.form.submit()">
+            <option value="">@L["AllExposures"]</option>
+            @foreach (var e in Enum.GetValues<Exposure>())
+            {
+                <option value="@e" selected="@(Model.ExposureFilter == e)">@L["Exposure_" + e]</option>
+            }
+        </select>
+    </div>
 </form>
+
+@{
+    // Addresses of the column titles (keep the filters, reverse the direction on a second click)
+    var sort_name = Model.SortRoute("name");
+    var sort_category = Model.SortRoute("category");
+    var sort_nutrient = Model.SortRoute("nutrient");
+    var sort_exposure = Model.SortRoute("exposure");
+    var sort_plants = Model.SortRoute("plants");
+}
 
 <table class="table table-hover">
     <thead>
         <tr>
-            <th>@L["Col_Name"]</th>
-            <th>@L["Col_Category"]</th>
-            <th>@L["Col_NutrientDemand"]</th>
-            <th>@L["Col_Exposure"]</th>
-            <th class="text-end">@L["Col_Plants"]</th>
+            <th><a asp-page="/PlantTypes/Index" asp-all-route-data="sort_name" class="text-decoration-none text-reset">@L["Col_Name"]@Model.Arrow("name")</a></th>
+            <th><a asp-page="/PlantTypes/Index" asp-all-route-data="sort_category" class="text-decoration-none text-reset">@L["Col_Category"]@Model.Arrow("category")</a></th>
+            <th><a asp-page="/PlantTypes/Index" asp-all-route-data="sort_nutrient" class="text-decoration-none text-reset">@L["Col_NutrientDemand"]@Model.Arrow("nutrient")</a></th>
+            <th><a asp-page="/PlantTypes/Index" asp-all-route-data="sort_exposure" class="text-decoration-none text-reset">@L["Col_Exposure"]@Model.Arrow("exposure")</a></th>
+            <th class="text-end"><a asp-page="/PlantTypes/Index" asp-all-route-data="sort_plants" class="text-decoration-none text-reset">@L["Col_Plants"]@Model.Arrow("plants")</a></th>
+            @if (Model.CanEdit)
+            {
+                <th></th>
+            }
         </tr>
     </thead>
     <tbody>
@@ -47,6 +80,10 @@
                 <td>@(r.NutrientDemand is null ? "–" : L["NutrientDemand_" + r.NutrientDemand].Value)</td>
                 <td>@(r.Exposure is null ? "–" : L["Exposure_" + r.Exposure].Value)</td>
                 <td class="text-end">@r.PlantCount</td>
+                @if (Model.CanEdit)
+                {
+                    <td class="text-end"><a asp-page="/PlantTypes/Edit" asp-route-id="@r.Id" asp-route-returnUrl="@Model.CurrentUrl">@L["Action_Edit"]</a></td>
+                }
             </tr>
         }
     </tbody>

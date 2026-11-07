@@ -44,6 +44,18 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
     [BindProperty]
     public InputModel Input { get; set; } = new();
 
+    // Page to return to after saving or cancelling (e.g. the filtered list); only local URLs are accepted
+    [BindProperty(SupportsGet = true)]
+    public string? ReturnUrl { get; set; }
+
+    // Target of the cancel button and of the redirect after saving
+    public string BackUrl(int? id) =>
+        !string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl)
+            ? ReturnUrl
+            : id is null
+                ? Url.Page("Index")!
+                : Url.Page("Details", new { id })!;
+
     public List<SelectListItem> CategoryOptions { get; private set; } = new();
     public List<SelectListItem> NutrientOptions { get; private set; } = new();
     public List<SelectListItem> GerminationOptions { get; private set; } = new();
@@ -89,7 +101,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
         Apply(type);
         await db.SaveChangesAsync();
-        return RedirectToPage("Details", new { id = type.Id });
+        return LocalRedirect(BackUrl(type.Id));
     }
 
     public async Task<IActionResult> OnPostDeleteAsync(int id)

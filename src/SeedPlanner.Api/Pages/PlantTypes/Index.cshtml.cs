@@ -3,12 +3,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using SeedPlanner.Domain;
 using SeedPlanner.Infrastructure;
 
 namespace SeedPlanner.Api.Pages.PlantTypes;
 
-public class IndexModel(SeedPlannerDbContext db, IAuthorizationService auth) : PageModel
+public class IndexModel(
+    SeedPlannerDbContext db,
+    IAuthorizationService auth,
+    IStringLocalizer<SharedResource> L) : PageModel
 {
     public record Row(
         int Id,
@@ -18,9 +22,12 @@ public class IndexModel(SeedPlannerDbContext db, IAuthorizationService auth) : P
         Exposure? Exposure,
         int PlantCount);
 
+    // Current address with filters and sort order, so that "Edit" can come back to this list
+    public string CurrentUrl => Request.Path + Request.QueryString;
+
     public List<Row> Rows { get; private set; } = new();
 
-    // Only administrators see the buttons for creating plant types
+    // Only administrators see the buttons for creating and editing plant types
     public bool CanEdit { get; private set; }
 
     [BindProperty(SupportsGet = true)]
@@ -28,6 +35,19 @@ public class IndexModel(SeedPlannerDbContext db, IAuthorizationService auth) : P
 
     [BindProperty(SupportsGet = true)]
     public PlantCategory? Category { get; set; }
+
+    [BindProperty(Name = "nutrient", SupportsGet = true)]
+    public NutrientDemand? NutrientFilter { get; set; }
+
+    [BindProperty(Name = "exposure", SupportsGet = true)]
+    public Exposure? ExposureFilter { get; set; }
+
+    // Column to sort by (name, category, nutrient, exposure, plants) and direction (asc, desc)
+    [BindProperty(SupportsGet = true)]
+    public string? Sort { get; set; }
+
+    [BindProperty(SupportsGet = true)]
+    public string? Dir { get; set; }
 
     public async Task OnGetAsync()
     {
@@ -37,10 +57,9 @@ public class IndexModel(SeedPlannerDbContext db, IAuthorizationService auth) : P
         var language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 
         var query = db.PlantTypes.AsNoTracking();
-        if (Category is not null)
-        {
-            query = query.Where(t => t.Category == Category);
-        }
+        if (Category is not null) query = query.Where(t => t.Category == Category);
+        if (NutrientFilter is not null) query = query.Where(t => t.NutrientDemand == NutrientFilter);
+        if (ExposureFilter is not null) query = query.Where(t => t.Exposure == ExposureFilter);
 
         var data = await query
             .Select(t => new
@@ -68,8 +87,39 @@ public class IndexModel(SeedPlannerDbContext db, IAuthorizationService auth) : P
             rows = rows.Where(r => r.Name.Contains(Q.Trim(), StringComparison.CurrentCultureIgnoreCase));
         }
 
-        Rows = rows
+        var byName = rows
             .OrderBy(r => r.Name, StringComparer.Create(CultureInfo.CurrentCulture, ignoreCase: true))
             .ToList();
+
+        Rows = (Sort?.ToLowerInvariant()) switch
+        {
+            "category" => ListSorting.Sort(byName, r => r.Category is null ? null : L["Category_" + r.Category].Value, Descending),
+            "nutrient" => ListSorting.Sort(byName, r => ListSorting.Rank(r.NutrientDemand), Descending),
+            "exposure" => ListSorting.Sort(byName, r => ListSorting.Rank(r.Exposure), Descending),
+            "plants" => ListSorting.Sort(byName, r => r.PlantCount, Descending),
+            "name" when Descending => byName.AsEnumerable().Reverse().ToList(),
+            _ => byName
+        };
     }
+
+    // ---------------------------------------------------------------- sort links
+
+    public bool Descending => string.Equals(Dir, "desc", StringComparison.OrdinalIgnoreCase);
+
+    private bool SortedBy(string column) =>
+        string.Equals(Sort ?? "name", column, StringComparison.OrdinalIgnoreCase);
+
+    // Arrow behind the column title
+    public string Arrow(string column) => SortedBy(column) ? (Descending ? " ▼" : " ▲") : "";
+
+    // Address of a column title: keeps the filters; a second click reverses the direction
+    public Dictionary<string, string?> SortRoute(string column) => new()
+    {
+        ["q"] = Q,
+        ["category"] = Category?.ToString(),
+        ["nutrient"] = NutrientFilter?.ToString(),
+        ["exposure"] = ExposureFilter?.ToString(),
+        ["sort"] = column,
+        ["dir"] = SortedBy(column) && !Descending ? "desc" : "asc"
+    };
 }

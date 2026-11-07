@@ -66,14 +66,7 @@
 
     <div class="col-12 d-flex gap-2">
         <button type="submit" class="btn btn-success">@L["Action_Save"]</button>
-        @if (Model.Id is null)
-        {
-            <a class="btn btn-outline-secondary" asp-page="Index">@L["Action_Cancel"]</a>
-        }
-        else
-        {
-            <a class="btn btn-outline-secondary" asp-page="Details" asp-route-id="@Model.Id">@L["Action_Cancel"]</a>
-        }
+        <a class="btn btn-outline-secondary" href="@Model.BackUrl(Model.Id)">@L["Action_Cancel"]</a>
     </div>
 </form>
 

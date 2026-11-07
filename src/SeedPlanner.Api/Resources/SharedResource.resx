@@ -31,7 +31,7 @@
   <data name="Col_SeedType" xml:space="preserve"><value>Seed type</value></data>
   <data name="Col_Stock" xml:space="preserve"><value>Stock</value></data>
   <data name="Col_Cultivation" xml:space="preserve"><value>Cultivation</value></data>
-  <data name="Badge_ToBuy" xml:space="preserve"><value>To buy</value></data>
+  <data name="Badge_ToBuy" xml:space="preserve"><value>Buy</value></data>
   <data name="SeedType_OpenPollinated" xml:space="preserve"><value>Open-pollinated</value></data>
   <data name="SeedType_F1Hybrid" xml:space="preserve"><value>F1 hybrid</value></data>
   <data name="StockStatus_InStock" xml:space="preserve"><value>In stock</value></data>
@@ -119,4 +119,10 @@
   <data name="Category_FruitTree" xml:space="preserve"><value>Fruit trees and vines</value></data>
   <data name="Category_Flower" xml:space="preserve"><value>Flowers</value></data>
   <data name="Plant_Unnamed" xml:space="preserve"><value>(unnamed)</value></data>
+  <data name="Exposure_Shade" xml:space="preserve"><value>Shade</value></data>
+  <data name="AllNutrientDemands" xml:space="preserve"><value>Any nutrient demand</value></data>
+  <data name="AllExposures" xml:space="preserve"><value>Any exposure</value></data>
+  <data name="AllSeedTypes" xml:space="preserve"><value>Any seed type</value></data>
+  <data name="AllCultivations" xml:space="preserve"><value>Any cultivation</value></data>
+  <data name="Filter_OnlyToBuy" xml:space="preserve"><value>Only to buy</value></data>
 </root>

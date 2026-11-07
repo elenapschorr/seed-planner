@@ -23,8 +23,9 @@ Modes (--mode):
 
 The Excel file is only read by the modes all, reference and plants.
 
-Order for an empty database:   reference, extra-types, companions, plants
-Order for the local database:  all (done earlier), then extra-types, companions
+Order for an empty database:   reference, extra-types, companions, plants,
+                               then tools/crop_attributes.sql (nutrient demand and exposure of 42 plant types)
+Order for the local database:  all (done earlier), then extra-types, companions, tools/crop_attributes.sql
 
 Usage:
     python import_seeds.py data/Samen.xlsx --owner-email you@example.com
@@ -63,7 +64,7 @@ CULTIVATION = {"vorkultur": "StartIndoors", "direktsaat": "DirectSow",
 SEED_TYPE = {"samenfest": "OpenPollinated", "f1": "F1Hybrid"}
 STOCK = {"vorhanden": "InStock", "nicht vorhanden": "OutOfStock",
          "aussortiert": "Retired"}
-EXPOSURE = {"sonne": "FullSun", "halbschatten": "PartialShade"}
+EXPOSURE = {"sonne": "FullSun", "halbschatten": "PartialShade", "schatten": "Shade"}
 
 # Name given to plants that have a plant type but no variety name in the Excel file.
 UNNAMED = "(unnamed)"

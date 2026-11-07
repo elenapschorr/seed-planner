@@ -31,7 +31,7 @@
   <data name="Col_SeedType" xml:space="preserve"><value>Тип семян</value></data>
   <data name="Col_Stock" xml:space="preserve"><value>Наличие</value></data>
   <data name="Col_Cultivation" xml:space="preserve"><value>Способ выращивания</value></data>
-  <data name="Badge_ToBuy" xml:space="preserve"><value>Докупить</value></data>
+  <data name="Badge_ToBuy" xml:space="preserve"><value>Купить</value></data>
   <data name="SeedType_OpenPollinated" xml:space="preserve"><value>Сортовые</value></data>
   <data name="SeedType_F1Hybrid" xml:space="preserve"><value>Гибрид F1</value></data>
   <data name="StockStatus_InStock" xml:space="preserve"><value>Есть</value></data>
@@ -119,4 +119,10 @@
   <data name="Category_FruitTree" xml:space="preserve"><value>Плодовые деревья и лианы</value></data>
   <data name="Category_Flower" xml:space="preserve"><value>Цветы</value></data>
   <data name="Plant_Unnamed" xml:space="preserve"><value>(без названия)</value></data>
+  <data name="Exposure_Shade" xml:space="preserve"><value>Тень</value></data>
+  <data name="AllNutrientDemands" xml:space="preserve"><value>Любая требовательность</value></data>
+  <data name="AllExposures" xml:space="preserve"><value>Любой свет</value></data>
+  <data name="AllSeedTypes" xml:space="preserve"><value>Любой тип семян</value></data>
+  <data name="AllCultivations" xml:space="preserve"><value>Любой способ</value></data>
+  <data name="Filter_OnlyToBuy" xml:space="preserve"><value>Только купить</value></data>
 </root>

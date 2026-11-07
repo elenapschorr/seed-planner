@@ -31,7 +31,7 @@
   <data name="Col_SeedType" xml:space="preserve"><value>Samentyp</value></data>
   <data name="Col_Stock" xml:space="preserve"><value>Bestand</value></data>
   <data name="Col_Cultivation" xml:space="preserve"><value>Anbauart</value></data>
-  <data name="Badge_ToBuy" xml:space="preserve"><value>Zu kaufen</value></data>
+  <data name="Badge_ToBuy" xml:space="preserve"><value>Kaufen</value></data>
   <data name="SeedType_OpenPollinated" xml:space="preserve"><value>Samenfest</value></data>
   <data name="SeedType_F1Hybrid" xml:space="preserve"><value>F1-Hybrid</value></data>
   <data name="StockStatus_InStock" xml:space="preserve"><value>Vorhanden</value></data>
@@ -119,4 +119,10 @@
   <data name="Category_FruitTree" xml:space="preserve"><value>Obstgehölze</value></data>
   <data name="Category_Flower" xml:space="preserve"><value>Blumen</value></data>
   <data name="Plant_Unnamed" xml:space="preserve"><value>(ohne Namen)</value></data>
+  <data name="Exposure_Shade" xml:space="preserve"><value>Schatten</value></data>
+  <data name="AllNutrientDemands" xml:space="preserve"><value>Alle Nährstoffbedarfe</value></data>
+  <data name="AllExposures" xml:space="preserve"><value>Alle Standorte</value></data>
+  <data name="AllSeedTypes" xml:space="preserve"><value>Alle Samentypen</value></data>
+  <data name="AllCultivations" xml:space="preserve"><value>Alle Anbauarten</value></data>
+  <data name="Filter_OnlyToBuy" xml:space="preserve"><value>Nur zu kaufen</value></data>
 </root>
