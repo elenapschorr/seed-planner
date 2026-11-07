@@ -412,6 +412,49 @@ namespace SeedPlanner.Infrastructure.Migrations
                     b.ToTable("plant_types", (string)null);
                 });
 
+            modelBuilder.Entity("SeedPlanner.Domain.PlantTypeCompanion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("note");
+
+                    b.Property<int>("OtherPlantTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("other_plant_type_id");
+
+                    b.Property<int>("PlantTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("plant_type_id");
+
+                    b.Property<string>("Relation")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("relation");
+
+                    b.HasKey("Id")
+                        .HasName("pk_plant_type_companions");
+
+                    b.HasIndex("OtherPlantTypeId")
+                        .HasDatabaseName("ix_plant_type_companions_other_plant_type_id");
+
+                    b.HasIndex("PlantTypeId", "OtherPlantTypeId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_plant_type_companions_plant_type_id_other_plant_type_id");
+
+                    b.ToTable("plant_type_companions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_plant_type_companions_order", "plant_type_id < other_plant_type_id");
+                        });
+                });
+
             modelBuilder.Entity("SeedPlanner.Domain.PlantTypeTranslation", b =>
                 {
                     b.Property<int>("Id")
@@ -554,6 +597,23 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasConstraintName("fk_plants_plant_types_plant_type_id");
 
                     b.Navigation("PlantType");
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.PlantTypeCompanion", b =>
+                {
+                    b.HasOne("SeedPlanner.Domain.PlantType", null)
+                        .WithMany()
+                        .HasForeignKey("OtherPlantTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_plant_type_companions_plant_types_other_plant_type_id");
+
+                    b.HasOne("SeedPlanner.Domain.PlantType", null)
+                        .WithMany()
+                        .HasForeignKey("PlantTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_plant_type_companions_plant_types_plant_type_id");
                 });
 
             modelBuilder.Entity("SeedPlanner.Domain.PlantTypeTranslation", b =>

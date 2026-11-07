@@ -12,6 +12,7 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
     public DbSet<Plant> Plants => Set<Plant>();
     public DbSet<SeasonWindow> SeasonWindows => Set<SeasonWindow>();
     public DbSet<PlantTypeTranslation> PlantTypeTranslations => Set<PlantTypeTranslation>();
+    public DbSet<PlantTypeCompanion> PlantTypeCompanions => Set<PlantTypeCompanion>();
 
     // Used by the query filters. EF evaluates it for each context instance (= each request).
     // Nobody signed in gives null, and then the filters match no rows at all.
@@ -20,6 +21,8 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);   // creates the Identity tables
+
+        // Identity names its tables in PascalCase; the rest of the database uses snake_case
         modelBuilder.Entity<IdentityUser>().ToTable("asp_net_users");
         modelBuilder.Entity<IdentityRole>().ToTable("asp_net_roles");
         modelBuilder.Entity<IdentityUserRole<string>>().ToTable("asp_net_user_roles");
@@ -47,6 +50,17 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             .HasMany(t => t.Translations)
             .WithOne()
             .HasForeignKey(t => t.PlantTypeId);
+
+        // Neighbours: each pair is stored once, with the smaller id first
+        modelBuilder.Entity<PlantTypeCompanion>(e =>
+        {
+            e.Property(c => c.Relation).HasConversion<string>();
+            e.Property(c => c.Note).HasMaxLength(200);
+            e.HasIndex(c => new { c.PlantTypeId, c.OtherPlantTypeId }).IsUnique();
+            e.ToTable(t => t.HasCheckConstraint("ck_plant_type_companions_order", "plant_type_id < other_plant_type_id"));
+            e.HasOne<PlantType>().WithMany().HasForeignKey(c => c.PlantTypeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<PlantType>().WithMany().HasForeignKey(c => c.OtherPlantTypeId).OnDelete(DeleteBehavior.Cascade);
+        });
 
         // Personal data: every query only sees the rows of the signed-in user
         modelBuilder.Entity<Plant>(e =>

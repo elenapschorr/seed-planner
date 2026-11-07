@@ -12,13 +12,22 @@ The plants belong to one user, identified by e-mail address. The user must have 
 in the application before SQL with plants is run.
 
 Modes (--mode):
-    all        plant types, translations and plants of one user (default, for the local database)
-    reference  only the shared data: plant types and translations (for an empty database, e.g. in Azure)
-    plants     only the plants and season windows of one user (the plant types must already exist)
+    all          plant types, translations and plants of one user (default, for the local database)
+    reference    only the shared data: plant types and translations (for an empty database, e.g. in Azure)
+    extra-types  plant types that are not in the Excel file (tools/new_plant_types.csv), with translations
+    companions   good and bad neighbours between plant types (tools/companions.csv)
+    plants       only the plants and season windows of one user (the plant types must already exist)
+
+The Excel file is only read by the modes all, reference and plants.
+
+Order for an empty database:   reference, extra-types, companions, plants
+Order for the local database:  all (done earlier), then extra-types, companions
 
 Usage:
     python import_seeds.py data/Samen.xlsx --owner-email you@example.com
     python import_seeds.py data/Samen.xlsx --mode reference --out data/reference.sql
+    python import_seeds.py --mode extra-types --out data/extra_types.sql
+    python import_seeds.py --mode companions --out data/companions.sql
     python import_seeds.py data/Samen.xlsx --mode plants --owner-email you@example.com --out data/plants.sql
 
 Requires: pip install openpyxl
@@ -178,6 +187,64 @@ def read_names(path, report):
     for en in {e for e in english if english.count(e) > 1}:
         report.add("ERROR", "names.csv", 0, "english", f"Duplicate English name '{en}'.")
     return names
+
+
+def read_extra_types(path, names, report):
+    """CSV with columns german, english, russian (plus an optional note column that is ignored).
+    Plant types that are not in the Excel file. Returns a list of dicts."""
+    types = []
+    known_en = {en.lower() for en, _ in names.values()}
+    known_de = {de.lower() for de in names}
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        for i, row in enumerate(csv.DictReader(f, delimiter=";"), start=2):
+            de, en, ru = ((row.get(k) or "").strip() for k in ("german", "english", "russian"))
+            if not (de and en and ru):
+                report.add("ERROR", "extra types", i, "Zeile", "german, english and russian are all required.")
+                continue
+            if en.lower() in known_en or de.lower() in known_de:
+                report.add("ERROR", "extra types", i, en, "Already in the names CSV; it belongs to the Excel plant types.")
+                continue
+            if any(t["english"].lower() == en.lower() or t["german"].lower() == de.lower() for t in types):
+                report.add("ERROR", "extra types", i, en, "Duplicate entry.")
+                continue
+            types.append({"german": de, "english": en, "russian": ru})
+    return types
+
+
+def read_companions(path, valid_names, report):
+    """CSV with columns plant_a, plant_b, relation (Good or Bad), note.
+    Names are English plant type names. Returns a list of (plant_a, plant_b, relation, note)."""
+    pairs = {}
+    valid_lower = {n.lower(): n for n in valid_names}
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        for i, row in enumerate(csv.DictReader(f, delimiter=";"), start=2):
+            a, b, rel = ((row.get(k) or "").strip() for k in ("plant_a", "plant_b", "relation"))
+            note = (row.get("note") or "").strip() or None
+            if not (a and b and rel):
+                report.add("ERROR", "companions", i, "Zeile", "plant_a, plant_b and relation are all required.")
+                continue
+            bad_name = False
+            for label, name in (("plant_a", a), ("plant_b", b)):
+                if name.lower() not in valid_lower:
+                    report.add("ERROR", "companions", i, label, f"Unknown plant type '{name}'.")
+                    bad_name = True
+            if bad_name:
+                continue
+            a, b = valid_lower[a.lower()], valid_lower[b.lower()]
+            if rel not in ("Good", "Bad"):
+                report.add("ERROR", "companions", i, "relation", f"'{rel}' is not Good or Bad.")
+                continue
+            if a == b:
+                report.add("ERROR", "companions", i, "plant_a/plant_b", f"A plant type cannot be its own neighbour ('{a}').")
+                continue
+            key = tuple(sorted((a, b)))
+            if key in pairs:
+                same = pairs[key][2] == rel
+                report.add("ERROR", "companions", i, f"{a} / {b}",
+                           "Duplicate pair." if same else f"Conflict: also listed as {pairs[key][2]}.")
+                continue
+            pairs[key] = (a, b, rel, note)
+    return list(pairs.values())
 
 
 # ---------------------------------------------------------------------------
@@ -418,21 +485,129 @@ def write_sql(path, types, plants, owner_email, mode):
     Path(path).write_text("\n".join(out), encoding="utf-8", newline="\n")
 
 
+def write_extra_types_sql(path, extra):
+    names = ", ".join(lit(t["english"]) for t in extra)
+    out = [
+        "-- Generated by import_seeds.py (mode: extra-types). One-time import.",
+        "SET client_encoding = 'UTF8';",
+        "BEGIN;",
+        "",
+        "DO $$ BEGIN",
+        f"  IF EXISTS (SELECT 1 FROM plant_types WHERE name IN ({names})) THEN",
+        "    RAISE EXCEPTION 'One of the extra plant types already exists; import aborted.';",
+        "  END IF;",
+        "END $$;",
+        "",
+        "-- Plant types",
+    ]
+    for t in extra:
+        out.append(insert("plant_types", ["name"], [lit(t["english"])]))
+    out += ["", "-- Plant type translations"]
+    for t in extra:
+        type_id = f"(SELECT id FROM plant_types WHERE name = {lit(t['english'])})"
+        for language, translated in (("de", t["german"]), ("en", t["english"]), ("ru", t["russian"])):
+            out.append(insert("plant_type_translations", ["plant_type_id", "language", "name"],
+                              [type_id, lit(language), lit(translated)]))
+    out += ["", "COMMIT;", ""]
+    Path(path).write_text("\n".join(out), encoding="utf-8", newline="\n")
+
+
+def write_companions_sql(path, pairs):
+    used = sorted({n for a, b, _, _ in pairs for n in (a, b)})
+    array = ", ".join(lit(n) for n in used)
+    rows = ",\n  ".join(f"({lit(a)}, {lit(b)}, {lit(rel)}, {lit(note)})" for a, b, rel, note in pairs)
+    out = [
+        "-- Generated by import_seeds.py (mode: companions). One-time import.",
+        "SET client_encoding = 'UTF8';",
+        "BEGIN;",
+        "",
+        "DO $$ BEGIN",
+        "  IF EXISTS (SELECT 1 FROM plant_type_companions) THEN",
+        "    RAISE EXCEPTION 'plant_type_companions is not empty; import aborted.';",
+        "  END IF;",
+        "END $$;",
+        "",
+        "-- All plant types used below must exist (reference and extra-types come first).",
+        "DO $$",
+        "DECLARE missing text;",
+        "BEGIN",
+        "  SELECT string_agg(n, ', ' ORDER BY n) INTO missing",
+        f"  FROM unnest(ARRAY[{array}]) AS n",
+        "  WHERE NOT EXISTS (SELECT 1 FROM plant_types WHERE name = n);",
+        "  IF missing IS NOT NULL THEN",
+        "    RAISE EXCEPTION 'Unknown plant types (import reference and extra-types first): %', missing;",
+        "  END IF;",
+        "END $$;",
+        "",
+        "-- Each pair is stored once, the smaller id first.",
+        "INSERT INTO plant_type_companions (plant_type_id, other_plant_type_id, relation, note)",
+        "SELECT LEAST(a.id, b.id), GREATEST(a.id, b.id), v.relation, v.note",
+        "FROM (VALUES",
+        f"  {rows}",
+        ") AS v(plant_a, plant_b, relation, note)",
+        "JOIN plant_types a ON a.name = v.plant_a",
+        "JOIN plant_types b ON b.name = v.plant_b;",
+        "",
+        "COMMIT;",
+        "",
+    ]
+    Path(path).write_text("\n".join(out), encoding="utf-8", newline="\n")
+
+
+def run_small_mode(args):
+    """Modes extra-types and companions: no Excel file needed."""
+    report = Report()
+    names = read_names(args.names, report)
+    extra = read_extra_types(args.extra_types, names, report)
+    if args.mode == "extra-types":
+        summary = [f"Mode: extra-types", f"Plant types: {len(extra)}", f"Translations: {len(extra) * 3}"]
+        writer = lambda: write_extra_types_sql(args.out, extra)
+    else:
+        valid = {en for en, _ in names.values()} | {t["english"] for t in extra}
+        pairs = read_companions(args.companions, valid, report)
+        good = sum(1 for p in pairs if p[2] == "Good")
+        summary = ["Mode: companions", f"Pairs: {len(pairs)} (Good: {good}, Bad: {len(pairs) - good})"]
+        writer = lambda: write_companions_sql(args.out, pairs)
+    summary.append(f"Errors: {report.errors()}")
+    lines = summary + [""] + report.format()
+    Path(args.report).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.report).write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print("\n".join(lines))
+    if report.errors():
+        sys.exit(f"\nNo SQL written: fix the errors above first (report: {args.report}).")
+    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+    writer()
+    print(f"\nSQL written to {args.out}, report to {args.report}")
+
+
 # ---------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="Create a SQL import file from the seed Excel file.")
-    parser.add_argument("excel", help="path to the Excel file, e.g. data/Samen.xlsx")
-    parser.add_argument("--mode", choices=["all", "reference", "plants"], default="all",
-                        help="all (default), reference (shared data only) or plants (plants of one user only)")
+    parser.add_argument("excel", nargs="?", help="path to the Excel file, e.g. data/Samen.xlsx "
+                                                 "(not needed for --mode extra-types and companions)")
+    parser.add_argument("--mode", choices=["all", "reference", "extra-types", "companions", "plants"], default="all",
+                        help="all (default), reference (shared data only), extra-types, companions "
+                             "or plants (plants of one user only)")
     parser.add_argument("--owner-email",
-                        help="e-mail address of the registered user who owns the plants (not needed for --mode reference)")
+                        help="e-mail address of the registered user who owns the plants "
+                             "(only needed for --mode all and plants)")
     parser.add_argument("--names", default="tools/plant_type_names.csv",
                         help="CSV with german;english;russian plant type names")
+    parser.add_argument("--extra-types", default="tools/new_plant_types.csv",
+                        help="CSV with german;english;russian names of plant types that are not in the Excel file")
+    parser.add_argument("--companions", default="tools/companions.csv",
+                        help="CSV with plant_a;plant_b;relation;note")
     parser.add_argument("--out", default="data/import.sql", help="SQL file to write")
     parser.add_argument("--report", default="data/import_report.txt", help="report file to write")
     args = parser.parse_args()
-    if args.mode != "reference" and not args.owner_email:
-        parser.error("--owner-email is required unless --mode reference is used")
+
+    if args.mode in ("extra-types", "companions"):
+        run_small_mode(args)
+        return
+    if not args.excel:
+        parser.error(f"the Excel file is required for --mode {args.mode}")
+    if args.mode in ("all", "plants") and not args.owner_email:
+        parser.error("--owner-email is required for --mode all and plants")
 
     workbook = openpyxl.load_workbook(args.excel, data_only=True)  # cached formula results
     for sheet in ("Helper", "Samen"):
