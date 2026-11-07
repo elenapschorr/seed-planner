@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using SeedPlanner.Infrastructure;
 using Microsoft.AspNetCore.Localization;
@@ -27,6 +28,19 @@ builder.Services.ConfigureApplicationCookie(o =>
     o.SlidingExpiration = true;
     o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
+
+// Plant types are shared by all users. Only the administrators listed in the setting
+// Admin:Email (one or more addresses separated by ; or ,) may change them.
+// Without the setting nobody is an administrator.
+var adminEmails = (builder.Configuration["Admin:Email"] ?? "")
+    .Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("PlantTypeAdmin", policy => policy
+        .RequireAuthenticatedUser()
+        .RequireAssertion(ctx =>
+            ctx.User.FindFirst(ClaimTypes.Email)?.Value is { } email &&
+            adminEmails.Contains(email, StringComparer.OrdinalIgnoreCase)));
 
 builder.Services.AddRazorPages(o => o.Conventions.AuthorizeFolder("/Plants"))
     .AddViewLocalization();
@@ -58,12 +72,6 @@ app.UseRequestLocalization(o => o
     .SetDefaultCulture("en")
     .AddSupportedCultures(supportedCultures)
     .AddSupportedUICultures(supportedCultures));
-app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapStaticAssets();
-app.MapRazorPages().WithStaticAssets();
 
 // Language switcher: stores the choice in a cookie, then goes back to the page
 app.MapGet("/culture", (string c, string? returnUrl, HttpContext ctx) =>
@@ -77,5 +85,11 @@ app.MapGet("/culture", (string c, string? returnUrl, HttpContext ctx) =>
 
     return Results.LocalRedirect(string.IsNullOrEmpty(returnUrl) ? "/" : returnUrl);
 });
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapStaticAssets();
+app.MapRazorPages().WithStaticAssets();
 
 app.Run();

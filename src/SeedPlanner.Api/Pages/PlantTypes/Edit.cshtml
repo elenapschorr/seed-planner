@@ -1,0 +1,87 @@
+@page "{id:int?}"
+@model SeedPlanner.Api.Pages.PlantTypes.EditModel
+@{
+    ViewData["Title"] = (Model.Id is null ? L["PlantTypeEdit_TitleNew"] : L["PlantTypeEdit_TitleEdit"]).Value;
+}
+
+<h1 class="mb-3">@ViewData["Title"]</h1>
+
+<form method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="col-12 text-danger"></div>
+
+    <div class="col-md-4">
+        <label asp-for="Input.NameEn" class="form-label">@L["Field_NameEn"]</label>
+        <input asp-for="Input.NameEn" class="form-control" />
+        <span asp-validation-for="Input.NameEn" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Input.NameDe" class="form-label">@L["Field_NameDe"]</label>
+        <input asp-for="Input.NameDe" class="form-control" />
+        <span asp-validation-for="Input.NameDe" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Input.NameRu" class="form-label">@L["Field_NameRu"]</label>
+        <input asp-for="Input.NameRu" class="form-control" />
+        <span asp-validation-for="Input.NameRu" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="Input.Category" class="form-label">@L["Col_Category"]</label>
+        <select asp-for="Input.Category" asp-items="Model.CategoryOptions" class="form-select"></select>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Input.NutrientDemand" class="form-label">@L["Col_NutrientDemand"]</label>
+        <select asp-for="Input.NutrientDemand" asp-items="Model.NutrientOptions" class="form-select"></select>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Input.GerminationType" class="form-label">@L["Col_Germination"]</label>
+        <select asp-for="Input.GerminationType" asp-items="Model.GerminationOptions" class="form-select"></select>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Input.Exposure" class="form-label">@L["Col_Exposure"]</label>
+        <select asp-for="Input.Exposure" asp-items="Model.ExposureOptions" class="form-select"></select>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">@L["Field_GrowthDays"]</label>
+        <div class="input-group">
+            <input asp-for="Input.GrowthDaysMin" class="form-control" />
+            <input asp-for="Input.GrowthDaysMax" class="form-control" />
+        </div>
+        <span asp-validation-for="Input.GrowthDaysMin" class="text-danger"></span>
+    </div>
+    <div class="col-md-5">
+        <label class="form-label">@L["Field_DemandPerPerson"]</label>
+        <div class="input-group">
+            <input asp-for="Input.DemandPerPersonMin" class="form-control" inputmode="decimal" />
+            <input asp-for="Input.DemandPerPersonMax" class="form-control" inputmode="decimal" />
+        </div>
+        <span asp-validation-for="Input.DemandPerPersonMin" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Input.DemandUnit" class="form-label">@L["Col_DemandUnit"]</label>
+        <select asp-for="Input.DemandUnit" asp-items="Model.UnitOptions" class="form-select"></select>
+        <span asp-validation-for="Input.DemandUnit" class="text-danger"></span>
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-success">@L["Action_Save"]</button>
+        @if (Model.Id is null)
+        {
+            <a class="btn btn-outline-secondary" asp-page="Index">@L["Action_Cancel"]</a>
+        }
+        else
+        {
+            <a class="btn btn-outline-secondary" asp-page="Details" asp-route-id="@Model.Id">@L["Action_Cancel"]</a>
+        }
+    </div>
+</form>
+
+@if (Model.Id is not null)
+{
+    var confirmText = L["PlantTypeConfirm_Delete"].Value;
+    <form method="post" asp-page-handler="Delete" asp-route-id="@Model.Id" class="mt-4"
+          data-confirm="@confirmText" onsubmit="return confirm(this.dataset.confirm);">
+        <button type="submit" class="btn btn-outline-danger">@L["Action_Delete"]</button>
+    </form>
+}

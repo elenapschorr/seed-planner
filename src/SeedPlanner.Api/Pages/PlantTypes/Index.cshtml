@@ -5,7 +5,13 @@
     ViewData["Title"] = L["PlantTypes_Title"].Value;
 }
 
-<h1 class="mb-3">@L["PlantTypes_Title"]</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">@L["PlantTypes_Title"]</h1>
+    @if (Model.CanEdit)
+    {
+        <a class="btn btn-success" asp-page="/PlantTypes/Edit">@L["PlantTypeAction_New"]</a>
+    }
+</div>
 
 <form method="get" class="row g-2 mb-3">
     <div class="col-md">
@@ -36,7 +42,7 @@
         @foreach (var r in Model.Rows)
         {
             <tr>
-                <td><strong>@r.Name</strong></td>
+                <td><strong><a asp-page="/PlantTypes/Details" asp-route-id="@r.Id" class="text-decoration-none">@r.Name</a></strong></td>
                 <td>@(r.Category is null ? "–" : L["Category_" + r.Category].Value)</td>
                 <td>@(r.NutrientDemand is null ? "–" : L["NutrientDemand_" + r.NutrientDemand].Value)</td>
                 <td>@(r.Exposure is null ? "–" : L["Exposure_" + r.Exposure].Value)</td>

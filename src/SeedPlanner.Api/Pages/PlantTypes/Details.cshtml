@@ -1,0 +1,106 @@
+@page "{id:int}"
+@model SeedPlanner.Api.Pages.PlantTypes.DetailsModel
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<p class="mb-2"><a asp-page="/PlantTypes/Index" class="text-decoration-none">← @L["PlantTypes_Title"]</a></p>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">@Model.Name</h1>
+    @if (Model.CanEdit)
+    {
+        <a class="btn btn-outline-secondary" asp-page="/PlantTypes/Edit" asp-route-id="@Model.Id">@L["Action_Edit"]</a>
+    }
+</div>
+
+<dl class="row mb-4">
+    <dt class="col-sm-3">@L["Col_Category"]</dt>
+    <dd class="col-sm-9">@(Model.Category is null ? "–" : L["Category_" + Model.Category].Value)</dd>
+    <dt class="col-sm-3">@L["Col_NutrientDemand"]</dt>
+    <dd class="col-sm-9">@(Model.NutrientDemand is null ? "–" : L["NutrientDemand_" + Model.NutrientDemand].Value)</dd>
+    <dt class="col-sm-3">@L["Col_Exposure"]</dt>
+    <dd class="col-sm-9">@(Model.Exposure is null ? "–" : L["Exposure_" + Model.Exposure].Value)</dd>
+</dl>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <h2 class="h5">@L["Neighbours_Good"] (@Model.Good.Count)</h2>
+        @if (Model.Good.Count == 0)
+        {
+            <p class="text-muted">@L["Neighbours_None"]</p>
+        }
+        else
+        {
+            <ul class="list-unstyled">
+                @foreach (var n in Model.Good)
+                {
+                    <li class="d-flex align-items-center gap-3">
+                        <a asp-page="/PlantTypes/Details" asp-route-id="@n.Id">@n.Name</a>
+                        @if (Model.CanEdit)
+                        {
+                            <form method="post" asp-page-handler="SetNeighbour" asp-route-id="@Model.Id" class="d-inline ms-auto">
+                                <input type="hidden" name="otherId" value="@n.Id" />
+                                <input type="hidden" name="relation" value="Bad" />
+                                <button type="submit" class="btn btn-link btn-sm p-0">@L["Neighbours_MakeBad"]</button>
+                            </form>
+                            <form method="post" asp-page-handler="RemoveNeighbour" asp-route-id="@Model.Id" class="d-inline">
+                                <input type="hidden" name="otherId" value="@n.Id" />
+                                <button type="submit" class="btn btn-link btn-sm p-0 text-danger">@L["Neighbours_Remove"]</button>
+                            </form>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+    <div class="col-md-6 mb-3">
+        <h2 class="h5">@L["Neighbours_Bad"] (@Model.Bad.Count)</h2>
+        @if (Model.Bad.Count == 0)
+        {
+            <p class="text-muted">@L["Neighbours_None"]</p>
+        }
+        else
+        {
+            <ul class="list-unstyled">
+                @foreach (var n in Model.Bad)
+                {
+                    <li class="d-flex align-items-center gap-3">
+                        <a asp-page="/PlantTypes/Details" asp-route-id="@n.Id">@n.Name</a>
+                        @if (Model.CanEdit)
+                        {
+                            <form method="post" asp-page-handler="SetNeighbour" asp-route-id="@Model.Id" class="d-inline ms-auto">
+                                <input type="hidden" name="otherId" value="@n.Id" />
+                                <input type="hidden" name="relation" value="Good" />
+                                <button type="submit" class="btn btn-link btn-sm p-0">@L["Neighbours_MakeGood"]</button>
+                            </form>
+                            <form method="post" asp-page-handler="RemoveNeighbour" asp-route-id="@Model.Id" class="d-inline">
+                                <input type="hidden" name="otherId" value="@n.Id" />
+                                <button type="submit" class="btn btn-link btn-sm p-0 text-danger">@L["Neighbours_Remove"]</button>
+                            </form>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</div>
+
+@if (Model.CanEdit)
+{
+    <hr />
+    <h2 class="h5">@L["Neighbours_Add"]</h2>
+    <form method="post" asp-page-handler="SetNeighbour" asp-route-id="@Model.Id" class="row g-2 mb-3">
+        <div class="col-md-5">
+            <select name="otherId" asp-items="Model.AddOptions" class="form-select"></select>
+        </div>
+        <div class="col-md-3">
+            <select name="relation" asp-items="Model.RelationOptions" class="form-select"></select>
+        </div>
+        <div class="col-md-auto">
+            <button type="submit" class="btn btn-success">@L["Action_Add"]</button>
+        </div>
+    </form>
+}
+
+<p class="small text-muted">@L["Neighbours_Note"]</p>

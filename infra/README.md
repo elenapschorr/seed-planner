@@ -17,6 +17,8 @@ stored as Container Apps secrets. They are never written to this repository.
 
 - Azure CLI (`az`), logged in with `az login`, and a subscription
 - Docker (to build and push the image)
+- Plant types are shared by all users, so only the administrator may edit them. `adminEmail` is the
+  address you register with (more than one address: separate them with `;`).
 - Choose a database password with **letters and digits only**, at least 16 characters
   (it is placed into a connection string).
 
@@ -31,7 +33,7 @@ az group create --name rg-seedplanner --location germanywestcentral
 az deployment group create `
   --resource-group rg-seedplanner `
   --template-file infra/main.bicep `
-  --parameters dbAdminPassword='<password>' inviteCode='<invitation code>' clientIp='<your public IP>'
+  --parameters dbAdminPassword='<password>' inviteCode='<invitation code>' adminEmail='<your e-mail>' clientIp='<your public IP>'
 ```
 
 `clientIp` opens the database firewall for your computer, which you need for the data import.
@@ -57,7 +59,7 @@ Run the deployment again with the app switched on:
 az deployment group create `
   --resource-group rg-seedplanner `
   --template-file infra/main.bicep `
-  --parameters dbAdminPassword='<password>' inviteCode='<invitation code>' clientIp='<your public IP>' deployApp=true imageTag=v1
+  --parameters dbAdminPassword='<password>' inviteCode='<invitation code>' adminEmail='<your e-mail>' clientIp='<your public IP>' deployApp=true imageTag=v1
 ```
 
 The output `appUrl` is the address of the site. On its first start the app creates the

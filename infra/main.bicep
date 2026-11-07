@@ -30,6 +30,9 @@ param dbAdminPassword string
 @minLength(10)
 param inviteCode string
 
+@description('E-mail address(es) of the administrators who may edit plant types, separated by ; or ,')
+param adminEmail string
+
 @description('false = infrastructure only (first run). true = also create the container app.')
 param deployApp bool = false
 
@@ -212,6 +215,7 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = if (deployApp) {
             { name: 'ConnectionStrings__Default', secretRef: 'db-connection' }
             { name: 'Registration__InviteCode', secretRef: 'invite-code' }
             { name: 'Database__MigrateOnStartup', value: 'true' }
+            { name: 'Admin__Email', value: adminEmail }
             // TLS ends at the Container Apps ingress; the app must trust X-Forwarded-Proto.
             { name: 'ASPNETCORE_FORWARDEDHEADERS_ENABLED', value: 'true' }
           ]

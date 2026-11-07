@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -7,9 +8,10 @@ using SeedPlanner.Infrastructure;
 
 namespace SeedPlanner.Api.Pages.PlantTypes;
 
-public class IndexModel(SeedPlannerDbContext db) : PageModel
+public class IndexModel(SeedPlannerDbContext db, IAuthorizationService auth) : PageModel
 {
     public record Row(
+        int Id,
         string Name,
         PlantCategory? Category,
         NutrientDemand? NutrientDemand,
@@ -17,6 +19,9 @@ public class IndexModel(SeedPlannerDbContext db) : PageModel
         int PlantCount);
 
     public List<Row> Rows { get; private set; } = new();
+
+    // Only administrators see the buttons for creating plant types
+    public bool CanEdit { get; private set; }
 
     [BindProperty(SupportsGet = true)]
     public string? Q { get; set; }
@@ -26,6 +31,8 @@ public class IndexModel(SeedPlannerDbContext db) : PageModel
 
     public async Task OnGetAsync()
     {
+        CanEdit = (await auth.AuthorizeAsync(User, "PlantTypeAdmin")).Succeeded;
+
         // Language of the current request: "de", "en" or "ru"
         var language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 
@@ -38,6 +45,7 @@ public class IndexModel(SeedPlannerDbContext db) : PageModel
         var data = await query
             .Select(t => new
             {
+                t.Id,
                 EnglishName = t.Name,
                 TranslatedName = t.Translations
                     .Where(x => x.Language == language)
@@ -52,7 +60,7 @@ public class IndexModel(SeedPlannerDbContext db) : PageModel
 
         // Fall back to the English name if there is no translation
         var rows = data.Select(d => new Row(
-            d.TranslatedName ?? d.EnglishName,
+            d.Id, d.TranslatedName ?? d.EnglishName,
             d.Category, d.NutrientDemand, d.Exposure, d.PlantCount));
 
         if (!string.IsNullOrWhiteSpace(Q))
