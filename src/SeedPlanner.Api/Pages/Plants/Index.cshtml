@@ -61,7 +61,16 @@
         @foreach (var r in Model.Rows)
         {
             <tr>
-                <td><strong>@r.Name</strong></td>
+                <td>
+                    @if (r.IsUnnamed)
+                    {
+                        <span class="text-muted fst-italic">@L["Plant_Unnamed"]</span>
+                    }
+                    else
+                    {
+                        <strong>@r.Name</strong>
+                    }
+                </td>
                 <td>@r.TypeName</td>
                 <td>@L["SeedType_" + r.SeedType]</td>
                 <td>@L["StockStatus_" + r.StockStatus]</td>

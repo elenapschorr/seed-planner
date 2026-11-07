@@ -17,7 +17,11 @@ public class IndexModel(SeedPlannerDbContext db) : PageModel
         StockStatus StockStatus,
         CultivationMethod? CultivationMethod,
         Exposure? Exposure,
-        bool ShouldBuy);
+        bool ShouldBuy)
+    {
+        // The import stores "(unnamed)" for seed packets without a variety name
+        public bool IsUnnamed => string.IsNullOrWhiteSpace(Name) || Name == "(unnamed)";
+    }
 
     public record TypeOption(int Id, string Name);
 
@@ -79,12 +83,14 @@ public class IndexModel(SeedPlannerDbContext db) : PageModel
         {
             var q = Q.Trim();
             rows = rows.Where(r =>
-                r.Name.Contains(q, StringComparison.CurrentCultureIgnoreCase) ||
+                (!r.IsUnnamed && r.Name.Contains(q, StringComparison.CurrentCultureIgnoreCase)) ||
                 r.TypeName.Contains(q, StringComparison.CurrentCultureIgnoreCase));
         }
 
+        // Unnamed varieties go after the named ones of the same plant type
         Rows = rows
             .OrderBy(r => r.TypeName, comparer)
+            .ThenBy(r => r.IsUnnamed)
             .ThenBy(r => r.Name, comparer)
             .ToList();
     }

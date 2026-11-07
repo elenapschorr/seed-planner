@@ -4,9 +4,10 @@
 Reads the sheets "Helper" (plant types) and "Samen" (plants and season windows)
 and writes a SQL file. The script does not connect to the database itself.
 
-The database stores English names only. The CSV file (columns german, english, russian)
-gives the English name of each plant type and the translations that go into
-the table plant_type_translations (languages de, en, ru).
+The database stores English names only. The CSV file (columns german, english, russian, note, category)
+gives the English name of each plant type, its category and the translations that go into
+the table plant_type_translations (languages de, en, ru). The category comes from the CSV file,
+not from the Excel file (the Excel column "Typ" is ignored).
 
 The plants belong to one user, identified by e-mail address. The user must have registered
 in the application before SQL with plants is run.
@@ -15,6 +16,8 @@ Modes (--mode):
     all          plant types, translations and plants of one user (default, for the local database)
     reference    only the shared data: plant types and translations (for an empty database, e.g. in Azure)
     extra-types  plant types that are not in the Excel file (tools/new_plant_types.csv), with translations
+    categories   sets the category of existing plant types from the CSV files (for a database that was
+                 filled before the categories changed)
     companions   good and bad neighbours between plant types (tools/companions.csv)
     plants       only the plants and season windows of one user (the plant types must already exist)
 
@@ -27,6 +30,7 @@ Usage:
     python import_seeds.py data/Samen.xlsx --owner-email you@example.com
     python import_seeds.py data/Samen.xlsx --mode reference --out data/reference.sql
     python import_seeds.py --mode extra-types --out data/extra_types.sql
+    python import_seeds.py --mode categories --out data/categories.sql
     python import_seeds.py --mode companions --out data/companions.sql
     python import_seeds.py data/Samen.xlsx --mode plants --owner-email you@example.com --out data/plants.sql
 
@@ -48,8 +52,9 @@ MONTHS = {m.lower(): i for i, m in enumerate(
     ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August",
      "September", "Oktober", "November", "Dezember"], start=1)}
 
-CATEGORY = {"gemüse": "Vegetable", "blattgemüse": "LeafyVegetable",
-            "kräuter": "Herb", "beeren": "Berry"}
+# Categories of plant types (enum PlantCategory); they are set in the CSV files
+CATEGORIES = {"FruitVegetable", "RootVegetable", "LeafyVegetable", "StemVegetable", "Brassica",
+              "Legume", "Allium", "Melon", "Herb", "Berry", "FruitTree", "Flower"}
 NUTRIENT_DEMAND = {"stark": "Heavy", "mittel": "Medium", "schwach": "Light"}
 GERMINATION = {"licht": "Light", "dunkel": "Dark", "vegetativ": "Vegetative"}
 DEMAND_UNIT = {"": "Plants", "m": "RowMeters", "qm": "SquareMeters"}
@@ -174,32 +179,39 @@ def pot_size(value, row, report):
 
 
 def read_names(path, report):
-    """CSV with columns german, english, russian. Returns {german: (english, russian)}."""
+    """CSV with columns german, english, russian, category (note is ignored).
+    Returns {german: (english, russian, category)}."""
     names = {}
     with open(path, encoding="utf-8-sig", newline="") as f:
         for i, row in enumerate(csv.DictReader(f, delimiter=";"), start=2):
-            de, en, ru = ((row.get(k) or "").strip() for k in ("german", "english", "russian"))
+            de, en, ru, cat = ((row.get(k) or "").strip() for k in ("german", "english", "russian", "category"))
             if not (de and en and ru):
                 report.add("ERROR", "names.csv", i, "Zeile", "german, english and russian are all required.")
                 continue
-            names[de] = (en, ru)
-    english = [en for en, _ in names.values()]
+            if cat not in CATEGORIES:
+                report.add("ERROR", "names.csv", i, de, f"Unknown or missing category '{cat}'.")
+                continue
+            names[de] = (en, ru, cat)
+    english = [en for en, _, _ in names.values()]
     for en in {e for e in english if english.count(e) > 1}:
         report.add("ERROR", "names.csv", 0, "english", f"Duplicate English name '{en}'.")
     return names
 
 
 def read_extra_types(path, names, report):
-    """CSV with columns german, english, russian (plus an optional note column that is ignored).
+    """CSV with columns german, english, russian, category (note is ignored).
     Plant types that are not in the Excel file. Returns a list of dicts."""
     types = []
-    known_en = {en.lower() for en, _ in names.values()}
+    known_en = {en.lower() for en, _, _ in names.values()}
     known_de = {de.lower() for de in names}
     with open(path, encoding="utf-8-sig", newline="") as f:
         for i, row in enumerate(csv.DictReader(f, delimiter=";"), start=2):
-            de, en, ru = ((row.get(k) or "").strip() for k in ("german", "english", "russian"))
+            de, en, ru, cat = ((row.get(k) or "").strip() for k in ("german", "english", "russian", "category"))
             if not (de and en and ru):
                 report.add("ERROR", "extra types", i, "Zeile", "german, english and russian are all required.")
+                continue
+            if cat not in CATEGORIES:
+                report.add("ERROR", "extra types", i, en, f"Unknown or missing category '{cat}'.")
                 continue
             if en.lower() in known_en or de.lower() in known_de:
                 report.add("ERROR", "extra types", i, en, "Already in the names CSV; it belongs to the Excel plant types.")
@@ -207,7 +219,7 @@ def read_extra_types(path, names, report):
             if any(t["english"].lower() == en.lower() or t["german"].lower() == de.lower() for t in types):
                 report.add("ERROR", "extra types", i, en, "Duplicate entry.")
                 continue
-            types.append({"german": de, "english": en, "russian": ru})
+            types.append({"german": de, "english": en, "russian": ru, "category": cat})
     return types
 
 
@@ -257,7 +269,6 @@ def read_plant_types(ws, names, report):
         name = text(ws, row, H_NAME)
         before = report.errors()
 
-        category = mapped(CATEGORY, text(ws, row, H_CATEGORY), "Helper", row, "Typ", report, False)
         nutrient = mapped(NUTRIENT_DEMAND, text(ws, row, H_NUTRIENT), "Helper", row, "Zehrer", report, False)
         germination = mapped(GERMINATION, text(ws, row, H_GERMINATION), "Helper", row, "Keimung", report, False)
         unit = mapped(DEMAND_UNIT, text(ws, row, H_UNIT) or "", "Helper", row, "Einheit", report, False)
@@ -267,9 +278,9 @@ def read_plant_types(ws, names, report):
 
         if name not in names:
             report.add("ERROR", "Helper", row, "Typ", f"No translation for '{name}' in the names CSV.")
-            english, russian = name, name
+            english, russian, category = name, name, None
         else:
-            english, russian = names[name]
+            english, russian, category = names[name]
 
         record = {
             "name": english,
@@ -501,7 +512,7 @@ def write_extra_types_sql(path, extra):
         "-- Plant types",
     ]
     for t in extra:
-        out.append(insert("plant_types", ["name"], [lit(t["english"])]))
+        out.append(insert("plant_types", ["name", "category"], [lit(t["english"]), lit(t["category"])]))
     out += ["", "-- Plant type translations"]
     for t in extra:
         type_id = f"(SELECT id FROM plant_types WHERE name = {lit(t['english'])})"
@@ -554,6 +565,32 @@ def write_companions_sql(path, pairs):
     Path(path).write_text("\n".join(out), encoding="utf-8", newline="\n")
 
 
+def write_categories_sql(path, entries):
+    """entries: list of (english name, category). Sets the category of existing plant types."""
+    array = ", ".join(lit(n) for n, _ in entries)
+    out = [
+        "-- Generated by import_seeds.py (mode: categories). Sets the category of existing plant types.",
+        "SET client_encoding = 'UTF8';",
+        "BEGIN;",
+        "",
+        "DO $$",
+        "DECLARE missing text;",
+        "BEGIN",
+        "  SELECT string_agg(n, ', ' ORDER BY n) INTO missing",
+        f"  FROM unnest(ARRAY[{array}]) AS n",
+        "  WHERE NOT EXISTS (SELECT 1 FROM plant_types WHERE name = n);",
+        "  IF missing IS NOT NULL THEN",
+        "    RAISE EXCEPTION 'Unknown plant types (import reference and extra-types first): %', missing;",
+        "  END IF;",
+        "END $$;",
+        "",
+    ]
+    for name, category in entries:
+        out.append(f"UPDATE plant_types SET category = {lit(category)} WHERE name = {lit(name)};")
+    out += ["", "COMMIT;", ""]
+    Path(path).write_text("\n".join(out), encoding="utf-8", newline="\n")
+
+
 def run_small_mode(args):
     """Modes extra-types and companions: no Excel file needed."""
     report = Report()
@@ -562,8 +599,12 @@ def run_small_mode(args):
     if args.mode == "extra-types":
         summary = [f"Mode: extra-types", f"Plant types: {len(extra)}", f"Translations: {len(extra) * 3}"]
         writer = lambda: write_extra_types_sql(args.out, extra)
+    elif args.mode == "categories":
+        entries = [(en, cat) for en, _, cat in names.values()] + [(t["english"], t["category"]) for t in extra]
+        summary = ["Mode: categories", f"Plant types: {len(entries)}"]
+        writer = lambda: write_categories_sql(args.out, entries)
     else:
-        valid = {en for en, _ in names.values()} | {t["english"] for t in extra}
+        valid = {en for en, _, _ in names.values()} | {t["english"] for t in extra}
         pairs = read_companions(args.companions, valid, report)
         good = sum(1 for p in pairs if p[2] == "Good")
         summary = ["Mode: companions", f"Pairs: {len(pairs)} (Good: {good}, Bad: {len(pairs) - good})"]
@@ -584,9 +625,9 @@ def run_small_mode(args):
 def main():
     parser = argparse.ArgumentParser(description="Create a SQL import file from the seed Excel file.")
     parser.add_argument("excel", nargs="?", help="path to the Excel file, e.g. data/Samen.xlsx "
-                                                 "(not needed for --mode extra-types and companions)")
-    parser.add_argument("--mode", choices=["all", "reference", "extra-types", "companions", "plants"], default="all",
-                        help="all (default), reference (shared data only), extra-types, companions "
+                                                 "(not needed for --mode extra-types, categories and companions)")
+    parser.add_argument("--mode", choices=["all", "reference", "extra-types", "categories", "companions", "plants"], default="all",
+                        help="all (default), reference (shared data only), extra-types, categories, companions "
                              "or plants (plants of one user only)")
     parser.add_argument("--owner-email",
                         help="e-mail address of the registered user who owns the plants "
@@ -601,7 +642,7 @@ def main():
     parser.add_argument("--report", default="data/import_report.txt", help="report file to write")
     args = parser.parse_args()
 
-    if args.mode in ("extra-types", "companions"):
+    if args.mode in ("extra-types", "categories", "companions"):
         run_small_mode(args)
         return
     if not args.excel:

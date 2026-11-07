@@ -1,10 +1,11 @@
-﻿@inject IStringLocalizer<SharedResource> L
+@using System.Globalization
+@inject IStringLocalizer<SharedResource> L
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SeedPlanner.Api</title>
+    <title>@ViewData["Title"] - Seed Planner</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -18,13 +19,13 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/PlantTypes/Index">@L["PlantTypes"]</a>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Plants/Index">@L["Plants"]</a>
-                            </li>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/PlantTypes/Index">@L["Nav_PlantTypes"]</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Plants/Index">@L["Nav_Plants"]</a>
                         </li>
                     </ul>
-                    <div class="btn-group btn-group-sm" role="group">
+                    <div class="btn-group btn-group-sm me-2" role="group">
                         <a class="btn btn-outline-secondary" href="/culture?c=de&returnUrl=@Context.Request.Path">DE</a>
                         <a class="btn btn-outline-secondary" href="/culture?c=en&returnUrl=@Context.Request.Path">EN</a>
                         <a class="btn btn-outline-secondary" href="/culture?c=ru&returnUrl=@Context.Request.Path">RU</a>
@@ -32,12 +33,12 @@
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         <form method="post" asp-page="/Account/Logout" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">@L["Logout"] (@User.Identity.Name)</button>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">@L["Nav_Logout"] (@User.Identity.Name)</button>
                         </form>
                     }
                     else
                     {
-                        <a class="btn btn-sm btn-outline-secondary" asp-page="/Account/Login">@L["Login"]</a>
+                        <a class="btn btn-sm btn-outline-secondary" asp-page="/Account/Login">@L["Nav_Login"]</a>
                     }
                 </div>
             </div>
@@ -51,7 +52,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - SeedPlanner.Api - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2026 - Seed Planner - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
 
