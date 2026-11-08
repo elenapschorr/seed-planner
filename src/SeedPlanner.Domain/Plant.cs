@@ -1,4 +1,4 @@
-﻿namespace SeedPlanner.Domain;
+namespace SeedPlanner.Domain;
 
 public class Plant
 {
@@ -7,7 +7,12 @@ public class Plant
     public PlantType PlantType { get; set; } = null!;
     public required string Name { get; set; }
 
-    public SeedType SeedType { get; set; }
+    /// <summary>Seed, young plant or cutting.</summary>
+    public Propagation Propagation { get; set; } = Propagation.Seed;
+
+    /// <summary>Open-pollinated or F1; only meaningful for seed, otherwise empty.</summary>
+    public SeedType? SeedType { get; set; }
+
     public StockStatus StockStatus { get; set; }
     public CultivationMethod? CultivationMethod { get; set; }
     public Exposure? Exposure { get; set; }
@@ -26,7 +31,12 @@ public class Plant
     public List<SeasonWindow> SeasonWindows { get; } = [];
 
     // Rule: buy seed only for plants that can be propagated from own seed.
-    public bool ShouldBuy => StockStatus == StockStatus.OutOfStock && SeedType == SeedType.OpenPollinated;
+    // Young plants and cuttings are not seed, so they are never marked "to buy".
+    public bool ShouldBuy =>
+        StockStatus == StockStatus.OutOfStock
+        && Propagation == Propagation.Seed
+        && SeedType == global::SeedPlanner.Domain.SeedType.OpenPollinated;
+
     public bool CanSowIn(int month) => SeasonWindows.Any(w => w.Kind == WindowKind.Sowing && w.Contains(month));
     public string OwnerId { get; set; } = "";
 }

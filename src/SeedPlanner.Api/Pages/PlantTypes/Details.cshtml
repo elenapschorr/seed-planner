@@ -1,5 +1,6 @@
 @page "{id:int}"
 @model SeedPlanner.Api.Pages.PlantTypes.DetailsModel
+@using SeedPlanner.Domain
 @{
     ViewData["Title"] = Model.Name;
 }
@@ -14,13 +15,47 @@
     }
 </div>
 
-<dl class="row mb-4">
+<dl class="row mb-3">
+    <dt class="col-sm-3">@L["Details_Names"]</dt>
+    <dd class="col-sm-9">@(string.Join(" · ", new[] { Model.NameDe, Model.NameEn, Model.NameRu }.Where(n => !string.IsNullOrWhiteSpace(n))))</dd>
     <dt class="col-sm-3">@L["Col_Category"]</dt>
     <dd class="col-sm-9">@(Model.Category is null ? "–" : L["Category_" + Model.Category].Value)</dd>
+    <dt class="col-sm-3">@L["Col_Lifecycle"]</dt>
+    <dd class="col-sm-9">@(Model.Lifecycle is null ? "–" : L["Lifecycle_" + Model.Lifecycle].Value)</dd>
     <dt class="col-sm-3">@L["Col_NutrientDemand"]</dt>
     <dd class="col-sm-9">@(Model.NutrientDemand is null ? "–" : L["NutrientDemand_" + Model.NutrientDemand].Value)</dd>
     <dt class="col-sm-3">@L["Col_Exposure"]</dt>
     <dd class="col-sm-9">@(Model.Exposure is null ? "–" : L["Exposure_" + Model.Exposure].Value)</dd>
+    <dt class="col-sm-3">@L["Col_Germination"]</dt>
+    <dd class="col-sm-9">@(Model.GerminationType is null ? "–" : L["GerminationType_" + Model.GerminationType].Value)</dd>
+    <dt class="col-sm-3">@L["Field_GrowthDays"]</dt>
+    <dd class="col-sm-9">@(DetailsModel.Range(Model.GrowthDaysMin, Model.GrowthDaysMax) ?? "–")</dd>
+    @if (Model.Category != PlantCategory.Flower)
+    {
+        <dt class="col-sm-3">@L["Field_DemandPerPerson"]</dt>
+        <dd class="col-sm-9">
+            @if (DetailsModel.Range(Model.DemandPerPersonMin, Model.DemandPerPersonMax) is { } demand)
+            {
+                @demand
+                @(Model.DemandUnit is null ? "" : " " + L["DemandUnit_" + Model.DemandUnit].Value)
+            }
+            else
+            {
+                @:–
+            }
+        </dd>
+    }
+</dl>
+
+<h2 class="h5">@L["Details_SpaceNeeds"]</h2>
+<p class="small text-muted mb-2">@L["Details_FromVarieties", Model.VarietyCount]</p>
+<dl class="row mb-4">
+    <dt class="col-sm-3">@L["Field_PotSize"]</dt>
+    <dd class="col-sm-9">@(Model.PotSize ?? "–")</dd>
+    <dt class="col-sm-3">@L["Field_RowSpacing"]</dt>
+    <dd class="col-sm-9">@(Model.RowSpacing ?? "–")</dd>
+    <dt class="col-sm-3">@L["Field_PlantSpacing"]</dt>
+    <dd class="col-sm-9">@(Model.PlantSpacing ?? "–")</dd>
 </dl>
 
 <div class="row">

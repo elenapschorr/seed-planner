@@ -192,5 +192,33 @@
   <data name="AllBedKinds" xml:space="preserve"><value>Все виды грядок</value></data>
   <data name="Col_BedKind" xml:space="preserve"><value>Вид</value></data>
   <data name="Col_Plantings" xml:space="preserve"><value>Посадки</value></data>
-  <data name="SeedType_Vegetative" xml:space="preserve"><value>Вегетативно (растение)</value></data>
+  <data name="Lifecycle_Annual" xml:space="preserve"><value>однолетняя</value></data>
+  <data name="Lifecycle_Biennial" xml:space="preserve"><value>двулетняя</value></data>
+  <data name="Lifecycle_Perennial" xml:space="preserve"><value>многолетняя</value></data>
+  <data name="Lifecycle_ConditionallyPerennial" xml:space="preserve"><value>условно многолетняя (нужна зимовка)</value></data>
+  <data name="Propagation_Seed" xml:space="preserve"><value>Семена</value></data>
+  <data name="Propagation_Plant" xml:space="preserve"><value>Растение</value></data>
+  <data name="Propagation_Cutting" xml:space="preserve"><value>Черенок</value></data>
+  <data name="Col_Lifecycle" xml:space="preserve"><value>Жизненный цикл</value></data>
+  <data name="Col_Propagation" xml:space="preserve"><value>Форма</value></data>
+  <data name="AllLifecycles" xml:space="preserve"><value>Все циклы</value></data>
+  <data name="AllPropagations" xml:space="preserve"><value>Все формы</value></data>
+  <data name="Section_Seeds" xml:space="preserve"><value>Семена</value></data>
+  <data name="Section_Plants" xml:space="preserve"><value>Растения</value></data>
+  <data name="Plants_NoResults" xml:space="preserve"><value>Сорта не найдены.</value></data>
+  <data name="Field_Bloom1" xml:space="preserve"><value>Время цветения</value></data>
+  <data name="Field_Bloom2" xml:space="preserve"><value>Время цветения 2</value></data>
+  <data name="Details_Names" xml:space="preserve"><value>Названия</value></data>
+  <data name="Details_SpaceNeeds" xml:space="preserve"><value>Потребность в месте</value></data>
+  <data name="Details_FromVarieties" xml:space="preserve"><value>Наименьшее и наибольшее значение по вашим сортам этой культуры ({0})</value></data>
+  <data name="Field_GroupName" xml:space="preserve"><value>Название группы</value></data>
+  <data name="Col_Group" xml:space="preserve"><value>Группа</value></data>
+  <data name="Field_PlantCount" xml:space="preserve"><value>Количество растений (необязательно)</value></data>
+  <data name="Pots_NumberOfPots" xml:space="preserve"><value>Количество горшков</value></data>
+  <data name="Pot_Number" xml:space="preserve"><value>Горшок {0}</value></data>
+  <data name="Pots_FillFree" xml:space="preserve"><value>Посадить в свободные горшки</value></data>
+  <data name="PotError_AlreadyThere" xml:space="preserve"><value>Это растение уже есть в этом горшке.</value></data>
+  <data name="PotError_NameExists" xml:space="preserve"><value>Группа с таким названием уже существует.</value></data>
+  <data name="PotError_PlantCount" xml:space="preserve"><value>Количество растений должно быть не менее 1.</value></data>
+  <data name="Pots_Done" xml:space="preserve"><value>Готово</value></data>
 </root>

@@ -266,55 +266,6 @@ namespace SeedPlanner.Infrastructure.Migrations
                     b.ToTable("asp_net_user_tokens", (string)null);
                 });
 
-            modelBuilder.Entity("SeedPlanner.Domain.BedPlanting", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("note");
-
-                    b.Property<int?>("PlantCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("plant_count");
-
-                    b.Property<int?>("PlantId")
-                        .HasColumnType("integer")
-                        .HasColumnName("plant_id");
-
-                    b.Property<int>("PlantTypeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("plant_type_id");
-
-                    b.Property<int>("RaisedBedId")
-                        .HasColumnType("integer")
-                        .HasColumnName("raised_bed_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_bed_plantings");
-
-                    b.HasIndex("PlantId")
-                        .HasDatabaseName("ix_bed_plantings_plant_id");
-
-                    b.HasIndex("PlantTypeId")
-                        .HasDatabaseName("ix_bed_plantings_plant_type_id");
-
-                    b.HasIndex("RaisedBedId", "PlantTypeId", "PlantId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_bed_plantings_raised_bed_id_plant_type_id_plant_id");
-
-                    b.ToTable("bed_plantings", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_bed_plantings_count", "plant_count IS NULL OR plant_count >= 1");
-                        });
-                });
-
             modelBuilder.Entity("SeedPlanner.Domain.Plant", b =>
                 {
                     b.Property<int>("Id")
@@ -374,12 +325,18 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("pot_size_min_cm");
 
+                    b.Property<string>("Propagation")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Seed")
+                        .HasColumnName("propagation");
+
                     b.Property<int?>("RowSpacingCm")
                         .HasColumnType("integer")
                         .HasColumnName("row_spacing_cm");
 
                     b.Property<string>("SeedType")
-                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("seed_type");
 
@@ -441,6 +398,10 @@ namespace SeedPlanner.Infrastructure.Migrations
                     b.Property<int?>("GrowthDaysMin")
                         .HasColumnType("integer")
                         .HasColumnName("growth_days_min");
+
+                    b.Property<string>("Lifecycle")
+                        .HasColumnType("text")
+                        .HasColumnName("lifecycle");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -537,7 +498,99 @@ namespace SeedPlanner.Infrastructure.Migrations
                     b.ToTable("plant_type_translations", (string)null);
                 });
 
+            modelBuilder.Entity("SeedPlanner.Domain.Planting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("note");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("owner_id");
+
+                    b.Property<int?>("PlantCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("plant_count");
+
+                    b.Property<int?>("PlantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("plant_id");
+
+                    b.Property<int>("PlantTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("plant_type_id");
+
+                    b.Property<int?>("PotId")
+                        .HasColumnType("integer")
+                        .HasColumnName("pot_id");
+
+                    b.Property<int?>("RaisedBedId")
+                        .HasColumnType("integer")
+                        .HasColumnName("raised_bed_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_plantings");
+
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("ix_plantings_owner_id");
+
+                    b.HasIndex("PlantId")
+                        .HasDatabaseName("ix_plantings_plant_id");
+
+                    b.HasIndex("PlantTypeId")
+                        .HasDatabaseName("ix_plantings_plant_type_id");
+
+                    b.HasIndex("PotId")
+                        .HasDatabaseName("ix_plantings_pot_id");
+
+                    b.HasIndex("RaisedBedId")
+                        .HasDatabaseName("ix_plantings_raised_bed_id");
+
+                    b.ToTable("plantings", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_plantings_count", "plant_count IS NULL OR plant_count >= 1");
+
+                            t.HasCheckConstraint("ck_plantings_one_place", "num_nonnulls(pot_id, raised_bed_id) <= 1");
+                        });
+                });
+
             modelBuilder.Entity("SeedPlanner.Domain.Pot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("note");
+
+                    b.Property<int>("PotGroupId")
+                        .HasColumnType("integer")
+                        .HasColumnName("pot_group_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_pots");
+
+                    b.HasIndex("PotGroupId")
+                        .HasDatabaseName("ix_pots_pot_group_id");
+
+                    b.ToTable("pots", (string)null);
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.PotGroup", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -571,6 +624,12 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("kind");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
                     b.Property<string>("Note")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
@@ -580,10 +639,6 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("owner_id");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer")
-                        .HasColumnName("quantity");
 
                     b.Property<int?>("SaucerId")
                         .HasColumnType("integer")
@@ -604,93 +659,21 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnName("top_cm");
 
                     b.HasKey("Id")
-                        .HasName("pk_pots");
-
-                    b.HasIndex("OwnerId")
-                        .HasDatabaseName("ix_pots_owner_id");
+                        .HasName("pk_pot_groups");
 
                     b.HasIndex("SaucerId")
-                        .HasDatabaseName("ix_pots_saucer_id");
+                        .HasDatabaseName("ix_pot_groups_saucer_id");
 
-                    b.ToTable("pots", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_pots_measures", "(top_cm IS NULL OR top_cm > 0) AND (bottom_cm IS NULL OR bottom_cm > 0) AND (height_cm IS NULL OR height_cm > 0)");
-
-                            t.HasCheckConstraint("ck_pots_quantity", "quantity >= 0");
-
-                            t.HasCheckConstraint("ck_pots_set_size", "set_size >= 1");
-                        });
-                });
-
-            modelBuilder.Entity("SeedPlanner.Domain.PotUse", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("note");
-
-                    b.Property<int>("PotId")
-                        .HasColumnType("integer")
-                        .HasColumnName("pot_id");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer")
-                        .HasColumnName("quantity");
-
-                    b.HasKey("Id")
-                        .HasName("pk_pot_uses");
-
-                    b.HasIndex("PotId")
-                        .HasDatabaseName("ix_pot_uses_pot_id");
-
-                    b.ToTable("pot_uses", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_pot_uses_quantity", "quantity >= 1");
-                        });
-                });
-
-            modelBuilder.Entity("SeedPlanner.Domain.PotUsePlant", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("PlantId")
-                        .HasColumnType("integer")
-                        .HasColumnName("plant_id");
-
-                    b.Property<int>("PlantTypeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("plant_type_id");
-
-                    b.Property<int>("PotUseId")
-                        .HasColumnType("integer")
-                        .HasColumnName("pot_use_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_pot_use_plants");
-
-                    b.HasIndex("PlantId")
-                        .HasDatabaseName("ix_pot_use_plants_plant_id");
-
-                    b.HasIndex("PlantTypeId")
-                        .HasDatabaseName("ix_pot_use_plants_plant_type_id");
-
-                    b.HasIndex("PotUseId", "PlantTypeId", "PlantId")
+                    b.HasIndex("OwnerId", "Name")
                         .IsUnique()
-                        .HasDatabaseName("ix_pot_use_plants_pot_use_id_plant_type_id_plant_id");
+                        .HasDatabaseName("ix_pot_groups_owner_id_name");
 
-                    b.ToTable("pot_use_plants", (string)null);
+                    b.ToTable("pot_groups", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_pot_groups_measures", "(top_cm IS NULL OR top_cm > 0) AND (bottom_cm IS NULL OR bottom_cm > 0) AND (height_cm IS NULL OR height_cm > 0)");
+
+                            t.HasCheckConstraint("ck_pot_groups_set_size", "set_size >= 1");
+                        });
                 });
 
             modelBuilder.Entity("SeedPlanner.Domain.RaisedBed", b =>
@@ -897,35 +880,6 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasConstraintName("fk_asp_net_user_tokens_asp_net_users_user_id");
                 });
 
-            modelBuilder.Entity("SeedPlanner.Domain.BedPlanting", b =>
-                {
-                    b.HasOne("SeedPlanner.Domain.Plant", "Plant")
-                        .WithMany()
-                        .HasForeignKey("PlantId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_bed_plantings_plants_plant_id");
-
-                    b.HasOne("SeedPlanner.Domain.PlantType", "PlantType")
-                        .WithMany()
-                        .HasForeignKey("PlantTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_bed_plantings_plant_types_plant_type_id");
-
-                    b.HasOne("SeedPlanner.Domain.RaisedBed", "RaisedBed")
-                        .WithMany("Plantings")
-                        .HasForeignKey("RaisedBedId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_bed_plantings_raised_beds_raised_bed_id");
-
-                    b.Navigation("Plant");
-
-                    b.Navigation("PlantType");
-
-                    b.Navigation("RaisedBed");
-                });
-
             modelBuilder.Entity("SeedPlanner.Domain.Plant", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
@@ -972,63 +926,77 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasConstraintName("fk_plant_type_translations_plant_types_plant_type_id");
                 });
 
-            modelBuilder.Entity("SeedPlanner.Domain.Pot", b =>
+            modelBuilder.Entity("SeedPlanner.Domain.Planting", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_pots_asp_net_users_owner_id");
+                        .HasConstraintName("fk_plantings_asp_net_users_owner_id");
 
-                    b.HasOne("SeedPlanner.Domain.Saucer", "Saucer")
-                        .WithMany()
-                        .HasForeignKey("SaucerId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_pots_saucers_saucer_id");
-
-                    b.Navigation("Saucer");
-                });
-
-            modelBuilder.Entity("SeedPlanner.Domain.PotUse", b =>
-                {
-                    b.HasOne("SeedPlanner.Domain.Pot", "Pot")
-                        .WithMany("Uses")
-                        .HasForeignKey("PotId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_pot_uses_pots_pot_id");
-
-                    b.Navigation("Pot");
-                });
-
-            modelBuilder.Entity("SeedPlanner.Domain.PotUsePlant", b =>
-                {
                     b.HasOne("SeedPlanner.Domain.Plant", "Plant")
                         .WithMany()
                         .HasForeignKey("PlantId")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_pot_use_plants_plants_plant_id");
+                        .HasConstraintName("fk_plantings_plants_plant_id");
 
                     b.HasOne("SeedPlanner.Domain.PlantType", "PlantType")
                         .WithMany()
                         .HasForeignKey("PlantTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_pot_use_plants_plant_types_plant_type_id");
+                        .HasConstraintName("fk_plantings_plant_types_plant_type_id");
 
-                    b.HasOne("SeedPlanner.Domain.PotUse", "PotUse")
-                        .WithMany("Plants")
-                        .HasForeignKey("PotUseId")
+                    b.HasOne("SeedPlanner.Domain.Pot", "Pot")
+                        .WithMany("Plantings")
+                        .HasForeignKey("PotId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_pot_use_plants_pot_uses_pot_use_id");
+                        .HasConstraintName("fk_plantings_pots_pot_id");
+
+                    b.HasOne("SeedPlanner.Domain.RaisedBed", "RaisedBed")
+                        .WithMany("Plantings")
+                        .HasForeignKey("RaisedBedId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_plantings_raised_beds_raised_bed_id");
 
                     b.Navigation("Plant");
 
                     b.Navigation("PlantType");
 
-                    b.Navigation("PotUse");
+                    b.Navigation("Pot");
+
+                    b.Navigation("RaisedBed");
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.Pot", b =>
+                {
+                    b.HasOne("SeedPlanner.Domain.PotGroup", "PotGroup")
+                        .WithMany("Pots")
+                        .HasForeignKey("PotGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_pots_pot_groups_pot_group_id");
+
+                    b.Navigation("PotGroup");
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.PotGroup", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_pot_groups_asp_net_users_owner_id");
+
+                    b.HasOne("SeedPlanner.Domain.Saucer", "Saucer")
+                        .WithMany()
+                        .HasForeignKey("SaucerId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_pot_groups_saucers_saucer_id");
+
+                    b.Navigation("Saucer");
                 });
 
             modelBuilder.Entity("SeedPlanner.Domain.RaisedBed", b =>
@@ -1077,12 +1045,12 @@ namespace SeedPlanner.Infrastructure.Migrations
 
             modelBuilder.Entity("SeedPlanner.Domain.Pot", b =>
                 {
-                    b.Navigation("Uses");
+                    b.Navigation("Plantings");
                 });
 
-            modelBuilder.Entity("SeedPlanner.Domain.PotUse", b =>
+            modelBuilder.Entity("SeedPlanner.Domain.PotGroup", b =>
                 {
-                    b.Navigation("Plants");
+                    b.Navigation("Pots");
                 });
 
             modelBuilder.Entity("SeedPlanner.Domain.RaisedBed", b =>

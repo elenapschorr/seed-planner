@@ -13,8 +13,11 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
     public record Row(
         int Id,
         string Name,
+        int TypeId,
         string TypeName,
-        SeedType SeedType,
+        Propagation Propagation,
+        Lifecycle? Lifecycle,
+        SeedType? SeedType,
         StockStatus StockStatus,
         CultivationMethod? CultivationMethod,
         NutrientDemand? NutrientDemand,
@@ -29,6 +32,10 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
     public record TypeOption(int Id, string Name);
 
     public List<Row> Rows { get; private set; } = new();
+
+    // Seed packets and living plants (young plants, cuttings) are shown in separate tables
+    public List<Row> SeedRows => Rows.Where(r => r.Propagation == Propagation.Seed).ToList();
+    public List<Row> PlantRows => Rows.Where(r => r.Propagation != Propagation.Seed).ToList();
     public List<TypeOption> TypeOptions { get; private set; } = new();
 
     [BindProperty(SupportsGet = true)]
@@ -43,6 +50,12 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
     // 1..12: only plants that can be sown in this month
     [BindProperty(SupportsGet = true)]
     public int? Month { get; set; }
+
+    [BindProperty(Name = "propagation", SupportsGet = true)]
+    public Propagation? PropagationFilter { get; set; }
+
+    [BindProperty(Name = "lifecycle", SupportsGet = true)]
+    public Lifecycle? LifecycleFilter { get; set; }
 
     [BindProperty(Name = "seedType", SupportsGet = true)]
     public SeedType? SeedTypeFilter { get; set; }
@@ -60,7 +73,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
     [BindProperty(Name = "toBuy", SupportsGet = true)]
     public bool OnlyToBuy { get; set; }
 
-    // Column to sort by (name, type, seedtype, stock, cultivation, nutrient, exposure, pots, tobuy) and direction (asc, desc)
+    // Column to sort by (name, type, propagation, lifecycle, seedtype, stock, cultivation, nutrient, exposure, pots, tobuy) and direction (asc, desc)
     [BindProperty(SupportsGet = true)]
     public string? Sort { get; set; }
 
@@ -87,6 +100,8 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             .AsQueryable();
         if (TypeId is not null) query = query.Where(p => p.PlantTypeId == TypeId);
         if (Stock is not null) query = query.Where(p => p.StockStatus == Stock);
+        if (PropagationFilter is not null) query = query.Where(p => p.Propagation == PropagationFilter);
+        if (LifecycleFilter is not null) query = query.Where(p => p.PlantType.Lifecycle == LifecycleFilter);
         if (SeedTypeFilter is not null) query = query.Where(p => p.SeedType == SeedTypeFilter);
         if (CultivationFilter is not null) query = query.Where(p => p.CultivationMethod == CultivationFilter);
         if (NutrientFilter is not null) query = query.Where(p => p.PlantType.NutrientDemand == NutrientFilter);
@@ -107,18 +122,21 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             plants = plants.Where(p => p.ShouldBuy).ToList();
         }
 
-        // Pots in which the variety grows (the same variety can be in several pot groups)
-        var potsPerPlant = (await db.PotUsePlants.AsNoTracking()
-                .Where(x => x.PlantId != null)
-                .Select(x => new { x.PlantId, x.PotUse!.Quantity })
+        // Pots in which the variety grows: one planting in a pot counts as one pot
+        var potsPerPlant = (await db.Plantings.AsNoTracking()
+                .Where(x => x.PlantId != null && x.PotId != null)
+                .Select(x => new { x.PlantId, x.PotId })
                 .ToListAsync())
             .GroupBy(x => x.PlantId!.Value)
-            .ToDictionary(g => g.Key, g => g.Sum(x => x.Quantity));
+            .ToDictionary(g => g.Key, g => g.Select(x => x.PotId).Distinct().Count());
 
         var rows = plants.Select(p => new Row(
             p.Id,
             p.Name,
+            p.PlantTypeId,
             TranslatedName(p.PlantType, language),
+            p.Propagation,
+            p.PlantType.Lifecycle,
             p.SeedType,
             p.StockStatus,
             p.CultivationMethod,
@@ -146,7 +164,9 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         {
             "name" => ListSorting.Sort(byDefault, r => r.IsUnnamed ? null : r.Name, Descending),
             "type" => ListSorting.Sort(byDefault, r => r.TypeName, Descending),
-            "seedtype" => ListSorting.Sort(byDefault, r => L["SeedType_" + r.SeedType].Value, Descending),
+            "propagation" => ListSorting.Sort(byDefault, r => L["Propagation_" + r.Propagation].Value, Descending),
+            "lifecycle" => ListSorting.Sort(byDefault, r => r.Lifecycle is null ? null : L["Lifecycle_" + r.Lifecycle].Value, Descending),
+            "seedtype" => ListSorting.Sort(byDefault, r => r.SeedType is null ? null : L["SeedType_" + r.SeedType].Value, Descending),
             "stock" => ListSorting.Sort(byDefault, r => L["StockStatus_" + r.StockStatus].Value, Descending),
             "cultivation" => ListSorting.Sort(byDefault, r => r.CultivationMethod is null ? null : L["CultivationMethod_" + r.CultivationMethod].Value, Descending),
             "nutrient" => ListSorting.Sort(byDefault, r => ListSorting.Rank(r.NutrientDemand), Descending),
@@ -178,6 +198,8 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         ["typeId"] = TypeId?.ToString(),
         ["stock"] = Stock?.ToString(),
         ["month"] = Month?.ToString(),
+        ["propagation"] = PropagationFilter?.ToString(),
+        ["lifecycle"] = LifecycleFilter?.ToString(),
         ["seedType"] = SeedTypeFilter?.ToString(),
         ["cultivation"] = CultivationFilter?.ToString(),
         ["nutrient"] = NutrientFilter?.ToString(),

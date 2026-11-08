@@ -33,13 +33,16 @@ public enum BedShape
 }
 
 /// <summary>
-/// A group of identical pots. Pots that are stacked into a tower (e.g. strawberry pots)
-/// are counted as single pots; SetSize says how many pots make one tower.
+/// A group of identical pots: the size, the colour and the saucer are stored once for the group.
+/// The pots themselves are single rows (see <see cref="Pot"/>). Pots that are stacked into a tower
+/// (e.g. strawberry pots) are counted as single pots; SetSize says how many pots make one tower.
 /// </summary>
-public class Pot : IOwnedByUser
+public class PotGroup : IOwnedByUser
 {
     public int Id { get; set; }
     public string OwnerId { get; set; } = "";
+
+    public string Name { get; set; } = "";
 
     public PotKind Kind { get; set; } = PotKind.Pot;
     public PotShape Shape { get; set; } = PotShape.Round;
@@ -51,9 +54,6 @@ public class Pot : IOwnedByUser
     public decimal? BottomCm { get; set; }
 
     public decimal? HeightCm { get; set; }
-
-    /// <summary>All pots of this group, free and in use.</summary>
-    public int Quantity { get; set; }
 
     /// <summary>Pots per tower or set; 1 for single pots.</summary>
     public int SetSize { get; set; } = 1;
@@ -68,15 +68,15 @@ public class Pot : IOwnedByUser
     public int? SaucerId { get; set; }
     public Saucer? Saucer { get; set; }
 
-    public List<PotUse> Uses { get; set; } = new();
+    public List<Pot> Pots { get; set; } = new();
 
-    /// <summary>Pots that hold a plant.</summary>
-    public int OccupiedQuantity => Uses.Sum(u => u.Quantity);
+    /// <summary>All pots of the group, free and in use.</summary>
+    public int Quantity => Pots.Count;
 
-    public int FreeQuantity => Math.Max(0, Quantity - OccupiedQuantity);
+    /// <summary>Pots that hold at least one plant.</summary>
+    public int OccupiedQuantity => Pots.Count(p => p.Plantings.Count > 0);
 
-    /// <summary>More pots are recorded as in use than the group has.</summary>
-    public bool IsOverbooked => OccupiedQuantity > Quantity;
+    public int FreeQuantity => Quantity - OccupiedQuantity;
 
     /// <summary>Complete towers or sets.</summary>
     public int SetCount => Quantity / Math.Max(1, SetSize);
@@ -106,30 +106,29 @@ public class Pot : IOwnedByUser
     }
 }
 
-/// <summary>
-/// Some of the pots of a group are in use. One entry can hold several plants growing together
-/// in the same pots (e.g. cranberry and strawberry in a bowl).
-/// </summary>
-public class PotUse
+/// <summary>One single pot. It belongs to a group and holds no, one or several plantings.</summary>
+public class Pot
 {
     public int Id { get; set; }
-    public int PotId { get; set; }
-    public Pot? Pot { get; set; }
-
-    /// <summary>How many pots of the group are in use for this entry (single pots, not towers).</summary>
-    public int Quantity { get; set; }
+    public int PotGroupId { get; set; }
+    public PotGroup? PotGroup { get; set; }
 
     public string? Note { get; set; }
 
-    public List<PotUsePlant> Plants { get; set; } = new();
+    public List<Planting> Plantings { get; set; } = new();
+
+    public bool IsFree => Plantings.Count == 0;
 }
 
-/// <summary>A plant type, optionally a concrete variety, that grows in the pots of an entry.</summary>
-public class PotUsePlant
+/// <summary>
+/// Something that grows: a plant type, optionally a concrete variety, and how many plants.
+/// It stands in one pot or in one bed (or nowhere yet). Several plants in the same pot are several rows;
+/// the same variety in several pots is a row per pot.
+/// </summary>
+public class Planting : IOwnedByUser
 {
     public int Id { get; set; }
-    public int PotUseId { get; set; }
-    public PotUse? PotUse { get; set; }
+    public string OwnerId { get; set; } = "";
 
     public int PlantTypeId { get; set; }
     public PlantType? PlantType { get; set; }
@@ -137,6 +136,17 @@ public class PotUsePlant
     /// <summary>The variety (one of the user's plants), if known. It always belongs to PlantTypeId.</summary>
     public int? PlantId { get; set; }
     public Plant? Plant { get; set; }
+
+    /// <summary>Number of plants; empty if not counted.</summary>
+    public int? PlantCount { get; set; }
+
+    public string? Note { get; set; }
+
+    public int? PotId { get; set; }
+    public Pot? Pot { get; set; }
+
+    public int? RaisedBedId { get; set; }
+    public RaisedBed? RaisedBed { get; set; }
 }
 
 public class Saucer : IOwnedByUser
@@ -150,7 +160,7 @@ public class Saucer : IOwnedByUser
     public string? Note { get; set; }
 }
 
-/// <summary>One raised bed. Several beds of the same size are several rows.</summary>
+/// <summary>One bed, raised or in the ground. Several beds of the same size are several rows.</summary>
 public class RaisedBed : IOwnedByUser
 {
     public int Id { get; set; }
@@ -166,6 +176,8 @@ public class RaisedBed : IOwnedByUser
     public decimal? HeightCm { get; set; }
     public string? Note { get; set; }
 
+    public List<Planting> Plantings { get; set; } = new();
+
     /// <summary>Planting area in m². An oval is an ellipse with the width and the length as its axes.</summary>
     public double AreaSquareMeters
     {
@@ -179,26 +191,4 @@ public class RaisedBed : IOwnedByUser
 
     /// <summary>Soil volume in litres, assuming straight walls. A ground bed has no volume.</summary>
     public double? VolumeLiters => HeightCm is null ? null : AreaSquareMeters * (double)HeightCm.Value * 10;
-
-    public List<BedPlanting> Plantings { get; set; } = new();
-}
-
-/// <summary>What grows in a bed: a plant type, optionally a concrete variety, and how many plants.</summary>
-public class BedPlanting
-{
-    public int Id { get; set; }
-    public int RaisedBedId { get; set; }
-    public RaisedBed? RaisedBed { get; set; }
-
-    public int PlantTypeId { get; set; }
-    public PlantType? PlantType { get; set; }
-
-    /// <summary>The variety (one of the user's plants), if known. It always belongs to PlantTypeId.</summary>
-    public int? PlantId { get; set; }
-    public Plant? Plant { get; set; }
-
-    /// <summary>Number of plants; empty if not counted.</summary>
-    public int? PlantCount { get; set; }
-
-    public string? Note { get; set; }
 }

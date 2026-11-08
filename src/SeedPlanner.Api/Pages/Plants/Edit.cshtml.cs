@@ -20,7 +20,10 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         [Required, StringLength(200)]
         public string Name { get; set; } = "";
 
-        public SeedType SeedType { get; set; }
+        public Propagation Propagation { get; set; } = Propagation.Seed;
+
+        // Only for seed; empty for young plants and cuttings
+        public SeedType? SeedType { get; set; }
         public StockStatus StockStatus { get; set; } = StockStatus.InStock;
         public CultivationMethod? CultivationMethod { get; set; }
         public Exposure? Exposure { get; set; }
@@ -51,6 +54,10 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
     public InputModel Input { get; set; } = new();
 
     public List<SelectListItem> TypeOptions { get; private set; } = new();
+
+    // Plant types of the category flower: their "harvest" window is the flowering time, the page labels it accordingly
+    public List<int> FlowerTypeIds { get; private set; } = new();
+    public List<SelectListItem> PropagationOptions { get; private set; } = new();
     public List<SelectListItem> SeedTypeOptions { get; private set; } = new();
     public List<SelectListItem> StockOptions { get; private set; } = new();
     public List<SelectListItem> CultivationOptions { get; private set; } = new();
@@ -151,7 +158,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
     {
         plant.PlantTypeId = Input.PlantTypeId!.Value;
         plant.Name = Input.Name.Trim();
-        plant.SeedType = Input.SeedType;
+        plant.Propagation = Input.Propagation;
+        plant.SeedType = Input.Propagation == Propagation.Seed ? Input.SeedType : null;
         plant.StockStatus = Input.StockStatus;
         plant.CultivationMethod = Input.CultivationMethod;
         plant.Exposure = Input.Exposure;
@@ -188,6 +196,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         {
             PlantTypeId = plant.PlantTypeId,
             Name = plant.Name,
+            Propagation = plant.Propagation,
             SeedType = plant.SeedType,
             StockStatus = plant.StockStatus,
             CultivationMethod = plant.CultivationMethod,
@@ -229,8 +238,10 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             .Select(t => new SelectListItem(t.Name, t.Id.ToString()))
             .ToList();
         TypeOptions.Insert(0, new SelectListItem("–", ""));
+        FlowerTypeIds = types.Where(t => t.Category == PlantCategory.Flower).Select(t => t.Id).ToList();
 
-        SeedTypeOptions = EnumOptions<SeedType>();
+        PropagationOptions = EnumOptions<Propagation>();
+        SeedTypeOptions = EnumOptions<SeedType>(optional: true);
         StockOptions = EnumOptions<StockStatus>();
         CultivationOptions = EnumOptions<CultivationMethod>(optional: true);
         ExposureOptions = EnumOptions<Exposure>(optional: true);

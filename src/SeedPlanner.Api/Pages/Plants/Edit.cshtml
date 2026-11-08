@@ -19,6 +19,10 @@
     </div>
 
     <div class="col-md-3">
+        <label asp-for="Input.Propagation" class="form-label">@L["Col_Propagation"]</label>
+        <select asp-for="Input.Propagation" asp-items="Model.PropagationOptions" class="form-select"></select>
+    </div>
+    <div class="col-md-3">
         <label asp-for="Input.SeedType" class="form-label">@L["Col_SeedType"]</label>
         <select asp-for="Input.SeedType" asp-items="Model.SeedTypeOptions" class="form-select"></select>
     </div>
@@ -86,7 +90,7 @@
         <span asp-validation-for="Input.Sow2From" class="text-danger"></span>
     </div>
     <div class="col-md-6">
-        <label class="form-label">@L["Field_Harvest1"]</label>
+        <label class="form-label" id="harvest1-label" data-harvest="@L["Field_Harvest1"]" data-bloom="@L["Field_Bloom1"]">@L["Field_Harvest1"]</label>
         <div class="input-group">
             <select asp-for="Input.Harv1From" asp-items="Model.MonthOptions" class="form-select"></select>
             <select asp-for="Input.Harv1To" asp-items="Model.MonthOptions" class="form-select"></select>
@@ -94,7 +98,7 @@
         <span asp-validation-for="Input.Harv1From" class="text-danger"></span>
     </div>
     <div class="col-md-6">
-        <label class="form-label">@L["Field_Harvest2"]</label>
+        <label class="form-label" id="harvest2-label" data-harvest="@L["Field_Harvest2"]" data-bloom="@L["Field_Bloom2"]">@L["Field_Harvest2"]</label>
         <div class="input-group">
             <select asp-for="Input.Harv2From" asp-items="Model.MonthOptions" class="form-select"></select>
             <select asp-for="Input.Harv2To" asp-items="Model.MonthOptions" class="form-select"></select>
@@ -115,4 +119,23 @@
           data-confirm="@confirmText" onsubmit="return confirm(this.dataset.confirm);">
         <button type="submit" class="btn btn-outline-danger">@L["Action_Delete"]</button>
     </form>
+}
+
+@section Scripts {
+    <script>
+        // Flowers are not harvested: for plant types of the category flower the window is the flowering time
+        (function () {
+            var flowerTypes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FlowerTypeIds));
+            var select = document.getElementById("Input_PlantTypeId");
+            var labels = [document.getElementById("harvest1-label"), document.getElementById("harvest2-label")];
+            function update() {
+                var flower = flowerTypes.indexOf(parseInt(select.value, 10)) >= 0;
+                labels.forEach(function (label) {
+                    label.textContent = flower ? label.dataset.bloom : label.dataset.harvest;
+                });
+            }
+            select.addEventListener("change", update);
+            update();
+        })();
+    </script>
 }

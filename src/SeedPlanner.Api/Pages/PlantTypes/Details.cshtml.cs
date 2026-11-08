@@ -22,6 +22,38 @@ public class DetailsModel(
     public PlantCategory? Category { get; private set; }
     public NutrientDemand? NutrientDemand { get; private set; }
     public Exposure? Exposure { get; private set; }
+    public Lifecycle? Lifecycle { get; private set; }
+    public GerminationType? GerminationType { get; private set; }
+    public int? GrowthDaysMin { get; private set; }
+    public int? GrowthDaysMax { get; private set; }
+    public decimal? DemandPerPersonMin { get; private set; }
+    public decimal? DemandPerPersonMax { get; private set; }
+    public DemandUnit? DemandUnit { get; private set; }
+
+    // Names in all languages
+    public string? NameDe { get; private set; }
+    public string? NameEn { get; private set; }
+    public string? NameRu { get; private set; }
+
+    // Space needs, taken from the user's own varieties of this plant type (smallest and largest value)
+    public int VarietyCount { get; private set; }
+    public string? PotSize { get; private set; }
+    public string? RowSpacing { get; private set; }
+    public string? PlantSpacing { get; private set; }
+
+    // "60 – 90", "60" or null if there is no value
+    public static string? Range<T>(T? min, T? max) where T : struct
+    {
+        if (min is null && max is null) return null;
+        var from = min ?? max;
+        var to = max ?? min;
+        var a = Format(from!.Value);
+        var b = Format(to!.Value);
+        return a == b ? a : $"{a} – {b}";
+    }
+
+    private static string Format<T>(T value) where T : struct =>
+        Convert.ToString(value, CultureInfo.CurrentCulture) ?? "";
     public List<Neighbour> Good { get; private set; } = new();
     public List<Neighbour> Bad { get; private set; } = new();
 
@@ -47,7 +79,14 @@ public class DetailsModel(
                     .FirstOrDefault(),
                 t.Category,
                 t.NutrientDemand,
-                t.Exposure
+                t.Exposure,
+                t.Lifecycle,
+                t.GerminationType,
+                t.GrowthDaysMin,
+                t.GrowthDaysMax,
+                t.DemandPerPersonMin,
+                t.DemandPerPersonMax,
+                t.DemandUnit
             })
             .FirstOrDefaultAsync();
 
@@ -61,6 +100,32 @@ public class DetailsModel(
         Category = type.Category;
         NutrientDemand = type.NutrientDemand;
         Exposure = type.Exposure;
+        Lifecycle = type.Lifecycle;
+        GerminationType = type.GerminationType;
+        GrowthDaysMin = type.GrowthDaysMin;
+        GrowthDaysMax = type.GrowthDaysMax;
+        DemandPerPersonMin = type.DemandPerPersonMin;
+        DemandPerPersonMax = type.DemandPerPersonMax;
+        DemandUnit = type.DemandUnit;
+
+        var names = await db.PlantTypeTranslations.AsNoTracking()
+            .Where(x => x.PlantTypeId == id)
+            .ToDictionaryAsync(x => x.Language, x => x.Name);
+        NameDe = names.GetValueOrDefault("de");
+        NameEn = names.GetValueOrDefault("en") ?? type.EnglishName;
+        NameRu = names.GetValueOrDefault("ru");
+
+        // The user's own varieties of this plant type (the query filter limits the rows to the signed-in user)
+        var varieties = await db.Plants.AsNoTracking()
+            .Where(p => p.PlantTypeId == id)
+            .Select(p => new { p.PotSizeMinCm, p.PotSizeMaxCm, p.RowSpacingCm, p.PlantSpacingCm })
+            .ToListAsync();
+        VarietyCount = varieties.Count;
+        PotSize = Range(
+            varieties.Min(v => v.PotSizeMinCm ?? v.PotSizeMaxCm),
+            varieties.Max(v => v.PotSizeMaxCm ?? v.PotSizeMinCm));
+        RowSpacing = Range(varieties.Min(v => v.RowSpacingCm), varieties.Max(v => v.RowSpacingCm));
+        PlantSpacing = Range(varieties.Min(v => v.PlantSpacingCm), varieties.Max(v => v.PlantSpacingCm));
 
         // Each pair is stored once, so the type can be on either side
         var pairs = await db.PlantTypeCompanions.AsNoTracking()

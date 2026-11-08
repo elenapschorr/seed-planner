@@ -34,12 +34,13 @@ public class IndexModel(SeedPlannerDbContext db) : PageModel
         var comparer = StringComparer.Create(CultureInfo.CurrentCulture, ignoreCase: true);
 
         var saucers = await db.Saucers.AsNoTracking().ToListAsync();
-        var potsPerSaucer = (await db.Pots.AsNoTracking()
-                .Where(p => p.SaucerId != null)
-                .Select(p => new { p.SaucerId, p.Quantity })
+        // Every pot belongs to a group; the group knows its saucer
+        var potsPerSaucer = (await db.PotGroups.AsNoTracking()
+                .Where(g => g.SaucerId != null)
+                .Select(g => new { g.SaucerId, Count = g.Pots.Count })
                 .ToListAsync())
-            .GroupBy(p => p.SaucerId!.Value)
-            .ToDictionary(g => g.Key, g => g.Sum(p => p.Quantity));
+            .GroupBy(g => g.SaucerId!.Value)
+            .ToDictionary(g => g.Key, g => g.Sum(x => x.Count));
 
         ColorOptions = saucers
             .Select(s => s.Color)

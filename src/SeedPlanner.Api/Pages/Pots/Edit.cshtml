@@ -9,6 +9,11 @@
 <form method="post" class="row g-3">
     <div asp-validation-summary="ModelOnly" class="col-12 text-danger"></div>
 
+    <div class="col-md-6">
+        <label asp-for="Input.Name" class="form-label">@L["Field_GroupName"]</label>
+        <input asp-for="Input.Name" class="form-control" maxlength="100" />
+        <span asp-validation-for="Input.Name" class="text-danger"></span>
+    </div>
     <div class="col-md-3">
         <label asp-for="Input.Kind" class="form-label">@L["Col_Kind"]</label>
         <select asp-for="Input.Kind" asp-items="Model.KindOptions" class="form-select"></select>
@@ -18,7 +23,7 @@
         <select asp-for="Input.Shape" asp-items="Model.ShapeOptions" class="form-select"></select>
     </div>
     <div class="col-md-3">
-        <label asp-for="Input.Quantity" class="form-label">@L["Col_Quantity"]</label>
+        <label asp-for="Input.Quantity" class="form-label">@L["Pots_NumberOfPots"]</label>
         <input asp-for="Input.Quantity" class="form-control" inputmode="numeric" />
         <span asp-validation-for="Input.Quantity" class="text-danger"></span>
     </div>
@@ -71,55 +76,96 @@
 {
     <hr class="my-4" />
     <h2 class="h5">@L["PotUses_Title"]</h2>
-    <p class="text-muted">@L["PotUses_Summary", Model.Input.Quantity, Model.Occupied, Model.Free]</p>
+    <p class="text-muted">@L["PotUses_Summary", Model.Quantity, Model.Occupied, Model.Free]</p>
 
-    @foreach (var u in Model.Uses)
+    @if (Model.PlantingError is not null)
     {
-        <div class="border rounded p-2 mb-2">
-            <div class="d-flex align-items-center gap-3 mb-1">
-                <strong>@L["PotUse_Pots", u.Quantity]</strong>
-                <form method="post" asp-page-handler="RemoveUse" asp-route-id="@Model.Id" class="d-inline ms-auto">
-                    <input type="hidden" name="useId" value="@u.Id" />
-                    <button type="submit" class="btn btn-link btn-sm p-0 text-danger">@L["PotUse_RemoveEntry"]</button>
-                </form>
-            </div>
-            <ul class="list-unstyled mb-2">
-                @foreach (var x in u.Plants)
-                {
-                    <li class="d-flex align-items-center gap-3">
-                        <span>@x.Name</span>
-                        <form method="post" asp-page-handler="RemovePlant" asp-route-id="@Model.Id" class="d-inline">
-                            <input type="hidden" name="useId" value="@u.Id" />
-                            <input type="hidden" name="plantRowId" value="@x.Id" />
-                            <button type="submit" class="btn btn-link btn-sm p-0 text-danger">@L["Neighbours_Remove"]</button>
-                        </form>
-                    </li>
-                }
-            </ul>
-            <form method="post" asp-page-handler="AddPlant" asp-route-id="@Model.Id" class="row g-2">
-                <input type="hidden" name="useId" value="@u.Id" />
-                <div class="col-md-6">
-                    <select name="choice" asp-items="Model.UseOptions" class="form-select form-select-sm"></select>
-                </div>
-                <div class="col-md-auto">
-                    <button type="submit" class="btn btn-outline-secondary btn-sm">@L["PotUse_AddPlant"]</button>
-                </div>
-            </form>
-        </div>
+        <div class="alert alert-danger" role="alert">@Model.PlantingError</div>
     }
 
-    <h3 class="h6 mt-3">@L["PotUse_NewEntry"]</h3>
-    <form method="post" asp-page-handler="AddUse" asp-route-id="@Model.Id" class="row g-2 mb-3">
-        <div class="col-md-5">
-            <select name="choice" asp-items="Model.UseOptions" class="form-select"></select>
-        </div>
-        <div class="col-md-2">
-            <input type="number" name="quantity" value="1" min="1" class="form-control" />
-        </div>
-        <div class="col-md-auto">
-            <button type="submit" class="btn btn-success">@L["Action_Add"]</button>
-        </div>
-    </form>
+    @if (Model.UsedPots.Count > 0)
+    {
+        <ul class="list-unstyled">
+            @foreach (var pot in Model.UsedPots)
+            {
+                <li class="border rounded p-2 mb-2">
+                    <strong>@L["Pot_Number", pot.Number]</strong>
+                    <ul class="list-unstyled mb-2">
+                        @foreach (var x in pot.Plantings)
+                        {
+                            @if (Model.EditingId == x.Id)
+                            {
+                                <li class="mb-2">
+                                    <form method="post" asp-page-handler="UpdatePlanting" asp-route-id="@Model.Id" class="row g-2">
+                                        <input type="hidden" name="plantingId" value="@x.Id" />
+                                        <div class="col-md-5">
+                                            <select name="choice" asp-items="Model.EditOptions" class="form-select form-select-sm"></select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="number" name="plantCount" min="1" value="@x.PlantCount" class="form-control form-control-sm" placeholder="@L["Field_PlantCount"].Value" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="text" name="note" maxlength="200" value="@x.Note" class="form-control form-control-sm" placeholder="@L["Col_Note"].Value" />
+                                        </div>
+                                        <div class="col-md-auto">
+                                            <button type="submit" class="btn btn-success btn-sm">@L["Action_Save"]</button>
+                                            <a class="btn btn-outline-secondary btn-sm" asp-page="Edit" asp-route-id="@Model.Id">@L["Action_Cancel"]</a>
+                                        </div>
+                                    </form>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="d-flex align-items-center gap-3">
+                                    <span>@x.Name@(x.PlantCount is null ? "" : $" ×{x.PlantCount}")@(string.IsNullOrEmpty(x.Note) ? "" : $" ({x.Note})")</span>
+                                    <a class="btn btn-link btn-sm p-0" asp-page="Edit" asp-route-id="@Model.Id" asp-route-editPlanting="@x.Id">@L["Action_Edit"]</a>
+                                    <form method="post" asp-page-handler="RemovePlanting" asp-route-id="@Model.Id" class="d-inline">
+                                        <input type="hidden" name="plantingId" value="@x.Id" />
+                                        <button type="submit" class="btn btn-link btn-sm p-0 text-danger">@L["Neighbours_Remove"]</button>
+                                    </form>
+                                </li>
+                            }
+                        }
+                    </ul>
+                    <form method="post" asp-page-handler="AddToPot" asp-route-id="@Model.Id" class="row g-2">
+                        <input type="hidden" name="potId" value="@pot.Id" />
+                        <div class="col-md-6">
+                            <select name="choice" asp-items="Model.PlantOptions" class="form-select form-select-sm"></select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" name="plantCount" min="1" class="form-control form-control-sm" placeholder="@L["Field_PlantCount"].Value" />
+                        </div>
+                        <div class="col-md-auto">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">@L["PotUse_AddPlant"]</button>
+                        </div>
+                    </form>
+                </li>
+            }
+        </ul>
+    }
+
+    @if (Model.Free > 0)
+    {
+        <h3 class="h6 mt-3">@L["Pots_FillFree"]</h3>
+        <form method="post" asp-page-handler="AddToFreePots" asp-route-id="@Model.Id" class="row g-2 mb-3">
+            <div class="col-md-5">
+                <select name="choice" asp-items="Model.PlantOptions" class="form-select"></select>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="quantity" value="1" min="1" max="@Model.Free" class="form-control" title="@L["Pots_NumberOfPots"].Value" />
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="plantCount" min="1" class="form-control" placeholder="@L["Field_PlantCount"].Value" />
+            </div>
+            <div class="col-md-auto">
+                <button type="submit" class="btn btn-success">@L["Action_Add"]</button>
+            </div>
+        </form>
+    }
+
+    <div class="mt-4">
+        <a class="btn btn-primary" asp-page="Index">@L["Pots_Done"]</a>
+    </div>
 
     var confirmText = L["PotConfirm_Delete"].Value;
     <form method="post" asp-page-handler="Delete" asp-route-id="@Model.Id" class="mt-4"

@@ -30,6 +30,10 @@
         <select asp-for="Input.Category" asp-items="Model.CategoryOptions" class="form-select"></select>
     </div>
     <div class="col-md-3">
+        <label asp-for="Input.Lifecycle" class="form-label">@L["Col_Lifecycle"]</label>
+        <select asp-for="Input.Lifecycle" asp-items="Model.LifecycleOptions" class="form-select"></select>
+    </div>
+    <div class="col-md-3">
         <label asp-for="Input.NutrientDemand" class="form-label">@L["Col_NutrientDemand"]</label>
         <select asp-for="Input.NutrientDemand" asp-items="Model.NutrientOptions" class="form-select"></select>
     </div>
@@ -50,18 +54,22 @@
         </div>
         <span asp-validation-for="Input.GrowthDaysMin" class="text-danger"></span>
     </div>
-    <div class="col-md-5">
-        <label class="form-label">@L["Field_DemandPerPerson"]</label>
-        <div class="input-group">
-            <input asp-for="Input.DemandPerPersonMin" class="form-control" inputmode="decimal" />
-            <input asp-for="Input.DemandPerPersonMax" class="form-control" inputmode="decimal" />
+    <div class="col-12" id="demand-fields">
+        <div class="row g-3">
+        <div class="col-md-5">
+            <label class="form-label">@L["Field_DemandPerPerson"]</label>
+            <div class="input-group">
+                <input asp-for="Input.DemandPerPersonMin" class="form-control" inputmode="decimal" />
+                <input asp-for="Input.DemandPerPersonMax" class="form-control" inputmode="decimal" />
+            </div>
+            <span asp-validation-for="Input.DemandPerPersonMin" class="text-danger"></span>
         </div>
-        <span asp-validation-for="Input.DemandPerPersonMin" class="text-danger"></span>
-    </div>
-    <div class="col-md-3">
-        <label asp-for="Input.DemandUnit" class="form-label">@L["Col_DemandUnit"]</label>
-        <select asp-for="Input.DemandUnit" asp-items="Model.UnitOptions" class="form-select"></select>
-        <span asp-validation-for="Input.DemandUnit" class="text-danger"></span>
+        <div class="col-md-3">
+            <label asp-for="Input.DemandUnit" class="form-label">@L["Col_DemandUnit"]</label>
+            <select asp-for="Input.DemandUnit" asp-items="Model.UnitOptions" class="form-select"></select>
+            <span asp-validation-for="Input.DemandUnit" class="text-danger"></span>
+        </div>
+        </div>
     </div>
 
     <div class="col-12 d-flex gap-2">
@@ -77,4 +85,17 @@
           data-confirm="@confirmText" onsubmit="return confirm(this.dataset.confirm);">
         <button type="submit" class="btn btn-outline-danger">@L["Action_Delete"]</button>
     </form>
+}
+
+@section Scripts {
+    <script>
+        // Flowers are not harvested: no demand per person
+        (function () {
+            var select = document.getElementById("Input_Category");
+            var box = document.getElementById("demand-fields");
+            function update() { box.hidden = select.value === "Flower"; }
+            select.addEventListener("change", update);
+            update();
+        })();
+    </script>
 }

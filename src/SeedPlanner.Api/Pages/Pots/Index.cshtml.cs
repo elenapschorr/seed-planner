@@ -12,6 +12,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
 {
     public record Row(
         int Id,
+        string Name,
         PotKind Kind,
         PotShape Shape,
         decimal? TopCm,
@@ -23,7 +24,6 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         int SetCount,
         int Occupied,
         int Free,
-        bool Overbooked,
         string? Color,
         string? Code,
         decimal? SaucerDiameter,
@@ -54,7 +54,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
     [BindProperty(Name = "free", SupportsGet = true)]
     public bool OnlyFree { get; set; }
 
-    // Column to sort by (kind, shape, size, volume, quantity, inuse, free, color, code, saucer, uses, note)
+    // Column to sort by (name, kind, shape, size, volume, quantity, inuse, free, color, code, saucer, uses, note)
     [BindProperty(SupportsGet = true)]
     public string? Sort { get; set; }
 
@@ -66,13 +66,14 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         var language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         var comparer = StringComparer.Create(CultureInfo.CurrentCulture, ignoreCase: true);
 
-        var pots = await db.Pots.AsNoTracking()
-            .Include(p => p.Saucer)
-            .Include(p => p.Uses).ThenInclude(u => u.Plants).ThenInclude(x => x.PlantType).ThenInclude(t => t!.Translations)
-            .Include(p => p.Uses).ThenInclude(u => u.Plants).ThenInclude(x => x.Plant)
+        // One row per group; the single pots and their plantings are counted in memory
+        var groups = await db.PotGroups.AsNoTracking()
+            .Include(g => g.Saucer)
+            .Include(g => g.Pots).ThenInclude(p => p.Plantings).ThenInclude(x => x.PlantType).ThenInclude(t => t!.Translations)
+            .Include(g => g.Pots).ThenInclude(p => p.Plantings).ThenInclude(x => x.Plant)
             .ToListAsync();
 
-        ColorOptions = pots
+        ColorOptions = groups
             .Select(p => p.Color)
             .Where(c => !string.IsNullOrWhiteSpace(c))
             .Select(c => c!)
@@ -80,20 +81,14 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             .OrderBy(c => c, comparer)
             .ToList();
 
-        var rows = pots.Select(p => new Row(
-            p.Id, p.Kind, p.Shape, p.TopCm, p.BottomCm, p.HeightCm, p.VolumeLiters,
-            p.Quantity, p.SetSize, p.SetCount, p.OccupiedQuantity, p.FreeQuantity, p.IsOverbooked,
-            p.Color, p.Code,
-            p.Saucer?.DiameterCm,
-            p.Saucer is null ? null : $"{Format(p.Saucer.DiameterCm)} {p.Saucer.Color}".Trim(),
-            // "Strawberry – Mara 12" or "Cranberry + Strawberry 2" (several plants in the same pots)
-            string.Join(", ", p.Uses
-                .Select(u => (Name: string.Join(" + ", u.Plants
-                        .Select(x => PlantName(x, language))
-                        .OrderBy(n => n, comparer)), u.Quantity))
-                .OrderBy(u => u.Name, comparer)
-                .Select(u => $"{u.Name} {u.Quantity}")),
-            p.Note));
+        var rows = groups.Select(g => new Row(
+            g.Id, g.Name, g.Kind, g.Shape, g.TopCm, g.BottomCm, g.HeightCm, g.VolumeLiters,
+            g.Quantity, g.SetSize, g.SetCount, g.OccupiedQuantity, g.FreeQuantity,
+            g.Color, g.Code,
+            g.Saucer?.DiameterCm,
+            g.Saucer is null ? null : $"{Format(g.Saucer.DiameterCm)} {g.Saucer.Color}".Trim(),
+            UsesText(g, language, comparer),
+            g.Note));
 
         if (KindFilter is not null) rows = rows.Where(r => r.Kind == KindFilter);
         if (ShapeFilter is not null) rows = rows.Where(r => r.Shape == ShapeFilter);
@@ -104,7 +99,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         {
             var q = Q.Trim();
             rows = rows.Where(r =>
-                Contains(r.Color, q) || Contains(r.Code, q) || Contains(r.Note, q) ||
+                Contains(r.Name, q) || Contains(r.Color, q) || Contains(r.Code, q) || Contains(r.Note, q) ||
                 Contains(r.Uses, q) || Contains(r.Saucer, q));
         }
 
@@ -120,6 +115,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         var desc = Descending;
         Rows = (Sort?.ToLowerInvariant()) switch
         {
+            "name" => ListSorting.Sort(byDefault, r => r.Name, desc),
             "kind" => ListSorting.Sort(byDefault, r => L["PotKind_" + r.Kind].Value, desc),
             "shape" => ListSorting.Sort(byDefault, r => L["PotShape_" + r.Shape].Value, desc),
             "size" => ListSorting.Sort(byDefault, r => r.TopCm, desc),
@@ -143,12 +139,21 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
     private static string TypeName(PlantType type, string language) =>
         type.Translations.FirstOrDefault(t => t.Language == language)?.Name ?? type.Name;
 
-    // The plant type, followed by the variety if there is one
-    private static string PlantName(PotUsePlant x, string language)
+    // The plant type, followed by the variety if there is one, and the number of plants if it is known
+    private static string PlantName(Planting x, string language)
     {
         var type = TypeName(x.PlantType!, language);
-        return x.Plant is not null && x.Plant.Name != "(unnamed)" ? $"{type} – {x.Plant.Name}" : type;
+        var name = x.Plant is not null && x.Plant.Name != "(unnamed)" ? $"{type} – {x.Plant.Name}" : type;
+        return x.PlantCount is null ? name : $"{name} ×{x.PlantCount}";
     }
+
+    // "Cranberry – Howes + Cranberry – Red Star 1, Heidelbeere 2": the pots with the same plants are counted together
+    private static string UsesText(PotGroup group, string language, StringComparer comparer) =>
+        string.Join(", ", group.Pots
+            .Where(p => p.Plantings.Count > 0)
+            .GroupBy(p => string.Join(" + ", p.Plantings.Select(x => PlantName(x, language)).OrderBy(n => n, comparer)))
+            .OrderBy(g => g.Key, comparer)
+            .Select(g => $"{g.Key} {g.Count()}"));
 
     private static string Format(decimal value) => value.ToString("0.#", CultureInfo.CurrentCulture);
 

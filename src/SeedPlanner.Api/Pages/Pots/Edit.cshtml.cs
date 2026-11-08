@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,10 +10,14 @@ using SeedPlanner.Infrastructure;
 
 namespace SeedPlanner.Api.Pages.Pots;
 
+// One group of pots: the data of the group, the number of pots and the plants in the single pots
 public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource> L) : PageModel
 {
     public class InputModel
     {
+        [Required, StringLength(100)]
+        public string Name { get; set; } = "";
+
         public PotKind Kind { get; set; } = PotKind.Pot;
         public PotShape Shape { get; set; } = PotShape.Round;
 
@@ -20,6 +25,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         public decimal? BottomCm { get; set; }
         public decimal? HeightCm { get; set; }
 
+        // Number of single pots in the group
         public int Quantity { get; set; } = 1;
         public int SetSize { get; set; } = 1;
 
@@ -30,9 +36,10 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         public int? SaucerId { get; set; }
     }
 
-    public record UsePlantRow(int Id, string Name);
+    public record PlantingRow(int Id, string Name, int? PlantCount, string? Note, string Choice);
 
-    public record UseRow(int Id, int Quantity, List<UsePlantRow> Plants);
+    // Number is the position of the pot in the group (1, 2, 3 ...)
+    public record PotRow(int Id, int Number, List<PlantingRow> Plantings);
 
     public int? Id { get; private set; }
 
@@ -42,20 +49,32 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
     public List<SelectListItem> KindOptions { get; private set; } = new();
     public List<SelectListItem> ShapeOptions { get; private set; } = new();
     public List<SelectListItem> SaucerOptions { get; private set; } = new();
-    public List<SelectListItem> UseOptions { get; private set; } = new();
-    public List<UseRow> Uses { get; private set; } = new();
+    public List<SelectListItem> PlantOptions { get; private set; } = new();
 
-    public int Occupied => Uses.Sum(u => u.Quantity);
-    public int Free => Math.Max(0, Input.Quantity - Occupied);
+    // Pots with plants (listed one by one); the free pots are only counted
+    public List<PotRow> UsedPots { get; private set; } = new();
+    public int Quantity { get; private set; }
+    public int Free { get; private set; }
+    public int Occupied => Quantity - Free;
 
-    public async Task<IActionResult> OnGetAsync(int? id)
+    // Message for the planting section (shown right there, not at the top of the page)
+    public string? PlantingError { get; private set; }
+
+    // The planting that is being edited right now (its row shows a form instead of the text)
+    public int? EditingId { get; private set; }
+
+    // Plant list with the current plant of the edited planting selected
+    public List<SelectListItem> EditOptions { get; private set; } = new();
+
+    public async Task<IActionResult> OnGetAsync(int? id, int? editPlanting)
     {
         Id = id;
+        EditingId = editPlanting;
         if (id is not null)
         {
-            var pot = await LoadAsync(id.Value);
-            if (pot is null) return NotFound();
-            Input = ToInput(pot);
+            var group = await db.PotGroups.AsNoTracking().Include(g => g.Pots).FirstOrDefaultAsync(g => g.Id == id);
+            if (group is null) return NotFound();
+            Input = ToInput(group);
         }
         await PrepareAsync(id);
         return Page();
@@ -64,100 +83,114 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
     public async Task<IActionResult> OnPostAsync(int? id)
     {
         Id = id;
-        Pot? pot = null;
+        PotGroup? group = null;
         if (id is not null)
         {
-            pot = await db.Pots.FirstOrDefaultAsync(p => p.Id == id);
-            if (pot is null) return NotFound();
+            group = await db.PotGroups.Include(g => g.Pots).ThenInclude(p => p.Plantings)
+                .FirstOrDefaultAsync(g => g.Id == id);
+            if (group is null) return NotFound();
         }
 
-        await ValidateAsync(id);
+        await ValidateAsync(id, group);
         if (!ModelState.IsValid)
         {
             await PrepareAsync(id);
             return Page();
         }
 
-        if (pot is null)
+        if (group is null)
         {
-            pot = new Pot();
-            db.Pots.Add(pot);
+            group = new PotGroup();
+            db.PotGroups.Add(group);
         }
-        Apply(pot);
+        Apply(group);
+        SetQuantity(group, Input.Quantity);
         await db.SaveChangesAsync();
 
         // A new group continues on the edit page, where the plants in it can be entered
         return id is null
-            ? RedirectToPage("Edit", new { id = pot.Id })
+            ? RedirectToPage("Edit", new { id = group.Id })
             : RedirectToPage("Index");
     }
 
-    // Marks some of the free pots as used, with a first plant (a plant type or a variety)
-    public async Task<IActionResult> OnPostAddUseAsync(int id, string? choice, int quantity)
+    // Plants some of the free pots, e.g. "2 free pots with blueberry"
+    public async Task<IActionResult> OnPostAddToFreePotsAsync(int id, string? choice, int quantity, int? plantCount)
     {
-        var pot = await db.Pots.Include(p => p.Uses).FirstOrDefaultAsync(p => p.Id == id);
-        if (pot is null) return NotFound();
+        var group = await LoadWithPotsAsync(id);
+        if (group is null) return NotFound();
 
         var (typeId, plantId) = await ParseChoiceAsync(choice);
+        var free = group.Pots.Where(p => p.IsFree).OrderBy(p => p.Id).ToList();
+
         string? error = null;
         if (typeId is null) error = L["PotError_UseInvalid"];
         else if (quantity < 1) error = L["PotError_UseQuantity"];
-        else if (quantity > pot.FreeQuantity) error = L["PotError_UseTooMany", pot.FreeQuantity];
+        else if (quantity > free.Count) error = L["PotError_UseTooMany", free.Count];
+        else if (plantCount is < 1) error = L["PotError_PlantCount"];
+        if (error is not null) return await PageWithErrorAsync(group, error);
 
-        if (error is not null) return await PageWithErrorAsync(pot, error);
-
-        pot.Uses.Add(new PotUse
+        foreach (var pot in free.Take(quantity))
         {
-            Quantity = quantity,
-            Plants = { new PotUsePlant { PlantTypeId = typeId!.Value, PlantId = plantId } }
-        });
+            pot.Plantings.Add(NewPlanting(typeId!.Value, plantId, plantCount));
+        }
         await db.SaveChangesAsync();
         return RedirectToPage("Edit", new { id });
     }
 
-    // Another plant that grows in the same pots of an entry
-    public async Task<IActionResult> OnPostAddPlantAsync(int id, int useId, string? choice)
+    // Another plant in a pot that is already planted
+    public async Task<IActionResult> OnPostAddToPotAsync(int id, int potId, string? choice, int? plantCount)
     {
-        var use = await db.PotUses.Include(u => u.Plants)
-            .FirstOrDefaultAsync(u => u.Id == useId && u.PotId == id);
-        if (use is null) return NotFound();
+        var group = await LoadWithPotsAsync(id);
+        var pot = group?.Pots.FirstOrDefault(p => p.Id == potId);
+        if (group is null || pot is null) return NotFound();
 
         var (typeId, plantId) = await ParseChoiceAsync(choice);
-        if (typeId is null)
-        {
-            var pot = await db.Pots.FirstAsync(p => p.Id == id);
-            return await PageWithErrorAsync(pot, L["PotError_UseInvalid"]);
-        }
+        string? error = null;
+        if (typeId is null) error = L["PotError_UseInvalid"];
+        else if (plantCount is < 1) error = L["PotError_PlantCount"];
+        else if (pot.Plantings.Any(x => x.PlantTypeId == typeId && x.PlantId == plantId)) error = L["PotError_AlreadyThere"];
+        if (error is not null) return await PageWithErrorAsync(group, error);
 
-        if (!use.Plants.Any(x => x.PlantTypeId == typeId && x.PlantId == plantId))
-        {
-            use.Plants.Add(new PotUsePlant { PlantTypeId = typeId.Value, PlantId = plantId });
-            await db.SaveChangesAsync();
-        }
+        pot.Plantings.Add(NewPlanting(typeId!.Value, plantId, plantCount));
+        await db.SaveChangesAsync();
         return RedirectToPage("Edit", new { id });
     }
 
-    // Removes one plant from an entry; an entry without plants is removed as well
-    public async Task<IActionResult> OnPostRemovePlantAsync(int id, int useId, int plantRowId)
+    // Changes plant, number of plants and note of an existing planting
+    public async Task<IActionResult> OnPostUpdatePlantingAsync(int id, int plantingId, string? choice, int? plantCount, string? note)
     {
-        var use = await db.PotUses.Include(u => u.Plants)
-            .FirstOrDefaultAsync(u => u.Id == useId && u.PotId == id);
-        if (use is not null)
+        var group = await LoadWithPotsAsync(id);
+        var planting = group?.Pots.SelectMany(p => p.Plantings).FirstOrDefault(x => x.Id == plantingId);
+        if (group is null || planting is null) return NotFound();
+
+        var (typeId, plantId) = await ParseChoiceAsync(choice);
+        var pot = group.Pots.First(p => p.Plantings.Contains(planting));
+        string? error = null;
+        if (typeId is null) error = L["PotError_UseInvalid"];
+        else if (plantCount is < 1) error = L["PotError_PlantCount"];
+        else if (pot.Plantings.Any(x => x.Id != plantingId && x.PlantTypeId == typeId && x.PlantId == plantId))
+            error = L["PotError_AlreadyThere"];
+        if (error is not null)
         {
-            var plant = use.Plants.FirstOrDefault(x => x.Id == plantRowId);
-            if (plant is not null) use.Plants.Remove(plant);
-            if (use.Plants.Count == 0) db.PotUses.Remove(use);
-            await db.SaveChangesAsync();
+            EditingId = plantingId;
+            return await PageWithErrorAsync(group, error);
         }
+
+        planting.PlantTypeId = typeId!.Value;
+        planting.PlantId = plantId;
+        planting.PlantCount = plantCount;
+        planting.Note = Clean(note);
+        await db.SaveChangesAsync();
         return RedirectToPage("Edit", new { id });
     }
 
-    public async Task<IActionResult> OnPostRemoveUseAsync(int id, int useId)
+    public async Task<IActionResult> OnPostRemovePlantingAsync(int id, int plantingId)
     {
-        var use = await db.PotUses.FirstOrDefaultAsync(u => u.Id == useId && u.PotId == id);
-        if (use is not null)
+        // The query filter only finds the user's own plantings; the pot must belong to this group
+        var planting = await db.Plantings.FirstOrDefaultAsync(x => x.Id == plantingId && x.Pot!.PotGroupId == id);
+        if (planting is not null)
         {
-            db.PotUses.Remove(use);
+            db.Plantings.Remove(planting);
             await db.SaveChangesAsync();
         }
         return RedirectToPage("Edit", new { id });
@@ -165,11 +198,11 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
     public async Task<IActionResult> OnPostDeleteAsync(int id)
     {
-        // The entries in the group are deleted with it (cascade)
-        var pot = await db.Pots.FirstOrDefaultAsync(p => p.Id == id);
-        if (pot is not null)
+        // The single pots and their plantings are deleted with the group (cascade)
+        var group = await db.PotGroups.FirstOrDefaultAsync(g => g.Id == id);
+        if (group is not null)
         {
-            db.Pots.Remove(pot);
+            db.PotGroups.Remove(group);
             await db.SaveChangesAsync();
         }
         return RedirectToPage("Index");
@@ -177,17 +210,20 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
     // ---------------------------------------------------------------- helpers
 
-    private async Task<IActionResult> PageWithErrorAsync(Pot pot, string error)
+    private static Planting NewPlanting(int typeId, int? plantId, int? plantCount) =>
+        new() { PlantTypeId = typeId, PlantId = plantId, PlantCount = plantCount };
+
+    private Task<PotGroup?> LoadWithPotsAsync(int id) =>
+        db.PotGroups.Include(g => g.Pots).ThenInclude(p => p.Plantings).FirstOrDefaultAsync(g => g.Id == id);
+
+    private async Task<IActionResult> PageWithErrorAsync(PotGroup group, string error)
     {
-        Id = pot.Id;
-        Input = ToInput(pot);
-        ModelState.AddModelError(string.Empty, error);
-        await PrepareAsync(pot.Id);
+        Id = group.Id;
+        Input = ToInput(group);
+        PlantingError = error;
+        await PrepareAsync(group.Id);
         return Page();
     }
-
-    private Task<Pot?> LoadAsync(int id) =>
-        db.Pots.AsNoTracking().Include(p => p.Uses).FirstOrDefaultAsync(p => p.Id == id);
 
     // "t:12" is a plant type, "p:34" a variety of the user
     private async Task<(int? TypeId, int? PlantId)> ParseChoiceAsync(string? choice)
@@ -208,8 +244,15 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         return (null, null);
     }
 
-    private async Task ValidateAsync(int? id)
+    private async Task ValidateAsync(int? id, PotGroup? group)
     {
+        Input.Name = Input.Name?.Trim() ?? "";
+        if (Input.Name.Length > 0 &&
+            await db.PotGroups.AnyAsync(g => g.Name == Input.Name && g.Id != (id ?? 0)))
+        {
+            ModelState.AddModelError("Input.Name", L["PotError_NameExists"]);
+        }
+
         if (Input.Quantity < 0) ModelState.AddModelError("Input.Quantity", L["PotError_Quantity"]);
         if (Input.SetSize < 1) ModelState.AddModelError("Input.SetSize", L["PotError_SetSize"]);
 
@@ -225,47 +268,69 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         if (Input.SaucerId is not null && !await db.Saucers.AnyAsync(s => s.Id == Input.SaucerId))
             Input.SaucerId = null;
 
-        if (id is not null)
+        // Fewer pots: only free pots can be taken away
+        if (group is not null && Input.Quantity < group.Pots.Count)
         {
-            var occupied = await db.PotUses.Where(u => u.PotId == id).SumAsync(u => u.Quantity);
-            if (Input.Quantity < occupied)
-                ModelState.AddModelError("Input.Quantity", L["PotError_QuantityBelowUse", occupied]);
+            var removable = group.Pots.Count(p => p.IsFree);
+            var toRemove = group.Pots.Count - Input.Quantity;
+            if (toRemove > removable)
+                ModelState.AddModelError("Input.Quantity", L["PotError_QuantityBelowUse", group.Pots.Count - removable]);
         }
     }
 
-    private void Apply(Pot pot)
+    private void Apply(PotGroup group)
     {
-        pot.Kind = Input.Kind;
-        pot.Shape = Input.Shape;
-        pot.TopCm = Input.TopCm;
-        pot.BottomCm = Input.BottomCm;
-        pot.HeightCm = Input.HeightCm;
-        pot.Quantity = Input.Quantity;
-        pot.SetSize = Input.SetSize;
-        pot.Color = Clean(Input.Color);
-        pot.Code = Clean(Input.Code);
-        pot.Note = Clean(Input.Note);
-        pot.SaucerId = Input.SaucerId;
+        group.Name = Input.Name;
+        group.Kind = Input.Kind;
+        group.Shape = Input.Shape;
+        group.TopCm = Input.TopCm;
+        group.BottomCm = Input.BottomCm;
+        group.HeightCm = Input.HeightCm;
+        group.SetSize = Input.SetSize;
+        group.Color = Clean(Input.Color);
+        group.Code = Clean(Input.Code);
+        group.Note = Clean(Input.Note);
+        group.SaucerId = Input.SaucerId;
+    }
+
+    // Adds single pots, or removes free ones (the newest first)
+    private void SetQuantity(PotGroup group, int quantity)
+    {
+        while (group.Pots.Count < quantity)
+        {
+            group.Pots.Add(new Pot());
+        }
+        if (group.Pots.Count > quantity)
+        {
+            var remove = group.Pots.Where(p => p.IsFree).OrderByDescending(p => p.Id)
+                .Take(group.Pots.Count - quantity).ToList();
+            foreach (var pot in remove)
+            {
+                group.Pots.Remove(pot);
+                db.Pots.Remove(pot);
+            }
+        }
     }
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
-    private static InputModel ToInput(Pot pot) => new()
+    private static InputModel ToInput(PotGroup group) => new()
     {
-        Kind = pot.Kind,
-        Shape = pot.Shape,
-        TopCm = pot.TopCm,
-        BottomCm = pot.BottomCm,
-        HeightCm = pot.HeightCm,
-        Quantity = pot.Quantity,
-        SetSize = pot.SetSize,
-        Color = pot.Color,
-        Code = pot.Code,
-        Note = pot.Note,
-        SaucerId = pot.SaucerId
+        Name = group.Name,
+        Kind = group.Kind,
+        Shape = group.Shape,
+        TopCm = group.TopCm,
+        BottomCm = group.BottomCm,
+        HeightCm = group.HeightCm,
+        Quantity = group.Pots.Count,
+        SetSize = group.SetSize,
+        Color = group.Color,
+        Code = group.Code,
+        Note = group.Note,
+        SaucerId = group.SaucerId
     };
 
-    // ---------------------------------------------------------------- dropdown lists and entries
+    // ---------------------------------------------------------------- dropdown lists and pots
 
     private async Task PrepareAsync(int? id)
     {
@@ -291,37 +356,52 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         var plants = await db.Plants.AsNoTracking().ToListAsync();
 
         // One group per plant type: the type itself, then the user's varieties of it
-        UseOptions = new List<SelectListItem> { new("–", "") };
+        PlantOptions = new List<SelectListItem> { new("–", "") };
         foreach (var type in types.OrderBy(t => typeNames[t.Id], comparer))
         {
             var group = new SelectListGroup { Name = typeNames[type.Id] };
-            UseOptions.Add(new SelectListItem(
+            PlantOptions.Add(new SelectListItem(
                 $"{typeNames[type.Id]} ({L["PotUse_NoVariety"]})", $"t:{type.Id}") { Group = group });
             foreach (var plant in plants.Where(p => p.PlantTypeId == type.Id && p.Name != "(unnamed)")
                          .OrderBy(p => p.Name, comparer))
             {
-                UseOptions.Add(new SelectListItem(
+                PlantOptions.Add(new SelectListItem(
                     $"{typeNames[type.Id]} – {plant.Name}", $"p:{plant.Id}") { Group = group });
             }
         }
 
-        var uses = await db.PotUses.AsNoTracking().Where(u => u.PotId == id)
-            .Include(u => u.Plants).ThenInclude(x => x.Plant)
+        var pots = await db.Pots.AsNoTracking()
+            .Where(p => p.PotGroupId == id)
+            .Include(p => p.Plantings).ThenInclude(x => x.Plant)
+            .OrderBy(p => p.Id)
             .ToListAsync();
-        Uses = uses
-            .Select(u => new UseRow(
-                u.Id,
-                u.Quantity,
-                u.Plants
-                    .Select(x => new UsePlantRow(
+        Quantity = pots.Count;
+        Free = pots.Count(p => p.IsFree);
+        UsedPots = pots
+            .Select((p, index) => new PotRow(
+                p.Id,
+                index + 1,
+                p.Plantings
+                    .Select(x => new PlantingRow(
                         x.Id,
                         x.Plant is not null && x.Plant.Name != "(unnamed)"
                             ? $"{typeNames[x.PlantTypeId]} – {x.Plant.Name}"
-                            : typeNames[x.PlantTypeId]))
+                            : typeNames[x.PlantTypeId],
+                        x.PlantCount,
+                        x.Note,
+                        x.PlantId is not null ? $"p:{x.PlantId}" : $"t:{x.PlantTypeId}"))
                     .OrderBy(x => x.Name, comparer)
                     .ToList()))
-            .OrderBy(u => u.Plants.FirstOrDefault()?.Name, comparer)
+            .Where(p => p.Plantings.Count > 0)
             .ToList();
+
+        if (EditingId is not null)
+        {
+            var current = UsedPots.SelectMany(p => p.Plantings).FirstOrDefault(x => x.Id == EditingId)?.Choice;
+            EditOptions = PlantOptions
+                .Select(o => new SelectListItem(o.Text, o.Value, o.Value == current) { Group = o.Group })
+                .ToList();
+        }
     }
 
     private static string TypeName(PlantType type, string language) =>

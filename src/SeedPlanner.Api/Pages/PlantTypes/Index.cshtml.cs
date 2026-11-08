@@ -18,6 +18,7 @@ public class IndexModel(
         int Id,
         string Name,
         PlantCategory? Category,
+        Lifecycle? Lifecycle,
         NutrientDemand? NutrientDemand,
         Exposure? Exposure,
         int PlantCount);
@@ -36,13 +37,16 @@ public class IndexModel(
     [BindProperty(SupportsGet = true)]
     public PlantCategory? Category { get; set; }
 
+    [BindProperty(Name = "lifecycle", SupportsGet = true)]
+    public Lifecycle? LifecycleFilter { get; set; }
+
     [BindProperty(Name = "nutrient", SupportsGet = true)]
     public NutrientDemand? NutrientFilter { get; set; }
 
     [BindProperty(Name = "exposure", SupportsGet = true)]
     public Exposure? ExposureFilter { get; set; }
 
-    // Column to sort by (name, category, nutrient, exposure, plants) and direction (asc, desc)
+    // Column to sort by (name, category, lifecycle, nutrient, exposure, plants) and direction (asc, desc)
     [BindProperty(SupportsGet = true)]
     public string? Sort { get; set; }
 
@@ -58,6 +62,7 @@ public class IndexModel(
 
         var query = db.PlantTypes.AsNoTracking();
         if (Category is not null) query = query.Where(t => t.Category == Category);
+        if (LifecycleFilter is not null) query = query.Where(t => t.Lifecycle == LifecycleFilter);
         if (NutrientFilter is not null) query = query.Where(t => t.NutrientDemand == NutrientFilter);
         if (ExposureFilter is not null) query = query.Where(t => t.Exposure == ExposureFilter);
 
@@ -71,6 +76,7 @@ public class IndexModel(
                     .Select(x => x.Name)
                     .FirstOrDefault(),
                 t.Category,
+                t.Lifecycle,
                 t.NutrientDemand,
                 t.Exposure,
                 PlantCount = t.Plants.Count
@@ -80,7 +86,7 @@ public class IndexModel(
         // Fall back to the English name if there is no translation
         var rows = data.Select(d => new Row(
             d.Id, d.TranslatedName ?? d.EnglishName,
-            d.Category, d.NutrientDemand, d.Exposure, d.PlantCount));
+            d.Category, d.Lifecycle, d.NutrientDemand, d.Exposure, d.PlantCount));
 
         if (!string.IsNullOrWhiteSpace(Q))
         {
@@ -94,6 +100,7 @@ public class IndexModel(
         Rows = (Sort?.ToLowerInvariant()) switch
         {
             "category" => ListSorting.Sort(byName, r => r.Category is null ? null : L["Category_" + r.Category].Value, Descending),
+            "lifecycle" => ListSorting.Sort(byName, r => r.Lifecycle is null ? null : L["Lifecycle_" + r.Lifecycle].Value, Descending),
             "nutrient" => ListSorting.Sort(byName, r => ListSorting.Rank(r.NutrientDemand), Descending),
             "exposure" => ListSorting.Sort(byName, r => ListSorting.Rank(r.Exposure), Descending),
             "plants" => ListSorting.Sort(byName, r => r.PlantCount, Descending),
@@ -117,6 +124,7 @@ public class IndexModel(
     {
         ["q"] = Q,
         ["category"] = Category?.ToString(),
+        ["lifecycle"] = LifecycleFilter?.ToString(),
         ["nutrient"] = NutrientFilter?.ToString(),
         ["exposure"] = ExposureFilter?.ToString(),
         ["sort"] = column,

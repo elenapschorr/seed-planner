@@ -192,5 +192,33 @@
   <data name="AllBedKinds" xml:space="preserve"><value>All bed types</value></data>
   <data name="Col_BedKind" xml:space="preserve"><value>Type</value></data>
   <data name="Col_Plantings" xml:space="preserve"><value>Planting</value></data>
-  <data name="SeedType_Vegetative" xml:space="preserve"><value>Vegetative (plant)</value></data>
+  <data name="Lifecycle_Annual" xml:space="preserve"><value>Annual</value></data>
+  <data name="Lifecycle_Biennial" xml:space="preserve"><value>Biennial</value></data>
+  <data name="Lifecycle_Perennial" xml:space="preserve"><value>Perennial</value></data>
+  <data name="Lifecycle_ConditionallyPerennial" xml:space="preserve"><value>Conditionally perennial (needs overwintering)</value></data>
+  <data name="Propagation_Seed" xml:space="preserve"><value>Seed</value></data>
+  <data name="Propagation_Plant" xml:space="preserve"><value>Plant</value></data>
+  <data name="Propagation_Cutting" xml:space="preserve"><value>Cutting</value></data>
+  <data name="Col_Lifecycle" xml:space="preserve"><value>Lifecycle</value></data>
+  <data name="Col_Propagation" xml:space="preserve"><value>Form</value></data>
+  <data name="AllLifecycles" xml:space="preserve"><value>All lifecycles</value></data>
+  <data name="AllPropagations" xml:space="preserve"><value>All forms</value></data>
+  <data name="Section_Seeds" xml:space="preserve"><value>Seeds</value></data>
+  <data name="Section_Plants" xml:space="preserve"><value>Plants</value></data>
+  <data name="Plants_NoResults" xml:space="preserve"><value>No varieties found.</value></data>
+  <data name="Field_Bloom1" xml:space="preserve"><value>Flowering time</value></data>
+  <data name="Field_Bloom2" xml:space="preserve"><value>Flowering time 2</value></data>
+  <data name="Details_Names" xml:space="preserve"><value>Names</value></data>
+  <data name="Details_SpaceNeeds" xml:space="preserve"><value>Space needs</value></data>
+  <data name="Details_FromVarieties" xml:space="preserve"><value>Smallest and largest value of your varieties of this type ({0})</value></data>
+  <data name="Field_GroupName" xml:space="preserve"><value>Group name</value></data>
+  <data name="Col_Group" xml:space="preserve"><value>Group</value></data>
+  <data name="Field_PlantCount" xml:space="preserve"><value>Number of plants (optional)</value></data>
+  <data name="Pots_NumberOfPots" xml:space="preserve"><value>Number of pots</value></data>
+  <data name="Pot_Number" xml:space="preserve"><value>Pot {0}</value></data>
+  <data name="Pots_FillFree" xml:space="preserve"><value>Plant into free pots</value></data>
+  <data name="PotError_AlreadyThere" xml:space="preserve"><value>This plant is already in this pot.</value></data>
+  <data name="PotError_NameExists" xml:space="preserve"><value>A group with this name already exists.</value></data>
+  <data name="PotError_PlantCount" xml:space="preserve"><value>The number of plants must be at least 1.</value></data>
+  <data name="Pots_Done" xml:space="preserve"><value>Done</value></data>
 </root>

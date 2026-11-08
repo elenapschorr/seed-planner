@@ -5,6 +5,7 @@
     ViewData["Title"] = L["Pots_Title"].Value;
 
     // Addresses of the column titles (keep the filters, reverse the direction on a second click)
+    var sort_name = Model.SortRoute("name");
     var sort_kind = Model.SortRoute("kind");
     var sort_shape = Model.SortRoute("shape");
     var sort_size = Model.SortRoute("size");
@@ -70,6 +71,7 @@
 <table class="table table-hover align-middle">
     <thead>
         <tr>
+            <th><a asp-page="/Pots/Index" asp-all-route-data="sort_name" class="text-decoration-none text-reset">@L["Col_Group"]@Model.Arrow("name")</a></th>
             <th><a asp-page="/Pots/Index" asp-all-route-data="sort_kind" class="text-decoration-none text-reset">@L["Col_Kind"]@Model.Arrow("kind")</a></th>
             <th><a asp-page="/Pots/Index" asp-all-route-data="sort_shape" class="text-decoration-none text-reset">@L["Col_Shape"]@Model.Arrow("shape")</a></th>
             <th><a asp-page="/Pots/Index" asp-all-route-data="sort_size" class="text-decoration-none text-reset">@L["Col_Size"]@Model.Arrow("size")</a></th>
@@ -89,6 +91,7 @@
         @foreach (var r in Model.Rows)
         {
             <tr>
+                <td><strong>@r.Name</strong></td>
                 <td>@L["PotKind_" + r.Kind]</td>
                 <td>@L["PotShape_" + r.Shape]</td>
                 <td>@Model.Size(r)</td>
@@ -101,13 +104,7 @@
                     }
                 </td>
                 <td class="text-end">@r.Occupied</td>
-                <td class="text-end">
-                    @r.Free
-                    @if (r.Overbooked)
-                    {
-                        <span class="badge text-bg-danger" title="@L["Pots_Overbooked"]">!</span>
-                    }
-                </td>
+                <td class="text-end">@r.Free</td>
                 <td>@(r.Color ?? "–")</td>
                 <td>@(r.Code ?? "–")</td>
                 <td>@(r.Saucer ?? "–")</td>

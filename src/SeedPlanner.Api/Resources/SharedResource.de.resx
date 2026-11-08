@@ -192,5 +192,33 @@
   <data name="AllBedKinds" xml:space="preserve"><value>Alle Beetarten</value></data>
   <data name="Col_BedKind" xml:space="preserve"><value>Art</value></data>
   <data name="Col_Plantings" xml:space="preserve"><value>Bepflanzung</value></data>
-  <data name="SeedType_Vegetative" xml:space="preserve"><value>Vegetativ (Pflanze)</value></data>
+  <data name="Lifecycle_Annual" xml:space="preserve"><value>einjährig</value></data>
+  <data name="Lifecycle_Biennial" xml:space="preserve"><value>zweijährig</value></data>
+  <data name="Lifecycle_Perennial" xml:space="preserve"><value>mehrjährig</value></data>
+  <data name="Lifecycle_ConditionallyPerennial" xml:space="preserve"><value>bedingt mehrjährig (Überwinterung nötig)</value></data>
+  <data name="Propagation_Seed" xml:space="preserve"><value>Samen</value></data>
+  <data name="Propagation_Plant" xml:space="preserve"><value>Pflanze</value></data>
+  <data name="Propagation_Cutting" xml:space="preserve"><value>Steckling</value></data>
+  <data name="Col_Lifecycle" xml:space="preserve"><value>Lebensdauer</value></data>
+  <data name="Col_Propagation" xml:space="preserve"><value>Bezugsform</value></data>
+  <data name="AllLifecycles" xml:space="preserve"><value>Alle Lebensdauern</value></data>
+  <data name="AllPropagations" xml:space="preserve"><value>Alle Bezugsformen</value></data>
+  <data name="Section_Seeds" xml:space="preserve"><value>Samen</value></data>
+  <data name="Section_Plants" xml:space="preserve"><value>Pflanzen</value></data>
+  <data name="Plants_NoResults" xml:space="preserve"><value>Keine Sorten gefunden.</value></data>
+  <data name="Field_Bloom1" xml:space="preserve"><value>Blütezeit</value></data>
+  <data name="Field_Bloom2" xml:space="preserve"><value>Blütezeit 2</value></data>
+  <data name="Details_Names" xml:space="preserve"><value>Namen</value></data>
+  <data name="Details_SpaceNeeds" xml:space="preserve"><value>Platzbedarf</value></data>
+  <data name="Details_FromVarieties" xml:space="preserve"><value>Kleinster und größter Wert aus deinen Sorten dieser Art ({0})</value></data>
+  <data name="Field_GroupName" xml:space="preserve"><value>Gruppenname</value></data>
+  <data name="Col_Group" xml:space="preserve"><value>Gruppe</value></data>
+  <data name="Field_PlantCount" xml:space="preserve"><value>Anzahl Pflanzen (optional)</value></data>
+  <data name="Pots_NumberOfPots" xml:space="preserve"><value>Anzahl Töpfe</value></data>
+  <data name="Pot_Number" xml:space="preserve"><value>Topf {0}</value></data>
+  <data name="Pots_FillFree" xml:space="preserve"><value>In freie Töpfe pflanzen</value></data>
+  <data name="PotError_AlreadyThere" xml:space="preserve"><value>Diese Pflanze ist in diesem Topf schon eingetragen.</value></data>
+  <data name="PotError_NameExists" xml:space="preserve"><value>Eine Gruppe mit diesem Namen gibt es schon.</value></data>
+  <data name="PotError_PlantCount" xml:space="preserve"><value>Die Anzahl der Pflanzen muss mindestens 1 sein.</value></data>
+  <data name="Pots_Done" xml:space="preserve"><value>Fertig</value></data>
 </root>

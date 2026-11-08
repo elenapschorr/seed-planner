@@ -57,7 +57,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             b.AreaSquareMeters, b.VolumeLiters,
             // "Kiwi – Solissimo, Rhubarb – Livingstone 2, Wild strawberry 17"
             string.Join(", ", b.Plantings
-                .Select(x => PlantName(x, language) + (x.PlantCount is null ? "" : $" {x.PlantCount}"))
+                .Select(x => PlantName(x, language) + (x.PlantCount is null ? "" : $" ×{x.PlantCount}"))
                 .OrderBy(n => n, comparer)),
             b.Note));
 
@@ -97,7 +97,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         type.Translations.FirstOrDefault(t => t.Language == language)?.Name ?? type.Name;
 
     // The plant type, followed by the variety if there is one
-    private static string PlantName(BedPlanting x, string language)
+    private static string PlantName(Planting x, string language)
     {
         var type = TypeName(x.PlantType!, language);
         return x.Plant is not null && x.Plant.Name != "(unnamed)" ? $"{type} – {x.Plant.Name}" : type;
