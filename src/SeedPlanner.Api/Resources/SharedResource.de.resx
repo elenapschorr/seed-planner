@@ -127,10 +127,10 @@
   <data name="Filter_OnlyToBuy" xml:space="preserve"><value>Nur zu kaufen</value></data>
   <data name="Nav_Pots" xml:space="preserve"><value>Töpfe</value></data>
   <data name="Nav_Saucers" xml:space="preserve"><value>Untersetzer</value></data>
-  <data name="Nav_RaisedBeds" xml:space="preserve"><value>Hochbeete</value></data>
+  <data name="Nav_RaisedBeds" xml:space="preserve"><value>Beete</value></data>
   <data name="Pots_Title" xml:space="preserve"><value>Töpfe</value></data>
   <data name="Saucers_Title" xml:space="preserve"><value>Untersetzer</value></data>
-  <data name="RaisedBeds_Title" xml:space="preserve"><value>Hochbeete</value></data>
+  <data name="RaisedBeds_Title" xml:space="preserve"><value>Beete</value></data>
   <data name="Pots_Summary" xml:space="preserve"><value>{0} Töpfe, davon {1} frei</value></data>
   <data name="Saucers_Summary" xml:space="preserve"><value>{0} Untersetzer</value></data>
   <data name="RaisedBeds_Summary" xml:space="preserve"><value>Gesamtfläche {0} m²</value></data>
@@ -165,4 +165,32 @@
   <data name="AllShapes" xml:space="preserve"><value>Alle Formen</value></data>
   <data name="AllColors" xml:space="preserve"><value>Alle Farben</value></data>
   <data name="Filter_OnlyFree" xml:space="preserve"><value>Nur mit freien Töpfen</value></data>
+  <data name="Pots_New" xml:space="preserve"><value>Neue Topfgruppe</value></data>
+  <data name="PotEdit_TitleNew" xml:space="preserve"><value>Neue Topfgruppe</value></data>
+  <data name="PotEdit_TitleEdit" xml:space="preserve"><value>Topfgruppe bearbeiten</value></data>
+  <data name="Field_SetSize" xml:space="preserve"><value>Töpfe pro Turm</value></data>
+  <data name="Field_TopCm" xml:space="preserve"><value>Maß oben (cm)</value></data>
+  <data name="Field_BottomCm" xml:space="preserve"><value>Maß unten (cm)</value></data>
+  <data name="PotUses_Title" xml:space="preserve"><value>Belegung</value></data>
+  <data name="PotUses_Summary" xml:space="preserve"><value>{0} Töpfe, davon {1} belegt und {2} frei</value></data>
+  <data name="PotUse_NoVariety" xml:space="preserve"><value>ohne Sorte</value></data>
+  <data name="PotUse_Pots" xml:space="preserve"><value>{0} Töpfe</value></data>
+  <data name="PotUse_RemoveEntry" xml:space="preserve"><value>Eintrag löschen</value></data>
+  <data name="PotUse_AddPlant" xml:space="preserve"><value>Pflanze dazu</value></data>
+  <data name="PotUse_NewEntry" xml:space="preserve"><value>Weitere Töpfe belegen (Pflanzenart oder Sorte, Anzahl Töpfe)</value></data>
+  <data name="PotError_Quantity" xml:space="preserve"><value>Die Anzahl darf nicht negativ sein.</value></data>
+  <data name="PotError_SetSize" xml:space="preserve"><value>Ein Turm besteht aus mindestens einem Topf.</value></data>
+  <data name="PotError_Measure" xml:space="preserve"><value>Das Maß muss größer als 0 sein.</value></data>
+  <data name="PotError_QuantityBelowUse" xml:space="preserve"><value>Es sind schon {0} Töpfe belegt. Entferne zuerst Einträge.</value></data>
+  <data name="PotError_UseInvalid" xml:space="preserve"><value>Bitte eine Pflanzenart oder Sorte wählen.</value></data>
+  <data name="PotError_UseQuantity" xml:space="preserve"><value>Die Zahl der Töpfe muss mindestens 1 sein.</value></data>
+  <data name="PotError_UseTooMany" xml:space="preserve"><value>So viele freie Töpfe gibt es nicht (frei: {0}).</value></data>
+  <data name="PotConfirm_Delete" xml:space="preserve"><value>Diese Topfgruppe samt Belegung löschen?</value></data>
+  <data name="Col_Pots" xml:space="preserve"><value>Töpfe</value></data>
+  <data name="BedKind_Raised" xml:space="preserve"><value>Hochbeet</value></data>
+  <data name="BedKind_Ground" xml:space="preserve"><value>Bodenbeet</value></data>
+  <data name="AllBedKinds" xml:space="preserve"><value>Alle Beetarten</value></data>
+  <data name="Col_BedKind" xml:space="preserve"><value>Art</value></data>
+  <data name="Col_Plantings" xml:space="preserve"><value>Bepflanzung</value></data>
+  <data name="SeedType_Vegetative" xml:space="preserve"><value>Vegetativ (Pflanze)</value></data>
 </root>

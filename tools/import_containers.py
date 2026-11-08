@@ -10,7 +10,9 @@ Files (separator ;, UTF-8):
                        shape   Round or Rectangular
                        saucer  diameter and colour of the saucer, e.g. "34 grau" (must be in saucers.csv)
                        uses    plant types in these pots: "Strawberry:12|Grapevine:2"
-                               (English plant type name, number of single pots)
+                               (English plant type name, number of single pots).
+                               Plants that grow together in the same pots are joined with +:
+                               "Cranberry+Strawberry:2" (two pots, each with both plants)
     saucers.csv      diameter_cm;color;quantity;note
     raised_beds.csv  name;shape;width_cm;length_cm;height_cm;note      (shape: Oval or Rectangular)
 
@@ -132,14 +134,15 @@ def read_pots(path, saucers, errors):
                 else:
                     saucer = ref
 
-        uses = []
+        uses = []   # (list of plant type names, number of pots)
         for part in filter(None, (p.strip() for p in row["uses"].split("|"))):
-            name, _, count = part.rpartition(":")
-            n = integer(count, f"{where}, uses '{part}'", errors, 1) if name else None
-            if not name:
+            names, _, count = part.rpartition(":")
+            n = integer(count, f"{where}, uses '{part}'", errors, 1) if names else None
+            plants = [x.strip() for x in names.split("+") if x.strip()]
+            if not plants:
                 errors.append(f"{where}: use '{part}' must look like 'Strawberry:12'")
             elif n is not None:
-                uses.append((name.strip(), n))
+                uses.append((plants, n))
         if quantity is not None and sum(n for _, n in uses) > quantity:
             errors.append(f"{where}: {sum(n for _, n in uses)} pots in use, but only {quantity} pots")
 
@@ -186,7 +189,7 @@ def insert(table, columns, values):
 def write_sql(path, owner_email, saucers, pots, beds):
     owner = ("(SELECT id FROM asp_net_users WHERE normalized_email = "
              f"{lit(owner_email.strip().upper())})")
-    used_types = sorted({name for p in pots for name, _ in p["uses"]})
+    used_types = sorted({name for p in pots for names, _ in p["uses"] for name in names})
     types = ", ".join(lit(n) for n in used_types) or "NULL"
 
     out = [
@@ -233,17 +236,19 @@ def write_sql(path, owner_email, saucers, pots, beds):
             [owner, lit(p["kind"]), lit(p["shape"]), lit(p["top"]), lit(p["bottom"]), lit(p["height"]),
              lit(p["quantity"]), lit(p["set_size"]), lit(p["color"]), lit(p["code"]), lit(p["note"]), saucer_id]))
 
-    out += ["", "-- Pots in use"]
-    for idx, p in enumerate(pots, start=1):
-        for name, count in p["uses"]:
+    out += ["", "-- Pots in use (one entry can hold several plants)"]
+    for p in pots:
+        for names, count in p["uses"]:
             pot_id = (f"(SELECT id FROM pots WHERE owner_id = {owner} "
                       f"AND shape = {lit(p['shape'])} AND quantity = {lit(p['quantity'])} "
                       f"AND top_cm IS NOT DISTINCT FROM {lit(p['top'])} "
                       f"AND bottom_cm IS NOT DISTINCT FROM {lit(p['bottom'])} "
                       f"AND height_cm IS NOT DISTINCT FROM {lit(p['height'])} "
                       f"AND kind = {lit(p['kind'])} ORDER BY id LIMIT 1)")
-            type_id = f"(SELECT id FROM plant_types WHERE name = {lit(name)})"
-            out.append(insert("pot_uses", ["pot_id", "plant_type_id", "quantity"], [pot_id, type_id, lit(count)]))
+            type_names = ", ".join(lit(n) for n in names)
+            out.append(f"WITH u AS (INSERT INTO pot_uses (pot_id, quantity) VALUES ({pot_id}, {lit(count)}) RETURNING id)")
+            out.append("INSERT INTO pot_use_plants (pot_use_id, plant_type_id)")
+            out.append(f"SELECT u.id, t.id FROM u, plant_types t WHERE t.name IN ({type_names});")
 
     out += ["", "-- Raised beds"]
     for b in beds:

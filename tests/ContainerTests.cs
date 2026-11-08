@@ -38,7 +38,7 @@ public class ContainerTests
         var pot = new Pot
         {
             Quantity = 7,
-            Uses = { new PotUse { PlantTypeId = 1, Quantity = 2 } }
+            Uses = { new PotUse { Quantity = 2 } }
         };
 
         Assert.Equal(2, pot.OccupiedQuantity);
@@ -47,12 +47,33 @@ public class ContainerTests
     }
 
     [Fact]
+    public void Several_plants_can_share_the_same_pots()
+    {
+        // Two bowls, both planted with cranberry and strawberry: two pots are in use, not four
+        var bowls = new Pot
+        {
+            Quantity = 2,
+            Uses =
+            {
+                new PotUse
+                {
+                    Quantity = 2,
+                    Plants = { new PotUsePlant { PlantTypeId = 1 }, new PotUsePlant { PlantTypeId = 2 } }
+                }
+            }
+        };
+
+        Assert.Equal(2, bowls.OccupiedQuantity);
+        Assert.Equal(0, bowls.FreeQuantity);
+    }
+
+    [Fact]
     public void Too_many_pots_in_use_are_reported()
     {
         var pot = new Pot
         {
             Quantity = 3,
-            Uses = { new PotUse { PlantTypeId = 1, Quantity = 2 }, new PotUse { PlantTypeId = 2, Quantity = 2 } }
+            Uses = { new PotUse { Quantity = 2 }, new PotUse { Quantity = 2 } }
         };
 
         Assert.True(pot.IsOverbooked);
@@ -73,7 +94,7 @@ public class ContainerTests
         var bed = new RaisedBed { Shape = BedShape.Oval, WidthCm = 80, LengthCm = 160, HeightCm = 58 };
 
         Assert.Equal(1.005, bed.AreaSquareMeters, 3);
-        Assert.Equal(583.1, bed.VolumeLiters, 1);
+        Assert.Equal(583.1, bed.VolumeLiters!.Value, 1);
     }
 
     [Fact]
@@ -82,6 +103,15 @@ public class ContainerTests
         var bed = new RaisedBed { Shape = BedShape.Rectangular, WidthCm = 100, LengthCm = 200, HeightCm = 40 };
 
         Assert.Equal(2.0, bed.AreaSquareMeters, 3);
-        Assert.Equal(800, bed.VolumeLiters, 1);
+        Assert.Equal(800, bed.VolumeLiters!.Value, 1);
+    }
+
+    [Fact]
+    public void A_ground_bed_has_an_area_but_no_volume()
+    {
+        var bed = new RaisedBed { Kind = BedKind.Ground, Shape = BedShape.Rectangular, WidthCm = 65, LengthCm = 270 };
+
+        Assert.Equal(1.755, bed.AreaSquareMeters, 3);
+        Assert.Null(bed.VolumeLiters);
     }
 }

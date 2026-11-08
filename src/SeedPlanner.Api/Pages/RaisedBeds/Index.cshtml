@@ -6,12 +6,14 @@
     ViewData["Title"] = L["RaisedBeds_Title"].Value;
 
     var sort_name = Model.SortRoute("name");
+    var sort_kind = Model.SortRoute("kind");
     var sort_shape = Model.SortRoute("shape");
     var sort_width = Model.SortRoute("width");
     var sort_length = Model.SortRoute("length");
     var sort_height = Model.SortRoute("height");
     var sort_area = Model.SortRoute("area");
     var sort_volume = Model.SortRoute("volume");
+    var sort_plantings = Model.SortRoute("plantings");
     var sort_note = Model.SortRoute("note");
 }
 
@@ -23,6 +25,15 @@
     <input type="hidden" name="dir" value="@Model.Dir" />
     <div class="col-md">
         <input type="search" name="q" value="@Model.Q" class="form-control" placeholder="@L["Search"].Value" />
+    </div>
+    <div class="col-md-auto">
+        <select name="kind" class="form-select" onchange="this.form.submit()">
+            <option value="">@L["AllBedKinds"]</option>
+            @foreach (var k in Enum.GetValues<BedKind>())
+            {
+                <option value="@k" selected="@(Model.KindFilter == k)">@L["BedKind_" + k]</option>
+            }
+        </select>
     </div>
     <div class="col-md-auto">
         <select name="shape" class="form-select" onchange="this.form.submit()">
@@ -40,12 +51,14 @@
     <thead>
         <tr>
             <th><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_name" class="text-decoration-none text-reset">@L["Col_Name"]@Model.Arrow("name")</a></th>
+            <th><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_kind" class="text-decoration-none text-reset">@L["Col_BedKind"]@Model.Arrow("kind")</a></th>
             <th><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_shape" class="text-decoration-none text-reset">@L["Col_Shape"]@Model.Arrow("shape")</a></th>
             <th class="text-end"><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_width" class="text-decoration-none text-reset">@L["Col_Width"]@Model.Arrow("width")</a></th>
             <th class="text-end"><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_length" class="text-decoration-none text-reset">@L["Col_Length"]@Model.Arrow("length")</a></th>
             <th class="text-end"><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_height" class="text-decoration-none text-reset">@L["Col_Height"]@Model.Arrow("height")</a></th>
             <th class="text-end"><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_area" class="text-decoration-none text-reset">@L["Col_Area"]@Model.Arrow("area")</a></th>
             <th class="text-end"><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_volume" class="text-decoration-none text-reset">@L["Col_SoilVolume"]@Model.Arrow("volume")</a></th>
+            <th><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_plantings" class="text-decoration-none text-reset">@L["Col_Plantings"]@Model.Arrow("plantings")</a></th>
             <th><a asp-page="/RaisedBeds/Index" asp-all-route-data="sort_note" class="text-decoration-none text-reset">@L["Col_Note"]@Model.Arrow("note")</a></th>
         </tr>
     </thead>
@@ -54,12 +67,14 @@
         {
             <tr>
                 <td><strong>@r.Name</strong></td>
+                <td>@L["BedKind_" + r.Kind]</td>
                 <td>@L["BedShape_" + r.Shape]</td>
                 <td class="text-end">@r.WidthCm.ToString("0.#", CultureInfo.CurrentCulture)</td>
                 <td class="text-end">@r.LengthCm.ToString("0.#", CultureInfo.CurrentCulture)</td>
-                <td class="text-end">@r.HeightCm.ToString("0.#", CultureInfo.CurrentCulture)</td>
+                <td class="text-end">@(r.HeightCm is null ? "–" : r.HeightCm.Value.ToString("0.#", CultureInfo.CurrentCulture))</td>
                 <td class="text-end">@r.AreaSquareMeters.ToString("0.00", CultureInfo.CurrentCulture)</td>
-                <td class="text-end">@r.VolumeLiters.ToString("0", CultureInfo.CurrentCulture)</td>
+                <td class="text-end">@(r.VolumeLiters is null ? "–" : r.VolumeLiters.Value.ToString("0", CultureInfo.CurrentCulture))</td>
+                <td>@r.Plantings</td>
                 <td>@(r.Note ?? "")</td>
             </tr>
         }

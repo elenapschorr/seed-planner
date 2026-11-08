@@ -96,6 +96,7 @@
     var sort_cultivation = Model.SortRoute("cultivation");
     var sort_nutrient = Model.SortRoute("nutrient");
     var sort_exposure = Model.SortRoute("exposure");
+    var sort_pots = Model.SortRoute("pots");
     var sort_tobuy = Model.SortRoute("tobuy");
 }
 
@@ -103,13 +104,14 @@
 <table class="table table-hover">
     <thead>
         <tr>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_name" class="text-decoration-none text-reset">@L["Col_Name"]@Model.Arrow("name")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_type" class="text-decoration-none text-reset">@L["Col_PlantType"]@Model.Arrow("type")</a></th>
+            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_name" class="text-decoration-none text-reset">@L["Col_Name"]@Model.Arrow("name")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_seedtype" class="text-decoration-none text-reset">@L["Col_SeedType"]@Model.Arrow("seedtype")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_stock" class="text-decoration-none text-reset">@L["Col_Stock"]@Model.Arrow("stock")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_cultivation" class="text-decoration-none text-reset">@L["Col_Cultivation"]@Model.Arrow("cultivation")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_nutrient" class="text-decoration-none text-reset">@L["Col_NutrientDemand"]@Model.Arrow("nutrient")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_exposure" class="text-decoration-none text-reset">@L["Col_Exposure"]@Model.Arrow("exposure")</a></th>
+            <th class="text-end"><a asp-page="/Plants/Index" asp-all-route-data="sort_pots" class="text-decoration-none text-reset">@L["Col_Pots"]@Model.Arrow("pots")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_tobuy" class="text-decoration-none text-reset">@L["Badge_ToBuy"]@Model.Arrow("tobuy")</a></th>
             <th></th>
         </tr>
@@ -118,6 +120,7 @@
         @foreach (var r in Model.Rows)
         {
             <tr>
+                <td>@r.TypeName</td>
                 <td>
                     @if (r.IsUnnamed)
                     {
@@ -128,12 +131,12 @@
                         <strong>@r.Name</strong>
                     }
                 </td>
-                <td>@r.TypeName</td>
                 <td>@L["SeedType_" + r.SeedType]</td>
                 <td>@L["StockStatus_" + r.StockStatus]</td>
                 <td>@(r.CultivationMethod is null ? "–" : L["CultivationMethod_" + r.CultivationMethod].Value)</td>
                 <td>@(r.NutrientDemand is null ? "–" : L["NutrientDemand_" + r.NutrientDemand].Value)</td>
                 <td>@(r.Exposure is null ? "–" : L["Exposure_" + r.Exposure].Value)</td>
+                <td class="text-end">@(r.PotCount == 0 ? "–" : r.PotCount.ToString())</td>
                 <td>@if (r.ShouldBuy) { <span class="badge text-bg-warning">@L["Badge_ToBuy"]</span> }</td>
                 <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id">@L["Action_Edit"]</a></td>
             </tr>

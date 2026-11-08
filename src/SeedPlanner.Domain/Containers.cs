@@ -19,6 +19,13 @@ public enum PotShape
     Rectangular
 }
 
+/// <summary>A raised bed has walls and a height; a ground bed is planted directly into the soil.</summary>
+public enum BedKind
+{
+    Raised,
+    Ground
+}
+
 public enum BedShape
 {
     Oval,
@@ -99,20 +106,37 @@ public class Pot : IOwnedByUser
     }
 }
 
-/// <summary>Some of the pots of a group are in use for a plant type.</summary>
+/// <summary>
+/// Some of the pots of a group are in use. One entry can hold several plants growing together
+/// in the same pots (e.g. cranberry and strawberry in a bowl).
+/// </summary>
 public class PotUse
 {
     public int Id { get; set; }
     public int PotId { get; set; }
     public Pot? Pot { get; set; }
 
-    public int PlantTypeId { get; set; }
-    public PlantType? PlantType { get; set; }
-
-    /// <summary>How many pots of the group hold this plant type (single pots, not towers).</summary>
+    /// <summary>How many pots of the group are in use for this entry (single pots, not towers).</summary>
     public int Quantity { get; set; }
 
     public string? Note { get; set; }
+
+    public List<PotUsePlant> Plants { get; set; } = new();
+}
+
+/// <summary>A plant type, optionally a concrete variety, that grows in the pots of an entry.</summary>
+public class PotUsePlant
+{
+    public int Id { get; set; }
+    public int PotUseId { get; set; }
+    public PotUse? PotUse { get; set; }
+
+    public int PlantTypeId { get; set; }
+    public PlantType? PlantType { get; set; }
+
+    /// <summary>The variety (one of the user's plants), if known. It always belongs to PlantTypeId.</summary>
+    public int? PlantId { get; set; }
+    public Plant? Plant { get; set; }
 }
 
 public class Saucer : IOwnedByUser
@@ -133,10 +157,13 @@ public class RaisedBed : IOwnedByUser
     public string OwnerId { get; set; } = "";
 
     public string Name { get; set; } = "";
+    public BedKind Kind { get; set; } = BedKind.Raised;
     public BedShape Shape { get; set; } = BedShape.Oval;
     public decimal WidthCm { get; set; }
     public decimal LengthCm { get; set; }
-    public decimal HeightCm { get; set; }
+
+    /// <summary>Height of the walls; empty for a ground bed.</summary>
+    public decimal? HeightCm { get; set; }
     public string? Note { get; set; }
 
     /// <summary>Planting area in m². An oval is an ellipse with the width and the length as its axes.</summary>
@@ -150,6 +177,28 @@ public class RaisedBed : IOwnedByUser
         }
     }
 
-    /// <summary>Soil volume in litres, assuming straight walls.</summary>
-    public double VolumeLiters => AreaSquareMeters * (double)HeightCm * 10;
+    /// <summary>Soil volume in litres, assuming straight walls. A ground bed has no volume.</summary>
+    public double? VolumeLiters => HeightCm is null ? null : AreaSquareMeters * (double)HeightCm.Value * 10;
+
+    public List<BedPlanting> Plantings { get; set; } = new();
+}
+
+/// <summary>What grows in a bed: a plant type, optionally a concrete variety, and how many plants.</summary>
+public class BedPlanting
+{
+    public int Id { get; set; }
+    public int RaisedBedId { get; set; }
+    public RaisedBed? RaisedBed { get; set; }
+
+    public int PlantTypeId { get; set; }
+    public PlantType? PlantType { get; set; }
+
+    /// <summary>The variety (one of the user's plants), if known. It always belongs to PlantTypeId.</summary>
+    public int? PlantId { get; set; }
+    public Plant? Plant { get; set; }
+
+    /// <summary>Number of plants; empty if not counted.</summary>
+    public int? PlantCount { get; set; }
+
+    public string? Note { get; set; }
 }

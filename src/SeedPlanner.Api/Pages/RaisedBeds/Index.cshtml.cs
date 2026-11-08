@@ -6,55 +6,36 @@ using Microsoft.Extensions.Localization;
 using SeedPlanner.Domain;
 using SeedPlanner.Infrastructure;
 
-namespace SeedPlanner.Api.Pages.Pots;
+namespace SeedPlanner.Api.Pages.RaisedBeds;
 
 public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource> L) : PageModel
 {
     public record Row(
         int Id,
-        PotKind Kind,
-        PotShape Shape,
-        decimal? TopCm,
-        decimal? BottomCm,
+        string Name,
+        BedKind Kind,
+        BedShape Shape,
+        decimal WidthCm,
+        decimal LengthCm,
         decimal? HeightCm,
-        double? Volume,
-        int Quantity,
-        int SetSize,
-        int SetCount,
-        int Occupied,
-        int Free,
-        bool Overbooked,
-        string? Color,
-        string? Code,
-        decimal? SaucerDiameter,
-        string? Saucer,
-        string Uses,
+        double AreaSquareMeters,
+        double? VolumeLiters,
+        string Plantings,
         string? Note);
 
     public List<Row> Rows { get; private set; } = new();
-    public List<string> ColorOptions { get; private set; } = new();
-
-    // Totals of the pots shown
-    public int TotalPots { get; private set; }
-    public int TotalFree { get; private set; }
+    public double TotalArea { get; private set; }
 
     [BindProperty(SupportsGet = true)]
     public string? Q { get; set; }
 
     [BindProperty(Name = "kind", SupportsGet = true)]
-    public PotKind? KindFilter { get; set; }
+    public BedKind? KindFilter { get; set; }
 
     [BindProperty(Name = "shape", SupportsGet = true)]
-    public PotShape? ShapeFilter { get; set; }
+    public BedShape? ShapeFilter { get; set; }
 
-    [BindProperty(Name = "color", SupportsGet = true)]
-    public string? ColorFilter { get; set; }
-
-    // Only groups that have free pots
-    [BindProperty(Name = "free", SupportsGet = true)]
-    public bool OnlyFree { get; set; }
-
-    // Column to sort by (kind, shape, size, volume, quantity, inuse, free, color, code, saucer, uses, note)
+    // Column to sort by (name, kind, shape, width, length, height, area, volume, plantings, note) and direction (asc, desc)
     [BindProperty(SupportsGet = true)]
     public string? Sort { get; set; }
 
@@ -63,87 +44,64 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
 
     public async Task OnGetAsync()
     {
-        var language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         var comparer = StringComparer.Create(CultureInfo.CurrentCulture, ignoreCase: true);
 
-        var pots = await db.Pots.AsNoTracking()
-            .Include(p => p.Saucer)
-            .Include(p => p.Uses).ThenInclude(u => u.PlantType).ThenInclude(t => t!.Translations)
+        var language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+
+        var beds = await db.RaisedBeds.AsNoTracking()
+            .Include(b => b.Plantings).ThenInclude(x => x.PlantType).ThenInclude(t => t!.Translations)
+            .Include(b => b.Plantings).ThenInclude(x => x.Plant)
             .ToListAsync();
-
-        ColorOptions = pots
-            .Select(p => p.Color)
-            .Where(c => !string.IsNullOrWhiteSpace(c))
-            .Select(c => c!)
-            .Distinct(StringComparer.CurrentCultureIgnoreCase)
-            .OrderBy(c => c, comparer)
-            .ToList();
-
-        var rows = pots.Select(p => new Row(
-            p.Id, p.Kind, p.Shape, p.TopCm, p.BottomCm, p.HeightCm, p.VolumeLiters,
-            p.Quantity, p.SetSize, p.SetCount, p.OccupiedQuantity, p.FreeQuantity, p.IsOverbooked,
-            p.Color, p.Code,
-            p.Saucer?.DiameterCm,
-            p.Saucer is null ? null : $"{Format(p.Saucer.DiameterCm)} {p.Saucer.Color}".Trim(),
-            string.Join(", ", p.Uses
-                .Select(u => (Name: TypeName(u.PlantType!, language), u.Quantity))
-                .OrderBy(u => u.Name, comparer)
-                .Select(u => $"{u.Name} {u.Quantity}")),
-            p.Note));
+        var rows = beds.Select(b => new Row(
+            b.Id, b.Name, b.Kind, b.Shape, b.WidthCm, b.LengthCm, b.HeightCm,
+            b.AreaSquareMeters, b.VolumeLiters,
+            // "Kiwi – Solissimo, Rhubarb – Livingstone 2, Wild strawberry 17"
+            string.Join(", ", b.Plantings
+                .Select(x => PlantName(x, language) + (x.PlantCount is null ? "" : $" {x.PlantCount}"))
+                .OrderBy(n => n, comparer)),
+            b.Note));
 
         if (KindFilter is not null) rows = rows.Where(r => r.Kind == KindFilter);
         if (ShapeFilter is not null) rows = rows.Where(r => r.Shape == ShapeFilter);
-        if (!string.IsNullOrEmpty(ColorFilter))
-            rows = rows.Where(r => string.Equals(r.Color, ColorFilter, StringComparison.CurrentCultureIgnoreCase));
-        if (OnlyFree) rows = rows.Where(r => r.Free > 0);
         if (!string.IsNullOrWhiteSpace(Q))
         {
             var q = Q.Trim();
             rows = rows.Where(r =>
-                Contains(r.Color, q) || Contains(r.Code, q) || Contains(r.Note, q) ||
-                Contains(r.Uses, q) || Contains(r.Saucer, q));
+                r.Name.Contains(q, StringComparison.CurrentCultureIgnoreCase) ||
+                r.Plantings.Contains(q, StringComparison.CurrentCultureIgnoreCase) ||
+                (r.Note?.Contains(q, StringComparison.CurrentCultureIgnoreCase) ?? false));
         }
 
-        // Default order: big pots first
-        var byDefault = rows
-            .OrderByDescending(r => r.TopCm ?? 0)
-            .ThenByDescending(r => r.Quantity)
-            .ToList();
-
-        TotalPots = byDefault.Sum(r => r.Quantity);
-        TotalFree = byDefault.Sum(r => r.Free);
+        var byDefault = rows.OrderBy(r => r.Name, comparer).ToList();
+        TotalArea = byDefault.Sum(r => r.AreaSquareMeters);
 
         var desc = Descending;
         Rows = (Sort?.ToLowerInvariant()) switch
         {
-            "kind" => ListSorting.Sort(byDefault, r => L["PotKind_" + r.Kind].Value, desc),
-            "shape" => ListSorting.Sort(byDefault, r => L["PotShape_" + r.Shape].Value, desc),
-            "size" => ListSorting.Sort(byDefault, r => r.TopCm, desc),
-            "volume" => ListSorting.Sort(byDefault, r => r.Volume, desc),
-            "quantity" => ListSorting.Sort(byDefault, r => r.Quantity, desc),
-            "inuse" => ListSorting.Sort(byDefault, r => r.Occupied, desc),
-            "free" => ListSorting.Sort(byDefault, r => r.Free, desc),
-            "color" => ListSorting.Sort(byDefault, r => r.Color, desc),
-            "code" => ListSorting.Sort(byDefault, r => r.Code, desc),
-            "saucer" => ListSorting.Sort(byDefault, r => r.SaucerDiameter, desc),
-            "uses" => ListSorting.Sort(byDefault, r => r.Uses.Length == 0 ? null : r.Uses, desc),
+            "name" => ListSorting.Sort(byDefault, r => r.Name, desc),
+            "kind" => ListSorting.Sort(byDefault, r => L["BedKind_" + r.Kind].Value, desc),
+            "shape" => ListSorting.Sort(byDefault, r => L["BedShape_" + r.Shape].Value, desc),
+            "width" => ListSorting.Sort(byDefault, r => r.WidthCm, desc),
+            "length" => ListSorting.Sort(byDefault, r => r.LengthCm, desc),
+            "height" => ListSorting.Sort(byDefault, r => r.HeightCm, desc),
+            "area" => ListSorting.Sort(byDefault, r => r.AreaSquareMeters, desc),
+            "volume" => ListSorting.Sort(byDefault, r => r.VolumeLiters, desc),
+            "plantings" => ListSorting.Sort(byDefault, r => r.Plantings.Length == 0 ? null : r.Plantings, desc),
             "note" => ListSorting.Sort(byDefault, r => r.Note, desc),
             _ => byDefault
         };
     }
 
-    private static bool Contains(string? value, string q) =>
-        value is not null && value.Contains(q, StringComparison.CurrentCultureIgnoreCase);
-
     // Name in the current language, English name if there is no translation
     private static string TypeName(PlantType type, string language) =>
         type.Translations.FirstOrDefault(t => t.Language == language)?.Name ?? type.Name;
 
-    private static string Format(decimal value) => value.ToString("0.#", CultureInfo.CurrentCulture);
-
-    // "37 × 18 × 60", missing measures as "–"
-    public string Size(Row r) =>
-        string.Join(" × ", new[] { r.TopCm, r.BottomCm, r.HeightCm }.Select(v => v is null ? "–" : Format(v.Value)));
+    // The plant type, followed by the variety if there is one
+    private static string PlantName(BedPlanting x, string language)
+    {
+        var type = TypeName(x.PlantType!, language);
+        return x.Plant is not null && x.Plant.Name != "(unnamed)" ? $"{type} – {x.Plant.Name}" : type;
+    }
 
     // ---------------------------------------------------------------- sort links
 
@@ -159,8 +117,6 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         ["q"] = Q,
         ["kind"] = KindFilter?.ToString(),
         ["shape"] = ShapeFilter?.ToString(),
-        ["color"] = ColorFilter,
-        ["free"] = OnlyFree ? "true" : null,
         ["sort"] = column,
         ["dir"] = SortedBy(column) && !Descending ? "desc" : "asc"
     };

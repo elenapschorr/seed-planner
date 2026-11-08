@@ -19,6 +19,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         CultivationMethod? CultivationMethod,
         NutrientDemand? NutrientDemand,
         Exposure? Exposure,
+        int PotCount,
         bool ShouldBuy)
     {
         // The import stores "(unnamed)" for seed packets without a variety name
@@ -59,7 +60,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
     [BindProperty(Name = "toBuy", SupportsGet = true)]
     public bool OnlyToBuy { get; set; }
 
-    // Column to sort by (name, type, seedtype, stock, cultivation, nutrient, exposure, tobuy) and direction (asc, desc)
+    // Column to sort by (name, type, seedtype, stock, cultivation, nutrient, exposure, pots, tobuy) and direction (asc, desc)
     [BindProperty(SupportsGet = true)]
     public string? Sort { get; set; }
 
@@ -106,6 +107,14 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             plants = plants.Where(p => p.ShouldBuy).ToList();
         }
 
+        // Pots in which the variety grows (the same variety can be in several pot groups)
+        var potsPerPlant = (await db.PotUsePlants.AsNoTracking()
+                .Where(x => x.PlantId != null)
+                .Select(x => new { x.PlantId, x.PotUse!.Quantity })
+                .ToListAsync())
+            .GroupBy(x => x.PlantId!.Value)
+            .ToDictionary(g => g.Key, g => g.Sum(x => x.Quantity));
+
         var rows = plants.Select(p => new Row(
             p.Id,
             p.Name,
@@ -115,6 +124,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             p.CultivationMethod,
             p.PlantType.NutrientDemand,
             p.EffectiveExposure,   // own value of the plant, otherwise the default of its plant type
+            potsPerPlant.GetValueOrDefault(p.Id),
             p.ShouldBuy));         // rule lives in the domain class
 
         if (!string.IsNullOrWhiteSpace(Q))
@@ -141,6 +151,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             "cultivation" => ListSorting.Sort(byDefault, r => r.CultivationMethod is null ? null : L["CultivationMethod_" + r.CultivationMethod].Value, Descending),
             "nutrient" => ListSorting.Sort(byDefault, r => ListSorting.Rank(r.NutrientDemand), Descending),
             "exposure" => ListSorting.Sort(byDefault, r => ListSorting.Rank(r.Exposure), Descending),
+            "pots" => ListSorting.Sort(byDefault, r => r.PotCount, Descending),
             "tobuy" => ListSorting.Sort(byDefault, r => r.ShouldBuy ? 0 : 1, Descending),
             _ => byDefault
         };

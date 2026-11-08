@@ -127,10 +127,10 @@
   <data name="Filter_OnlyToBuy" xml:space="preserve"><value>Only to buy</value></data>
   <data name="Nav_Pots" xml:space="preserve"><value>Pots</value></data>
   <data name="Nav_Saucers" xml:space="preserve"><value>Saucers</value></data>
-  <data name="Nav_RaisedBeds" xml:space="preserve"><value>Raised beds</value></data>
+  <data name="Nav_RaisedBeds" xml:space="preserve"><value>Beds</value></data>
   <data name="Pots_Title" xml:space="preserve"><value>Pots</value></data>
   <data name="Saucers_Title" xml:space="preserve"><value>Saucers</value></data>
-  <data name="RaisedBeds_Title" xml:space="preserve"><value>Raised beds</value></data>
+  <data name="RaisedBeds_Title" xml:space="preserve"><value>Beds</value></data>
   <data name="Pots_Summary" xml:space="preserve"><value>{0} pots, {1} of them free</value></data>
   <data name="Saucers_Summary" xml:space="preserve"><value>{0} saucers</value></data>
   <data name="RaisedBeds_Summary" xml:space="preserve"><value>Total area {0} m²</value></data>
@@ -165,4 +165,32 @@
   <data name="AllShapes" xml:space="preserve"><value>Any shape</value></data>
   <data name="AllColors" xml:space="preserve"><value>Any color</value></data>
   <data name="Filter_OnlyFree" xml:space="preserve"><value>Only with free pots</value></data>
+  <data name="Pots_New" xml:space="preserve"><value>New pot group</value></data>
+  <data name="PotEdit_TitleNew" xml:space="preserve"><value>New pot group</value></data>
+  <data name="PotEdit_TitleEdit" xml:space="preserve"><value>Edit pot group</value></data>
+  <data name="Field_SetSize" xml:space="preserve"><value>Pots per tower</value></data>
+  <data name="Field_TopCm" xml:space="preserve"><value>Top size (cm)</value></data>
+  <data name="Field_BottomCm" xml:space="preserve"><value>Bottom size (cm)</value></data>
+  <data name="PotUses_Title" xml:space="preserve"><value>Planting</value></data>
+  <data name="PotUses_Summary" xml:space="preserve"><value>{0} pots, {1} in use and {2} free</value></data>
+  <data name="PotUse_NoVariety" xml:space="preserve"><value>no variety</value></data>
+  <data name="PotUse_Pots" xml:space="preserve"><value>{0} pots</value></data>
+  <data name="PotUse_RemoveEntry" xml:space="preserve"><value>Delete entry</value></data>
+  <data name="PotUse_AddPlant" xml:space="preserve"><value>Add plant</value></data>
+  <data name="PotUse_NewEntry" xml:space="preserve"><value>Use more pots (plant type or variety, number of pots)</value></data>
+  <data name="PotError_Quantity" xml:space="preserve"><value>The quantity cannot be negative.</value></data>
+  <data name="PotError_SetSize" xml:space="preserve"><value>A tower has at least one pot.</value></data>
+  <data name="PotError_Measure" xml:space="preserve"><value>The size must be greater than 0.</value></data>
+  <data name="PotError_QuantityBelowUse" xml:space="preserve"><value>{0} pots are already in use. Remove entries first.</value></data>
+  <data name="PotError_UseInvalid" xml:space="preserve"><value>Please choose a plant type or variety.</value></data>
+  <data name="PotError_UseQuantity" xml:space="preserve"><value>The number of pots must be at least 1.</value></data>
+  <data name="PotError_UseTooMany" xml:space="preserve"><value>There are not that many free pots (free: {0}).</value></data>
+  <data name="PotConfirm_Delete" xml:space="preserve"><value>Delete this pot group and its planting?</value></data>
+  <data name="Col_Pots" xml:space="preserve"><value>Pots</value></data>
+  <data name="BedKind_Raised" xml:space="preserve"><value>Raised bed</value></data>
+  <data name="BedKind_Ground" xml:space="preserve"><value>Ground bed</value></data>
+  <data name="AllBedKinds" xml:space="preserve"><value>All bed types</value></data>
+  <data name="Col_BedKind" xml:space="preserve"><value>Type</value></data>
+  <data name="Col_Plantings" xml:space="preserve"><value>Planting</value></data>
+  <data name="SeedType_Vegetative" xml:space="preserve"><value>Vegetative (plant)</value></data>
 </root>

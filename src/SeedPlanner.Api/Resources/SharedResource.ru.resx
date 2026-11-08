@@ -127,10 +127,10 @@
   <data name="Filter_OnlyToBuy" xml:space="preserve"><value>Только купить</value></data>
   <data name="Nav_Pots" xml:space="preserve"><value>Горшки</value></data>
   <data name="Nav_Saucers" xml:space="preserve"><value>Поддоны</value></data>
-  <data name="Nav_RaisedBeds" xml:space="preserve"><value>Высокие грядки</value></data>
+  <data name="Nav_RaisedBeds" xml:space="preserve"><value>Грядки</value></data>
   <data name="Pots_Title" xml:space="preserve"><value>Горшки</value></data>
   <data name="Saucers_Title" xml:space="preserve"><value>Поддоны</value></data>
-  <data name="RaisedBeds_Title" xml:space="preserve"><value>Высокие грядки</value></data>
+  <data name="RaisedBeds_Title" xml:space="preserve"><value>Грядки</value></data>
   <data name="Pots_Summary" xml:space="preserve"><value>{0} горшков, из них свободно {1}</value></data>
   <data name="Saucers_Summary" xml:space="preserve"><value>Поддонов: {0}</value></data>
   <data name="RaisedBeds_Summary" xml:space="preserve"><value>Общая площадь {0} м²</value></data>
@@ -165,4 +165,32 @@
   <data name="AllShapes" xml:space="preserve"><value>Любая форма</value></data>
   <data name="AllColors" xml:space="preserve"><value>Любой цвет</value></data>
   <data name="Filter_OnlyFree" xml:space="preserve"><value>Только со свободными</value></data>
+  <data name="Pots_New" xml:space="preserve"><value>Новая группа горшков</value></data>
+  <data name="PotEdit_TitleNew" xml:space="preserve"><value>Новая группа горшков</value></data>
+  <data name="PotEdit_TitleEdit" xml:space="preserve"><value>Редактирование группы горшков</value></data>
+  <data name="Field_SetSize" xml:space="preserve"><value>Горшков в башне</value></data>
+  <data name="Field_TopCm" xml:space="preserve"><value>Размер сверху (см)</value></data>
+  <data name="Field_BottomCm" xml:space="preserve"><value>Размер снизу (см)</value></data>
+  <data name="PotUses_Title" xml:space="preserve"><value>Посадка</value></data>
+  <data name="PotUses_Summary" xml:space="preserve"><value>{0} горшков, занято {1}, свободно {2}</value></data>
+  <data name="PotUse_NoVariety" xml:space="preserve"><value>без сорта</value></data>
+  <data name="PotUse_Pots" xml:space="preserve"><value>{0} горшков</value></data>
+  <data name="PotUse_RemoveEntry" xml:space="preserve"><value>Удалить запись</value></data>
+  <data name="PotUse_AddPlant" xml:space="preserve"><value>Добавить растение</value></data>
+  <data name="PotUse_NewEntry" xml:space="preserve"><value>Занять ещё горшки (культура или сорт, количество горшков)</value></data>
+  <data name="PotError_Quantity" xml:space="preserve"><value>Количество не может быть отрицательным.</value></data>
+  <data name="PotError_SetSize" xml:space="preserve"><value>В башне не меньше одного горшка.</value></data>
+  <data name="PotError_Measure" xml:space="preserve"><value>Размер должен быть больше 0.</value></data>
+  <data name="PotError_QuantityBelowUse" xml:space="preserve"><value>Уже занято горшков: {0}. Сначала удалите записи.</value></data>
+  <data name="PotError_UseInvalid" xml:space="preserve"><value>Выберите культуру или сорт.</value></data>
+  <data name="PotError_UseQuantity" xml:space="preserve"><value>Количество горшков должно быть не меньше 1.</value></data>
+  <data name="PotError_UseTooMany" xml:space="preserve"><value>Столько свободных горшков нет (свободно: {0}).</value></data>
+  <data name="PotConfirm_Delete" xml:space="preserve"><value>Удалить эту группу горшков вместе с посадкой?</value></data>
+  <data name="Col_Pots" xml:space="preserve"><value>Горшки</value></data>
+  <data name="BedKind_Raised" xml:space="preserve"><value>Высокая грядка</value></data>
+  <data name="BedKind_Ground" xml:space="preserve"><value>Грядка в грунте</value></data>
+  <data name="AllBedKinds" xml:space="preserve"><value>Все виды грядок</value></data>
+  <data name="Col_BedKind" xml:space="preserve"><value>Вид</value></data>
+  <data name="Col_Plantings" xml:space="preserve"><value>Посадки</value></data>
+  <data name="SeedType_Vegetative" xml:space="preserve"><value>Вегетативно (растение)</value></data>
 </root>

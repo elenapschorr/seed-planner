@@ -15,8 +15,10 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
     public DbSet<PlantTypeCompanion> PlantTypeCompanions => Set<PlantTypeCompanion>();
     public DbSet<Pot> Pots => Set<Pot>();
     public DbSet<PotUse> PotUses => Set<PotUse>();
+    public DbSet<PotUsePlant> PotUsePlants => Set<PotUsePlant>();
     public DbSet<Saucer> Saucers => Set<Saucer>();
     public DbSet<RaisedBed> RaisedBeds => Set<RaisedBed>();
+    public DbSet<BedPlanting> BedPlantings => Set<BedPlanting>();
 
     // Used by the query filters. EF evaluates it for each context instance (= each request).
     // Nobody signed in gives null, and then the filters match no rows at all.
@@ -113,10 +115,19 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
         modelBuilder.Entity<PotUse>(e =>
         {
             e.Property(u => u.Note).HasMaxLength(200);
-            // A plant type that a pot uses cannot be deleted
-            e.HasOne(u => u.PlantType).WithMany().HasForeignKey(u => u.PlantTypeId).OnDelete(DeleteBehavior.Restrict);
+            e.HasMany(u => u.Plants).WithOne(x => x.PotUse).HasForeignKey(x => x.PotUseId).OnDelete(DeleteBehavior.Cascade);
             e.ToTable(t => t.HasCheckConstraint("ck_pot_uses_quantity", "quantity >= 1"));
             e.HasQueryFilter(u => u.Pot!.OwnerId == CurrentUserId);
+        });
+
+        modelBuilder.Entity<PotUsePlant>(e =>
+        {
+            // A plant type that a pot uses cannot be deleted
+            e.HasOne(x => x.PlantType).WithMany().HasForeignKey(x => x.PlantTypeId).OnDelete(DeleteBehavior.Restrict);
+            // Deleting a variety keeps the entry; it is then only linked to the plant type
+            e.HasOne(x => x.Plant).WithMany().HasForeignKey(x => x.PlantId).OnDelete(DeleteBehavior.SetNull);
+            e.HasIndex(x => new { x.PotUseId, x.PlantTypeId, x.PlantId }).IsUnique();
+            e.HasQueryFilter(x => x.PotUse!.Pot!.OwnerId == CurrentUserId);
         });
 
         modelBuilder.Entity<Saucer>(e =>
@@ -135,6 +146,7 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
 
         modelBuilder.Entity<RaisedBed>(e =>
         {
+            e.Property(b => b.Kind).HasConversion<string>().HasDefaultValue(BedKind.Raised);
             e.Property(b => b.Shape).HasConversion<string>();
             e.Property(b => b.Name).HasMaxLength(100);
             e.Property(b => b.WidthCm).HasPrecision(6, 1);
@@ -144,8 +156,21 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.HasIndex(b => new { b.OwnerId, b.Name }).IsUnique();
             e.HasOne<IdentityUser>().WithMany().HasForeignKey(b => b.OwnerId).OnDelete(DeleteBehavior.Cascade);
             e.ToTable(t => t.HasCheckConstraint("ck_raised_beds_measures",
-                "width_cm > 0 AND length_cm > 0 AND height_cm > 0"));
+                "width_cm > 0 AND length_cm > 0 AND (height_cm IS NULL OR height_cm > 0)"));
+            e.HasMany(b => b.Plantings).WithOne(x => x.RaisedBed).HasForeignKey(x => x.RaisedBedId).OnDelete(DeleteBehavior.Cascade);
             e.HasQueryFilter(b => b.OwnerId == CurrentUserId);
+        });
+
+        modelBuilder.Entity<BedPlanting>(e =>
+        {
+            e.Property(x => x.Note).HasMaxLength(200);
+            // A plant type that a bed uses cannot be deleted
+            e.HasOne(x => x.PlantType).WithMany().HasForeignKey(x => x.PlantTypeId).OnDelete(DeleteBehavior.Restrict);
+            // Deleting a variety keeps the planting; it is then only linked to the plant type
+            e.HasOne(x => x.Plant).WithMany().HasForeignKey(x => x.PlantId).OnDelete(DeleteBehavior.SetNull);
+            e.HasIndex(x => new { x.RaisedBedId, x.PlantTypeId, x.PlantId }).IsUnique();
+            e.ToTable(t => t.HasCheckConstraint("ck_bed_plantings_count", "plant_count IS NULL OR plant_count >= 1"));
+            e.HasQueryFilter(x => x.RaisedBed!.OwnerId == CurrentUserId);
         });
     }
 

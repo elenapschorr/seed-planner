@@ -1,6 +1,6 @@
 ﻿namespace SeedPlanner.Domain;
 
-public enum SeedType { OpenPollinated, F1Hybrid }
+public enum SeedType { OpenPollinated, F1Hybrid, Vegetative }
 public enum StockStatus { InStock, OutOfStock, Retired }
 public enum CultivationMethod { StartIndoors, DirectSow, Container, ColdFrame }
 public enum GerminationType { Light, Dark, Vegetative }
