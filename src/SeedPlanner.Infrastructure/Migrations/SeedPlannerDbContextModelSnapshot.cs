@@ -275,10 +275,6 @@ namespace SeedPlanner.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CultivationMethod")
-                        .HasColumnType("text")
-                        .HasColumnName("cultivation_method");
-
                     b.Property<string>("Exposure")
                         .HasColumnType("text")
                         .HasColumnName("exposure");
@@ -290,6 +286,18 @@ namespace SeedPlanner.Infrastructure.Migrations
                     b.Property<int?>("GerminationDaysMin")
                         .HasColumnType("integer")
                         .HasColumnName("germination_days_min");
+
+                    b.Property<int?>("GerminationTempMaxC")
+                        .HasColumnType("integer")
+                        .HasColumnName("germination_temp_max_c");
+
+                    b.Property<int?>("GerminationTempMinC")
+                        .HasColumnType("integer")
+                        .HasColumnName("germination_temp_min_c");
+
+                    b.Property<string>("GrowingPlace")
+                        .HasColumnType("text")
+                        .HasColumnName("growing_place");
 
                     b.Property<int?>("MaturityDaysMax")
                         .HasColumnType("integer")
@@ -339,6 +347,10 @@ namespace SeedPlanner.Infrastructure.Migrations
                     b.Property<string>("SeedType")
                         .HasColumnType("text")
                         .HasColumnName("seed_type");
+
+                    b.Property<string>("SowingMethod")
+                        .HasColumnType("text")
+                        .HasColumnName("sowing_method");
 
                     b.Property<string>("StockStatus")
                         .IsRequired()
@@ -801,6 +813,14 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("end_month");
 
+                    b.Property<string>("EndPart")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("Whole")
+                        .HasColumnName("end_part");
+
                     b.Property<string>("Kind")
                         .IsRequired()
                         .HasColumnType("text")
@@ -813,6 +833,14 @@ namespace SeedPlanner.Infrastructure.Migrations
                     b.Property<int>("StartMonth")
                         .HasColumnType("integer")
                         .HasColumnName("start_month");
+
+                    b.Property<string>("StartPart")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("Whole")
+                        .HasColumnName("start_part");
 
                     b.HasKey("Id")
                         .HasName("pk_season_windows");

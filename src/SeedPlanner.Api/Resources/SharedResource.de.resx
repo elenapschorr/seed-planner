@@ -30,17 +30,12 @@
   <data name="Col_PlantType" xml:space="preserve"><value>Pflanzenart</value></data>
   <data name="Col_SeedType" xml:space="preserve"><value>Samentyp</value></data>
   <data name="Col_Stock" xml:space="preserve"><value>Bestand</value></data>
-  <data name="Col_Cultivation" xml:space="preserve"><value>Anbauart</value></data>
   <data name="Badge_ToBuy" xml:space="preserve"><value>Kaufen</value></data>
   <data name="SeedType_OpenPollinated" xml:space="preserve"><value>Samenfest</value></data>
   <data name="SeedType_F1Hybrid" xml:space="preserve"><value>F1-Hybrid</value></data>
   <data name="StockStatus_InStock" xml:space="preserve"><value>Vorhanden</value></data>
   <data name="StockStatus_OutOfStock" xml:space="preserve"><value>Nicht vorhanden</value></data>
   <data name="StockStatus_Retired" xml:space="preserve"><value>Aussortiert</value></data>
-  <data name="CultivationMethod_StartIndoors" xml:space="preserve"><value>Voranzucht</value></data>
-  <data name="CultivationMethod_DirectSow" xml:space="preserve"><value>Direktsaat</value></data>
-  <data name="CultivationMethod_Container" xml:space="preserve"><value>Topfkultur</value></data>
-  <data name="CultivationMethod_ColdFrame" xml:space="preserve"><value>Frühbeet</value></data>
   <data name="AllMonths" xml:space="preserve"><value>Aussaat: jeder Monat</value></data>
   <data name="Home_SowNow" xml:space="preserve"><value>Was kann ich jetzt aussäen?</value></data>
   <data name="Action_New" xml:space="preserve"><value>Neue Sorte</value></data>
@@ -52,6 +47,7 @@
   <data name="Edit_TitleNew" xml:space="preserve"><value>Neue Sorte</value></data>
   <data name="Edit_TitleEdit" xml:space="preserve"><value>Sorte bearbeiten</value></data>
   <data name="Field_GerminationDays" xml:space="preserve"><value>Keimdauer in Tagen (min / max)</value></data>
+  <data name="Field_GerminationTemp" xml:space="preserve"><value>Keimtemperatur in °C (min / max)</value></data>
   <data name="Field_MaturityDays" xml:space="preserve"><value>Reifezeit in Tagen (min / max)</value></data>
   <data name="Field_RowSpacing" xml:space="preserve"><value>Reihenabstand (cm)</value></data>
   <data name="Field_PlantSpacing" xml:space="preserve"><value>Pflanzabstand (cm)</value></data>
@@ -123,7 +119,6 @@
   <data name="AllNutrientDemands" xml:space="preserve"><value>Alle Nährstoffbedarfe</value></data>
   <data name="AllExposures" xml:space="preserve"><value>Alle Standorte</value></data>
   <data name="AllSeedTypes" xml:space="preserve"><value>Alle Samentypen</value></data>
-  <data name="AllCultivations" xml:space="preserve"><value>Alle Anbauarten</value></data>
   <data name="Filter_OnlyToBuy" xml:space="preserve"><value>Nur zu kaufen</value></data>
   <data name="Nav_Pots" xml:space="preserve"><value>Töpfe</value></data>
   <data name="Nav_Saucers" xml:space="preserve"><value>Untersetzer</value></data>
@@ -221,4 +216,32 @@
   <data name="PotError_NameExists" xml:space="preserve"><value>Eine Gruppe mit diesem Namen gibt es schon.</value></data>
   <data name="PotError_PlantCount" xml:space="preserve"><value>Die Anzahl der Pflanzen muss mindestens 1 sein.</value></data>
   <data name="Pots_Done" xml:space="preserve"><value>Fertig</value></data>
+  <data name="Where_Title" xml:space="preserve"><value>Wo wächst sie?</value></data>
+  <data name="Where_None" xml:space="preserve"><value>Noch nirgends eingetragen.</value></data>
+  <data name="Where_FreePots" xml:space="preserve"><value>In freie Töpfe pflanzen</value></data>
+  <data name="Where_Bed" xml:space="preserve"><value>In ein Beet pflanzen</value></data>
+  <data name="Where_FreeOf" xml:space="preserve"><value>{0} ({1} frei)</value></data>
+  <data name="PotGroup_Details" xml:space="preserve"><value>Gruppendaten</value></data>
+  <data name="Window_Sowing" xml:space="preserve"><value>Aussaat</value></data>
+  <data name="Window_Harvest" xml:space="preserve"><value>Ernte</value></data>
+  <data name="Window_Bloom" xml:space="preserve"><value>Blütezeit</value></data>
+  <data name="Window_Add" xml:space="preserve"><value>+ weiteres Fenster</value></data>
+  <data name="Window_Remove" xml:space="preserve"><value>Entfernen</value></data>
+  <data name="Window_To" xml:space="preserve"><value>bis</value></data>
+  <data name="Part_Whole" xml:space="preserve"><value>ganzer Monat</value></data>
+  <data name="Part_Early" xml:space="preserve"><value>Anfang</value></data>
+  <data name="Part_Mid" xml:space="preserve"><value>Mitte</value></data>
+  <data name="Part_Late" xml:space="preserve"><value>Ende</value></data>
+  <data name="Error_WindowOrder" xml:space="preserve"><value>Innerhalb eines Monats darf das Ende nicht vor dem Anfang liegen.</value></data>
+  <data name="Col_Sowing" xml:space="preserve"><value>Aussaatart</value></data>
+  <data name="Col_GrowingPlace" xml:space="preserve"><value>Kulturort</value></data>
+  <data name="SowingMethod_StartIndoors" xml:space="preserve"><value>Voranzucht</value></data>
+  <data name="SowingMethod_DirectSow" xml:space="preserve"><value>Direktsaat</value></data>
+  <data name="GrowingPlace_Container" xml:space="preserve"><value>Topf</value></data>
+  <data name="GrowingPlace_ColdFrame" xml:space="preserve"><value>Frühbeet</value></data>
+  <data name="GrowingPlace_Open" xml:space="preserve"><value>Freiland / Beet</value></data>
+  <data name="AllSowingMethods" xml:space="preserve"><value>Alle Aussaatarten</value></data>
+  <data name="AllGrowingPlaces" xml:space="preserve"><value>Alle Kulturorte</value></data>
+  <data name="Error_PotSizeRequired" xml:space="preserve"><value>Bei Topfkultur ist die Topfgröße (min und max) Pflicht.</value></data>
+  <data name="Action_ShowSpacing" xml:space="preserve"><value>Abstände angeben</value></data>
 </root>

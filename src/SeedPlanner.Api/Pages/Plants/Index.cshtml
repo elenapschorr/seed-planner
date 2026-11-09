@@ -7,7 +7,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">@L["Plants_Title"]</h1>
-    <a class="btn btn-success" asp-page="Edit">@L["Action_New"]</a>
+    <a class="btn btn-success" asp-page="Edit" asp-route-returnUrl="@Model.ReturnUrl">@L["Action_New"]</a>
 </div>
 
 <form method="get" class="row g-2 mb-3">
@@ -62,11 +62,20 @@
         </select>
     </div>
     <div class="col-md-auto">
-        <select name="cultivation" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllCultivations"]</option>
-            @foreach (var c in Enum.GetValues<CultivationMethod>())
+        <select name="sowing" class="form-select" onchange="this.form.submit()">
+            <option value="">@L["AllSowingMethods"]</option>
+            @foreach (var c in Enum.GetValues<SowingMethod>())
             {
-                <option value="@c" selected="@(Model.CultivationFilter == c)">@L["CultivationMethod_" + c]</option>
+                <option value="@c" selected="@(Model.SowingFilter == c)">@L["SowingMethod_" + c]</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-auto">
+        <select name="place" class="form-select" onchange="this.form.submit()">
+            <option value="">@L["AllGrowingPlaces"]</option>
+            @foreach (var c in Enum.GetValues<GrowingPlace>())
+            {
+                <option value="@c" selected="@(Model.PlaceFilter == c)">@L["GrowingPlace_" + c]</option>
             }
         </select>
     </div>
@@ -113,7 +122,8 @@
     var sort_lifecycle = Model.SortRoute("lifecycle");
     var sort_seedtype = Model.SortRoute("seedtype");
     var sort_stock = Model.SortRoute("stock");
-    var sort_cultivation = Model.SortRoute("cultivation");
+    var sort_sowing = Model.SortRoute("sowing");
+    var sort_place = Model.SortRoute("place");
     var sort_nutrient = Model.SortRoute("nutrient");
     var sort_exposure = Model.SortRoute("exposure");
     var sort_pots = Model.SortRoute("pots");
@@ -132,7 +142,8 @@
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_lifecycle" class="text-decoration-none text-reset">@L["Col_Lifecycle"]@Model.Arrow("lifecycle")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_seedtype" class="text-decoration-none text-reset">@L["Col_SeedType"]@Model.Arrow("seedtype")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_stock" class="text-decoration-none text-reset">@L["Col_Stock"]@Model.Arrow("stock")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_cultivation" class="text-decoration-none text-reset">@L["Col_Cultivation"]@Model.Arrow("cultivation")</a></th>
+            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_sowing" class="text-decoration-none text-reset">@L["Col_Sowing"]@Model.Arrow("sowing")</a></th>
+            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_place" class="text-decoration-none text-reset">@L["Col_GrowingPlace"]@Model.Arrow("place")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_nutrient" class="text-decoration-none text-reset">@L["Col_NutrientDemand"]@Model.Arrow("nutrient")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_exposure" class="text-decoration-none text-reset">@L["Col_Exposure"]@Model.Arrow("exposure")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_tobuy" class="text-decoration-none text-reset">@L["Badge_ToBuy"]@Model.Arrow("tobuy")</a></th>
@@ -157,11 +168,12 @@
                         <td>@(r.Lifecycle is null ? "–" : L["Lifecycle_" + r.Lifecycle].Value)</td>
                     <td>@(r.SeedType is null ? "–" : L["SeedType_" + r.SeedType].Value)</td>
                         <td>@L["StockStatus_" + r.StockStatus]</td>
-                        <td>@(r.CultivationMethod is null ? "–" : L["CultivationMethod_" + r.CultivationMethod].Value)</td>
+                        <td>@(r.SowingMethod is null ? "–" : L["SowingMethod_" + r.SowingMethod].Value)</td>
+                        <td>@(r.GrowingPlace is null ? "–" : L["GrowingPlace_" + r.GrowingPlace].Value)</td>
                         <td>@(r.NutrientDemand is null ? "–" : L["NutrientDemand_" + r.NutrientDemand].Value)</td>
                         <td>@(r.Exposure is null ? "–" : L["Exposure_" + r.Exposure].Value)</td>
                     <td>@if (r.ShouldBuy) { <span class="badge text-bg-warning">@L["Badge_ToBuy"]</span> }</td>
-                    <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id">@L["Action_Edit"]</a></td>
+                    <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id" asp-route-returnUrl="@Model.ReturnUrl">@L["Action_Edit"]</a></td>
                 </tr>
             }
         </tbody>
@@ -181,7 +193,8 @@
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_propagation" class="text-decoration-none text-reset">@L["Col_Propagation"]@Model.Arrow("propagation")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_lifecycle" class="text-decoration-none text-reset">@L["Col_Lifecycle"]@Model.Arrow("lifecycle")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_stock" class="text-decoration-none text-reset">@L["Col_Stock"]@Model.Arrow("stock")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_cultivation" class="text-decoration-none text-reset">@L["Col_Cultivation"]@Model.Arrow("cultivation")</a></th>
+            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_sowing" class="text-decoration-none text-reset">@L["Col_Sowing"]@Model.Arrow("sowing")</a></th>
+            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_place" class="text-decoration-none text-reset">@L["Col_GrowingPlace"]@Model.Arrow("place")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_nutrient" class="text-decoration-none text-reset">@L["Col_NutrientDemand"]@Model.Arrow("nutrient")</a></th>
             <th><a asp-page="/Plants/Index" asp-all-route-data="sort_exposure" class="text-decoration-none text-reset">@L["Col_Exposure"]@Model.Arrow("exposure")</a></th>
             <th class="text-end"><a asp-page="/Plants/Index" asp-all-route-data="sort_pots" class="text-decoration-none text-reset">@L["Col_Pots"]@Model.Arrow("pots")</a></th>
@@ -206,11 +219,12 @@
                     <td>@L["Propagation_" + r.Propagation]</td>
                         <td>@(r.Lifecycle is null ? "–" : L["Lifecycle_" + r.Lifecycle].Value)</td>
                         <td>@L["StockStatus_" + r.StockStatus]</td>
-                        <td>@(r.CultivationMethod is null ? "–" : L["CultivationMethod_" + r.CultivationMethod].Value)</td>
+                        <td>@(r.SowingMethod is null ? "–" : L["SowingMethod_" + r.SowingMethod].Value)</td>
+                        <td>@(r.GrowingPlace is null ? "–" : L["GrowingPlace_" + r.GrowingPlace].Value)</td>
                         <td>@(r.NutrientDemand is null ? "–" : L["NutrientDemand_" + r.NutrientDemand].Value)</td>
                         <td>@(r.Exposure is null ? "–" : L["Exposure_" + r.Exposure].Value)</td>
                     <td class="text-end">@(r.PotCount == 0 ? "–" : r.PotCount.ToString())</td>
-                    <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id">@L["Action_Edit"]</a></td>
+                    <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id" asp-route-returnUrl="@Model.ReturnUrl">@L["Action_Edit"]</a></td>
                 </tr>
             }
         </tbody>

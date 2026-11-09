@@ -5,7 +5,7 @@ public enum StockStatus { InStock, OutOfStock, Retired }
 public enum CultivationMethod { StartIndoors, DirectSow, Container, ColdFrame }
 public enum GerminationType { Light, Dark, Vegetative }
 public enum Exposure { FullSun, PartialShade, Shade }
-public enum WindowKind { Sowing, Harvest }
+public enum WindowKind { Sowing, Harvest, Bloom }
 public enum PlantCategory
 {
     FruitVegetable, RootVegetable, LeafyVegetable, StemVegetable, Brassica, Legume,

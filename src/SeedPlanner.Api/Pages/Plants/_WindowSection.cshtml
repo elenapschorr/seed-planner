@@ -1,0 +1,59 @@
+@model SeedPlanner.Api.Pages.Plants.EditModel.WindowSectionModel
+
+<div class="col-12 window-section" id="@Model.Id">
+    @for (var i = 0; i < Model.Items.Count; i++)
+    {
+        var w = Model.Items[i];
+        // The second window is only shown when it has content (or an error); otherwise the user adds it with the button
+        var hidden = i > 0 && w.FromMonth is null && w.ToMonth is null;
+        var key = $"{Model.Prefix}[{i}]";
+        <div class="window-row row g-2 mb-2 align-items-center" @(hidden ? "hidden" : "")>
+            <div class="col-6 col-md-3">
+                <select name="@(key).FromMonth" class="form-select" aria-label="@Model.Title @(i + 1)">
+                    @foreach (var o in Model.Months)
+                    {
+                        <option value="@o.Value" selected="@(o.Value == (w.FromMonth?.ToString() ?? ""))">@o.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select name="@(key).FromPart" class="form-select" aria-label="@Model.Title @(i + 1)">
+                    @foreach (var o in Model.Parts)
+                    {
+                        <option value="@o.Value" selected="@(o.Value == w.FromPart.ToString())">@o.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-auto">@L["Window_To"]</div>
+            <div class="col-6 col-md-3">
+                <select name="@(key).ToMonth" class="form-select" aria-label="@Model.Title @(i + 1)">
+                    @foreach (var o in Model.Months)
+                    {
+                        <option value="@o.Value" selected="@(o.Value == (w.ToMonth?.ToString() ?? ""))">@o.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select name="@(key).ToPart" class="form-select" aria-label="@Model.Title @(i + 1)">
+                    @foreach (var o in Model.Parts)
+                    {
+                        <option value="@o.Value" selected="@(o.Value == w.ToPart.ToString())">@o.Text</option>
+                    }
+                </select>
+            </div>
+            @if (i > 0)
+            {
+                <div class="col-auto">
+                    <button type="button" class="btn btn-link btn-sm text-danger window-remove">@L["Window_Remove"]</button>
+                </div>
+            }
+            <div class="col-12">
+                @Html.ValidationMessage($"{key}.FromMonth", new { @class = "text-danger" })
+            </div>
+        </div>
+    }
+    @if (Model.Items.Count > 1)
+    {
+        <button type="button" class="btn btn-link btn-sm p-0 window-add">@L["Window_Add"]</button>
+    }
+</div>

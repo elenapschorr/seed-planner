@@ -19,7 +19,8 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         Lifecycle? Lifecycle,
         SeedType? SeedType,
         StockStatus StockStatus,
-        CultivationMethod? CultivationMethod,
+        SowingMethod? SowingMethod,
+        GrowingPlace? GrowingPlace,
         NutrientDemand? NutrientDemand,
         Exposure? Exposure,
         int PotCount,
@@ -60,8 +61,11 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
     [BindProperty(Name = "seedType", SupportsGet = true)]
     public SeedType? SeedTypeFilter { get; set; }
 
-    [BindProperty(Name = "cultivation", SupportsGet = true)]
-    public CultivationMethod? CultivationFilter { get; set; }
+    [BindProperty(Name = "sowing", SupportsGet = true)]
+    public SowingMethod? SowingFilter { get; set; }
+
+    [BindProperty(Name = "place", SupportsGet = true)]
+    public GrowingPlace? PlaceFilter { get; set; }
 
     [BindProperty(Name = "nutrient", SupportsGet = true)]
     public NutrientDemand? NutrientFilter { get; set; }
@@ -73,7 +77,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
     [BindProperty(Name = "toBuy", SupportsGet = true)]
     public bool OnlyToBuy { get; set; }
 
-    // Column to sort by (name, type, propagation, lifecycle, seedtype, stock, cultivation, nutrient, exposure, pots, tobuy) and direction (asc, desc)
+    // Column to sort by (name, type, propagation, lifecycle, seedtype, stock, sowing, place, nutrient, exposure, pots, tobuy) and direction (asc, desc)
     [BindProperty(SupportsGet = true)]
     public string? Sort { get; set; }
 
@@ -103,7 +107,8 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         if (PropagationFilter is not null) query = query.Where(p => p.Propagation == PropagationFilter);
         if (LifecycleFilter is not null) query = query.Where(p => p.PlantType.Lifecycle == LifecycleFilter);
         if (SeedTypeFilter is not null) query = query.Where(p => p.SeedType == SeedTypeFilter);
-        if (CultivationFilter is not null) query = query.Where(p => p.CultivationMethod == CultivationFilter);
+        if (SowingFilter is not null) query = query.Where(p => p.SowingMethod == SowingFilter);
+        if (PlaceFilter is not null) query = query.Where(p => p.GrowingPlace == PlaceFilter);
         if (NutrientFilter is not null) query = query.Where(p => p.PlantType.NutrientDemand == NutrientFilter);
 
         var plants = await query.ToListAsync();
@@ -139,7 +144,8 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             p.PlantType.Lifecycle,
             p.SeedType,
             p.StockStatus,
-            p.CultivationMethod,
+            p.SowingMethod,
+            p.GrowingPlace,
             p.PlantType.NutrientDemand,
             p.EffectiveExposure,   // own value of the plant, otherwise the default of its plant type
             potsPerPlant.GetValueOrDefault(p.Id),
@@ -168,7 +174,8 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             "lifecycle" => ListSorting.Sort(byDefault, r => r.Lifecycle is null ? null : L["Lifecycle_" + r.Lifecycle].Value, Descending),
             "seedtype" => ListSorting.Sort(byDefault, r => r.SeedType is null ? null : L["SeedType_" + r.SeedType].Value, Descending),
             "stock" => ListSorting.Sort(byDefault, r => L["StockStatus_" + r.StockStatus].Value, Descending),
-            "cultivation" => ListSorting.Sort(byDefault, r => r.CultivationMethod is null ? null : L["CultivationMethod_" + r.CultivationMethod].Value, Descending),
+            "sowing" => ListSorting.Sort(byDefault, r => r.SowingMethod is null ? null : L["SowingMethod_" + r.SowingMethod].Value, Descending),
+            "place" => ListSorting.Sort(byDefault, r => r.GrowingPlace is null ? null : L["GrowingPlace_" + r.GrowingPlace].Value, Descending),
             "nutrient" => ListSorting.Sort(byDefault, r => ListSorting.Rank(r.NutrientDemand), Descending),
             "exposure" => ListSorting.Sort(byDefault, r => ListSorting.Rank(r.Exposure), Descending),
             "pots" => ListSorting.Sort(byDefault, r => r.PotCount, Descending),
@@ -182,6 +189,9 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         type.Translations.FirstOrDefault(t => t.Language == language)?.Name ?? type.Name;
 
     // ---------------------------------------------------------------- sort links
+
+    // The list with its filters and sorting; the edit page returns here, so the filters are kept
+    public string ReturnUrl => Request.Path.Value + Request.QueryString.Value;
 
     public bool Descending => string.Equals(Dir, "desc", StringComparison.OrdinalIgnoreCase);
 
@@ -201,7 +211,8 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         ["propagation"] = PropagationFilter?.ToString(),
         ["lifecycle"] = LifecycleFilter?.ToString(),
         ["seedType"] = SeedTypeFilter?.ToString(),
-        ["cultivation"] = CultivationFilter?.ToString(),
+        ["sowing"] = SowingFilter?.ToString(),
+        ["place"] = PlaceFilter?.ToString(),
         ["nutrient"] = NutrientFilter?.ToString(),
         ["exposure"] = ExposureFilter?.ToString(),
         ["toBuy"] = OnlyToBuy ? "true" : null,

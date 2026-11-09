@@ -25,11 +25,14 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         // Only for seed; empty for young plants and cuttings
         public SeedType? SeedType { get; set; }
         public StockStatus StockStatus { get; set; } = StockStatus.InStock;
-        public CultivationMethod? CultivationMethod { get; set; }
+        public SowingMethod? SowingMethod { get; set; }
+        public GrowingPlace? GrowingPlace { get; set; }
         public Exposure? Exposure { get; set; }
 
         public int? GerminationDaysMin { get; set; }
         public int? GerminationDaysMax { get; set; }
+        public int? GerminationTempMinC { get; set; }
+        public int? GerminationTempMaxC { get; set; }
         public int? MaturityDaysMin { get; set; }
         public int? MaturityDaysMax { get; set; }
         public int? RowSpacingCm { get; set; }
@@ -37,18 +40,34 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         public int? PotSizeMinCm { get; set; }
         public int? PotSizeMaxCm { get; set; }
 
-        // up to two sowing and two harvest windows (months 1..12)
-        public int? Sow1From { get; set; }
-        public int? Sow1To { get; set; }
-        public int? Sow2From { get; set; }
-        public int? Sow2To { get; set; }
-        public int? Harv1From { get; set; }
-        public int? Harv1To { get; set; }
-        public int? Harv2From { get; set; }
-        public int? Harv2To { get; set; }
+        // Up to two windows per kind; the second one is added by the user on demand
+        public List<WindowInput> Sowing { get; set; } = [new(), new()];
+        public List<WindowInput> Harvest { get; set; } = [new(), new()];
+        public List<WindowInput> Bloom { get; set; } = [new(), new()];
     }
 
+    // One window: from month (and part of it) to month (and part of it)
+    public class WindowInput
+    {
+        public int? FromMonth { get; set; }
+        public MonthPart FromPart { get; set; } = MonthPart.Whole;
+        public int? ToMonth { get; set; }
+        public MonthPart ToPart { get; set; } = MonthPart.Whole;
+    }
+
+    // What the window partial needs
+    public record WindowSectionModel(
+        string Id, string Prefix, string Title, List<WindowInput> Items,
+        List<SelectListItem> Months, List<SelectListItem> Parts);
+
     public int? Id { get; private set; }
+
+    // The list page (with its filters) the user came from
+    [BindProperty(SupportsGet = true)]
+    public string? ReturnUrl { get; set; }
+
+    public string BackUrl =>
+        !string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl) ? ReturnUrl : Url.Page("Index")!;
 
     [BindProperty]
     public InputModel Input { get; set; } = new();
@@ -60,15 +79,28 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
     public List<SelectListItem> PropagationOptions { get; private set; } = new();
     public List<SelectListItem> SeedTypeOptions { get; private set; } = new();
     public List<SelectListItem> StockOptions { get; private set; } = new();
-    public List<SelectListItem> CultivationOptions { get; private set; } = new();
+    public List<SelectListItem> SowingOptions { get; private set; } = new();
+    public List<SelectListItem> PlaceOptions { get; private set; } = new();
     public List<SelectListItem> ExposureOptions { get; private set; } = new();
     public List<SelectListItem> MonthOptions { get; private set; } = new();
+    public List<SelectListItem> PartOptions { get; private set; } = new();
+
+    // Where this variety grows: one entry per planting (a pot or a bed)
+    public record PlantingRow(int Id, string Where, int? PlantCount);
+
+    public List<PlantingRow> Plantings { get; private set; } = new();
+    public List<SelectListItem> GroupOptions { get; private set; } = new();
+    public List<SelectListItem> BedOptions { get; private set; } = new();
+
+    // Message for the planting section (shown right there)
+    public string? PlantingError { get; private set; }
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
         Id = id;
         await LoadOptionsAsync();
         if (id is null) return Page();
+        await LoadPlantingsAsync(id.Value);
 
         var plant = await db.Plants.AsNoTracking()
             .Include(p => p.SeasonWindows)
@@ -103,7 +135,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
         Apply(plant);
         await db.SaveChangesAsync();
-        return RedirectToPage("Index");
+        return LocalRedirect(BackUrl);
     }
 
     public async Task<IActionResult> OnPostDeleteAsync(int id)
@@ -114,7 +146,108 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             db.Plants.Remove(plant);   // season windows are deleted with it (cascade)
             await db.SaveChangesAsync();
         }
-        return RedirectToPage("Index");
+        return LocalRedirect(BackUrl);
+    }
+
+    // ---------------------------------------------------------------- where the variety grows
+
+    // Plants the variety into some free pots of a group
+    public async Task<IActionResult> OnPostAddToPotsAsync(int id, int groupId, int quantity, int? plantCount)
+    {
+        var plant = await db.Plants.FirstOrDefaultAsync(p => p.Id == id);   // filtered: only own plants
+        if (plant is null) return NotFound();
+
+        var group = await db.PotGroups.Include(g => g.Pots).ThenInclude(p => p.Plantings)
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+        var free = group?.Pots.Where(p => p.IsFree).OrderBy(p => p.Id).ToList() ?? new();
+
+        string? error = null;
+        if (group is null) error = L["PotError_UseInvalid"];
+        else if (quantity < 1) error = L["PotError_UseQuantity"];
+        else if (quantity > free.Count) error = L["PotError_UseTooMany", free.Count];
+        else if (plantCount is < 1) error = L["PotError_PlantCount"];
+        if (error is not null) return await PageWithPlantingErrorAsync(plant, error);
+
+        foreach (var pot in free.Take(quantity))
+        {
+            pot.Plantings.Add(new Planting { PlantTypeId = plant.PlantTypeId, PlantId = plant.Id, PlantCount = plantCount });
+        }
+        await db.SaveChangesAsync();
+        return RedirectToPage("Edit", new { id, returnUrl = ReturnUrl });
+    }
+
+    // Plants the variety into a bed (raised bed, ground bed or planting ring)
+    public async Task<IActionResult> OnPostAddToBedAsync(int id, int bedId, int? plantCount)
+    {
+        var plant = await db.Plants.FirstOrDefaultAsync(p => p.Id == id);
+        if (plant is null) return NotFound();
+
+        var bed = await db.RaisedBeds.Include(b => b.Plantings).FirstOrDefaultAsync(b => b.Id == bedId);
+
+        string? error = null;
+        if (bed is null) error = L["PotError_UseInvalid"];
+        else if (plantCount is < 1) error = L["PotError_PlantCount"];
+        else if (bed.Plantings.Any(x => x.PlantId == plant.Id)) error = L["PotError_AlreadyThere"];
+        if (error is not null) return await PageWithPlantingErrorAsync(plant, error);
+
+        bed!.Plantings.Add(new Planting { PlantTypeId = plant.PlantTypeId, PlantId = plant.Id, PlantCount = plantCount });
+        await db.SaveChangesAsync();
+        return RedirectToPage("Edit", new { id, returnUrl = ReturnUrl });
+    }
+
+    public async Task<IActionResult> OnPostRemovePlantingAsync(int id, int plantingId)
+    {
+        // The query filter only finds the user's own plantings
+        var planting = await db.Plantings.FirstOrDefaultAsync(x => x.Id == plantingId && x.PlantId == id);
+        if (planting is not null)
+        {
+            db.Plantings.Remove(planting);
+            await db.SaveChangesAsync();
+        }
+        return RedirectToPage("Edit", new { id, returnUrl = ReturnUrl });
+    }
+
+    private async Task<IActionResult> PageWithPlantingErrorAsync(Plant plant, string error)
+    {
+        Id = plant.Id;
+        var full = await db.Plants.AsNoTracking().Include(p => p.SeasonWindows).FirstAsync(p => p.Id == plant.Id);
+        Input = ToInput(full);
+        PlantingError = error;
+        await LoadOptionsAsync();
+        await LoadPlantingsAsync(plant.Id);
+        return Page();
+    }
+
+    private async Task LoadPlantingsAsync(int plantId)
+    {
+        var groups = await db.PotGroups.AsNoTracking()
+            .Include(g => g.Pots).ThenInclude(p => p.Plantings)
+            .OrderBy(g => g.Name).ToListAsync();
+
+        GroupOptions = groups
+            .Where(g => g.FreeQuantity > 0)
+            .Select(g => new SelectListItem(L["Where_FreeOf", g.Name, g.FreeQuantity].Value, g.Id.ToString()))
+            .ToList();
+
+        var beds = await db.RaisedBeds.AsNoTracking().OrderBy(b => b.Name).ToListAsync();
+        BedOptions = beds.Select(b => new SelectListItem(b.Name, b.Id.ToString())).ToList();
+
+        var plantings = await db.Plantings.AsNoTracking().Where(x => x.PlantId == plantId).ToListAsync();
+        var rows = new List<PlantingRow>();
+        foreach (var x in plantings)
+        {
+            if (x.PotId is not null)
+            {
+                var group = groups.First(g => g.Pots.Any(p => p.Id == x.PotId));
+                var number = group.Pots.OrderBy(p => p.Id).ToList().FindIndex(p => p.Id == x.PotId) + 1;
+                rows.Add(new PlantingRow(x.Id, $"{group.Name}, {L["Pot_Number", number]}", x.PlantCount));
+            }
+            else if (x.RaisedBedId is not null)
+            {
+                rows.Add(new PlantingRow(x.Id, beds.First(b => b.Id == x.RaisedBedId).Name, x.PlantCount));
+            }
+        }
+        Plantings = rows.OrderBy(r => r.Where, StringComparer.CurrentCultureIgnoreCase).ToList();
     }
 
     // ---------------------------------------------------------------- validation
@@ -129,21 +262,50 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             if (exists) ModelState.AddModelError("Input.Name", L["Error_NameExists"]);
         }
 
-        CheckWindow(nameof(Input.Sow1From), Input.Sow1From, Input.Sow1To);
-        CheckWindow(nameof(Input.Sow2From), Input.Sow2From, Input.Sow2To);
-        CheckWindow(nameof(Input.Harv1From), Input.Harv1From, Input.Harv1To);
-        CheckWindow(nameof(Input.Harv2From), Input.Harv2From, Input.Harv2To);
+        CheckWindows("Sowing", Input.Sowing);
+        CheckWindows("Harvest", Input.Harvest);
+        CheckWindows("Bloom", Input.Bloom);
 
         CheckMinMax(nameof(Input.GerminationDaysMin), Input.GerminationDaysMin, Input.GerminationDaysMax);
+        CheckMinMax(nameof(Input.GerminationTempMinC), Input.GerminationTempMinC, Input.GerminationTempMaxC);
         CheckMinMax(nameof(Input.MaturityDaysMin), Input.MaturityDaysMin, Input.MaturityDaysMax);
         CheckMinMax(nameof(Input.PotSizeMinCm), Input.PotSizeMinCm, Input.PotSizeMaxCm);
+
+        // The pot size is optional, but required for pot culture
+        if (Input.GrowingPlace == GrowingPlace.Container && (Input.PotSizeMinCm is null || Input.PotSizeMaxCm is null))
+            ModelState.AddModelError($"Input.{nameof(Input.PotSizeMinCm)}", L["Error_PotSizeRequired"]);
     }
 
-    // both months or none (a window may run across the new year, so from > to is fine)
-    private void CheckWindow(string field, int? from, int? to)
+    // Both months or none (a window may run across the new year, so from > to is fine).
+    // Within one month the end part must not come before the start part.
+    private void CheckWindows(string name, List<WindowInput> windows)
     {
-        if ((from is null) != (to is null))
-            ModelState.AddModelError($"Input.{field}", L["Error_WindowIncomplete"]);
+        for (var i = 0; i < windows.Count; i++)
+        {
+            var w = windows[i];
+            var key = $"Input.{name}[{i}].FromMonth";
+
+            if ((w.FromMonth is null) != (w.ToMonth is null))
+            {
+                ModelState.AddModelError(key, L["Error_WindowIncomplete"]);
+                continue;
+            }
+            if (w.FromMonth is null || w.ToMonth is null) continue;
+
+            if (w.FromMonth is < 1 or > 12 || w.ToMonth is < 1 or > 12)
+            {
+                ModelState.AddModelError(key, L["Error_WindowIncomplete"]);
+                continue;
+            }
+
+            var window = new SeasonWindow
+            {
+                StartMonth = w.FromMonth.Value, StartPart = w.FromPart,
+                EndMonth = w.ToMonth.Value, EndPart = w.ToPart
+            };
+            if (window.StartMonth == window.EndMonth && window.StartThird > window.EndThird)
+                ModelState.AddModelError(key, L["Error_WindowOrder"]);
+        }
     }
 
     private void CheckMinMax(string field, int? min, int? max)
@@ -161,10 +323,13 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         plant.Propagation = Input.Propagation;
         plant.SeedType = Input.Propagation == Propagation.Seed ? Input.SeedType : null;
         plant.StockStatus = Input.StockStatus;
-        plant.CultivationMethod = Input.CultivationMethod;
+        plant.SowingMethod = Input.SowingMethod;
+        plant.GrowingPlace = Input.GrowingPlace;
         plant.Exposure = Input.Exposure;
         plant.GerminationDaysMin = Input.GerminationDaysMin;
         plant.GerminationDaysMax = Input.GerminationDaysMax;
+        plant.GerminationTempMinC = Input.GerminationTempMinC;
+        plant.GerminationTempMaxC = Input.GerminationTempMaxC;
         plant.MaturityDaysMin = Input.MaturityDaysMin;
         plant.MaturityDaysMax = Input.MaturityDaysMax;
         plant.RowSpacingCm = Input.RowSpacingCm;
@@ -175,23 +340,48 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         // rewrite the season windows
         db.SeasonWindows.RemoveRange(plant.SeasonWindows);
         plant.SeasonWindows.Clear();
-        AddWindow(plant, WindowKind.Sowing, Input.Sow1From, Input.Sow1To);
-        AddWindow(plant, WindowKind.Sowing, Input.Sow2From, Input.Sow2To);
-        AddWindow(plant, WindowKind.Harvest, Input.Harv1From, Input.Harv1To);
-        AddWindow(plant, WindowKind.Harvest, Input.Harv2From, Input.Harv2To);
+        AddWindows(plant, WindowKind.Sowing, Input.Sowing);
+        AddWindows(plant, WindowKind.Harvest, Input.Harvest);
+        AddWindows(plant, WindowKind.Bloom, Input.Bloom);
     }
 
-    private static void AddWindow(Plant plant, WindowKind kind, int? from, int? to)
+    private static void AddWindows(Plant plant, WindowKind kind, List<WindowInput> windows)
     {
-        if (from is null || to is null) return;
-        plant.SeasonWindows.Add(new SeasonWindow { Kind = kind, StartMonth = from.Value, EndMonth = to.Value });
+        foreach (var w in windows)
+        {
+            if (w.FromMonth is null || w.ToMonth is null) continue;
+            plant.SeasonWindows.Add(new SeasonWindow
+            {
+                Kind = kind,
+                StartMonth = w.FromMonth.Value,
+                StartPart = w.FromPart,
+                EndMonth = w.ToMonth.Value,
+                EndPart = w.ToPart
+            });
+        }
+    }
+
+    // Two entries per kind: the existing windows in order, then empty ones
+    private static List<WindowInput> WindowsOf(Plant plant, WindowKind kind)
+    {
+        var list = plant.SeasonWindows
+            .Where(w => w.Kind == kind)
+            .OrderBy(w => w.Id)
+            .Take(2)
+            .Select(w => new WindowInput
+            {
+                FromMonth = w.StartMonth,
+                FromPart = w.StartPart,
+                ToMonth = w.EndMonth,
+                ToPart = w.EndPart
+            })
+            .ToList();
+        while (list.Count < 2) list.Add(new WindowInput());
+        return list;
     }
 
     private static InputModel ToInput(Plant plant)
     {
-        var sowing = plant.SeasonWindows.Where(w => w.Kind == WindowKind.Sowing).OrderBy(w => w.Id).ToList();
-        var harvest = plant.SeasonWindows.Where(w => w.Kind == WindowKind.Harvest).OrderBy(w => w.Id).ToList();
-
         return new InputModel
         {
             PlantTypeId = plant.PlantTypeId,
@@ -199,24 +389,22 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             Propagation = plant.Propagation,
             SeedType = plant.SeedType,
             StockStatus = plant.StockStatus,
-            CultivationMethod = plant.CultivationMethod,
+            SowingMethod = plant.SowingMethod,
+            GrowingPlace = plant.GrowingPlace,
             Exposure = plant.Exposure,
             GerminationDaysMin = plant.GerminationDaysMin,
             GerminationDaysMax = plant.GerminationDaysMax,
+            GerminationTempMinC = plant.GerminationTempMinC,
+            GerminationTempMaxC = plant.GerminationTempMaxC,
             MaturityDaysMin = plant.MaturityDaysMin,
             MaturityDaysMax = plant.MaturityDaysMax,
             RowSpacingCm = plant.RowSpacingCm,
             PlantSpacingCm = plant.PlantSpacingCm,
             PotSizeMinCm = plant.PotSizeMinCm,
             PotSizeMaxCm = plant.PotSizeMaxCm,
-            Sow1From = sowing.ElementAtOrDefault(0)?.StartMonth,
-            Sow1To = sowing.ElementAtOrDefault(0)?.EndMonth,
-            Sow2From = sowing.ElementAtOrDefault(1)?.StartMonth,
-            Sow2To = sowing.ElementAtOrDefault(1)?.EndMonth,
-            Harv1From = harvest.ElementAtOrDefault(0)?.StartMonth,
-            Harv1To = harvest.ElementAtOrDefault(0)?.EndMonth,
-            Harv2From = harvest.ElementAtOrDefault(1)?.StartMonth,
-            Harv2To = harvest.ElementAtOrDefault(1)?.EndMonth,
+            Sowing = WindowsOf(plant, WindowKind.Sowing),
+            Harvest = WindowsOf(plant, WindowKind.Harvest),
+            Bloom = WindowsOf(plant, WindowKind.Bloom)
         };
     }
 
@@ -243,13 +431,17 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         PropagationOptions = EnumOptions<Propagation>();
         SeedTypeOptions = EnumOptions<SeedType>(optional: true);
         StockOptions = EnumOptions<StockStatus>();
-        CultivationOptions = EnumOptions<CultivationMethod>(optional: true);
+        SowingOptions = EnumOptions<SowingMethod>(optional: true);
+        PlaceOptions = EnumOptions<GrowingPlace>(optional: true);
         ExposureOptions = EnumOptions<Exposure>(optional: true);
 
         MonthOptions = Enumerable.Range(1, 12)
             .Select(m => new SelectListItem(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m), m.ToString()))
             .ToList();
         MonthOptions.Insert(0, new SelectListItem("–", ""));
+
+        PartOptions = Enum.GetValues<MonthPart>()
+            .Select(v => new SelectListItem(L["Part_" + v].Value, v.ToString())).ToList();
     }
 
     // Resource keys follow the pattern "<EnumName>_<Value>", e.g. "StockStatus_InStock"

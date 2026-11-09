@@ -14,12 +14,18 @@ public class Plant
     public SeedType? SeedType { get; set; }
 
     public StockStatus StockStatus { get; set; }
-    public CultivationMethod? CultivationMethod { get; set; }
+    public SowingMethod? SowingMethod { get; set; }
+    public GrowingPlace? GrowingPlace { get; set; }
     public Exposure? Exposure { get; set; }
     public Exposure? EffectiveExposure => Exposure ?? PlantType?.Exposure;
 
     public int? GerminationDaysMin { get; set; }
     public int? GerminationDaysMax { get; set; }
+
+    /// <summary>Germination temperature range in °C.</summary>
+    public int? GerminationTempMinC { get; set; }
+    public int? GerminationTempMaxC { get; set; }
+
     public int? MaturityDaysMin { get; set; }
     public int? MaturityDaysMax { get; set; }
 

@@ -6,7 +6,21 @@
 
 <h1 class="mb-3">@ViewData["Title"]</h1>
 
+@{
+    var m = Model.Input;
+    static bool Any(IEnumerable<SeedPlanner.Api.Pages.Plants.EditModel.WindowInput> ws) => ws.Any(w => w.FromMonth is not null || w.ToMonth is not null);
+    // Sections start open when they hold data, when the variety is new, or when there is a validation error
+    var invalid = !ViewData.ModelState.IsValid;
+    var openSowing = Model.Id is null || invalid || Any(m.Sowing) || m.GerminationDaysMin is not null || m.GerminationDaysMax is not null
+                     || m.GerminationTempMinC is not null || m.GerminationTempMaxC is not null;
+    // For pot culture the spacings are optional: hidden until the user switches them on (or they hold values)
+    var hideSpacing = m.GrowingPlace == SeedPlanner.Domain.GrowingPlace.Container && m.RowSpacingCm is null && m.PlantSpacingCm is null;
+    var openBloom = Model.Id is null || invalid || Any(m.Bloom);
+    var openHarvest = Model.Id is null || invalid || Any(m.Harvest) || m.MaturityDaysMin is not null || m.MaturityDaysMax is not null;
+}
+
 <form method="post" class="row g-3">
+    <input type="hidden" asp-for="ReturnUrl" />
     <div class="col-md-6">
         <label asp-for="Input.PlantTypeId" class="form-label">@L["Col_PlantType"]</label>
         <select asp-for="Input.PlantTypeId" asp-items="Model.TypeOptions" class="form-select"></select>
@@ -31,41 +45,31 @@
         <select asp-for="Input.StockStatus" asp-items="Model.StockOptions" class="form-select"></select>
     </div>
     <div class="col-md-3">
-        <label asp-for="Input.CultivationMethod" class="form-label">@L["Col_Cultivation"]</label>
-        <select asp-for="Input.CultivationMethod" asp-items="Model.CultivationOptions" class="form-select"></select>
-    </div>
-    <div class="col-md-3">
         <label asp-for="Input.Exposure" class="form-label">@L["Col_Exposure"]</label>
         <select asp-for="Input.Exposure" asp-items="Model.ExposureOptions" class="form-select"></select>
     </div>
 
-    <div class="col-md-6">
-        <label class="form-label">@L["Field_GerminationDays"]</label>
-        <div class="input-group">
-            <input asp-for="Input.GerminationDaysMin" class="form-control" />
-            <input asp-for="Input.GerminationDaysMax" class="form-control" />
-        </div>
-        <span asp-validation-for="Input.GerminationDaysMin" class="text-danger"></span>
+    <div class="col-md-2">
+        <label asp-for="Input.SowingMethod" class="form-label">@L["Col_Sowing"]</label>
+        <select asp-for="Input.SowingMethod" asp-items="Model.SowingOptions" class="form-select"></select>
     </div>
-    <div class="col-md-6">
-        <label class="form-label">@L["Field_MaturityDays"]</label>
-        <div class="input-group">
-            <input asp-for="Input.MaturityDaysMin" class="form-control" />
-            <input asp-for="Input.MaturityDaysMax" class="form-control" />
-        </div>
-        <span asp-validation-for="Input.MaturityDaysMin" class="text-danger"></span>
+    <div class="col-md-2">
+        <label asp-for="Input.GrowingPlace" class="form-label">@L["Col_GrowingPlace"]</label>
+        <select asp-for="Input.GrowingPlace" asp-items="Model.PlaceOptions" class="form-select"></select>
     </div>
-
-    <div class="col-md-4">
+    <div class="col-md-2 spacing-field" @(hideSpacing ? "hidden" : "")>
         <label asp-for="Input.RowSpacingCm" class="form-label">@L["Field_RowSpacing"]</label>
         <input asp-for="Input.RowSpacingCm" class="form-control" />
     </div>
-    <div class="col-md-4">
+    <div class="col-md-2 spacing-field" @(hideSpacing ? "hidden" : "")>
         <label asp-for="Input.PlantSpacingCm" class="form-label">@L["Field_PlantSpacing"]</label>
         <input asp-for="Input.PlantSpacingCm" class="form-control" />
     </div>
+    <div class="col-md-4 d-flex align-items-end" id="spacing-toggle" hidden>
+        <button type="button" class="btn btn-link btn-sm p-0 mb-2">@L["Action_ShowSpacing"]</button>
+    </div>
     <div class="col-md-4">
-        <label class="form-label">@L["Field_PotSize"]</label>
+        <label class="form-label">@L["Field_PotSize"]@(Model.Input.GrowingPlace == SeedPlanner.Domain.GrowingPlace.Container ? " *" : "")</label>
         <div class="input-group">
             <input asp-for="Input.PotSizeMinCm" class="form-control" />
             <input asp-for="Input.PotSizeMaxCm" class="form-control" />
@@ -73,66 +77,205 @@
         <span asp-validation-for="Input.PotSizeMinCm" class="text-danger"></span>
     </div>
 
-    <div class="col-md-6">
-        <label class="form-label">@L["Field_Sowing1"]</label>
-        <div class="input-group">
-            <select asp-for="Input.Sow1From" asp-items="Model.MonthOptions" class="form-select"></select>
-            <select asp-for="Input.Sow1To" asp-items="Model.MonthOptions" class="form-select"></select>
-        </div>
-        <span asp-validation-for="Input.Sow1From" class="text-danger"></span>
+    <div class="col-12">
+        <details class="border rounded p-3" id="section-sowing" @(openSowing ? "open" : "")>
+            <summary class="fw-semibold">@L["Window_Sowing"]</summary>
+            <div class="row g-3 mt-0">
+                <div class="col-md-6">
+                    <label class="form-label">@L["Field_GerminationDays"]</label>
+                    <div class="input-group">
+                        <input asp-for="Input.GerminationDaysMin" class="form-control" />
+                        <input asp-for="Input.GerminationDaysMax" class="form-control" />
+                    </div>
+                    <span asp-validation-for="Input.GerminationDaysMin" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">@L["Field_GerminationTemp"]</label>
+                    <div class="input-group">
+                        <input asp-for="Input.GerminationTempMinC" class="form-control" />
+                        <input asp-for="Input.GerminationTempMaxC" class="form-control" />
+                    </div>
+                    <span asp-validation-for="Input.GerminationTempMinC" class="text-danger"></span>
+                </div>
+                <partial name="_WindowSection" model="@(new SeedPlanner.Api.Pages.Plants.EditModel.WindowSectionModel("window-sowing", "Input.Sowing", L["Window_Sowing"].Value, Model.Input.Sowing, Model.MonthOptions, Model.PartOptions))" />
+            </div>
+        </details>
     </div>
-    <div class="col-md-6">
-        <label class="form-label">@L["Field_Sowing2"]</label>
-        <div class="input-group">
-            <select asp-for="Input.Sow2From" asp-items="Model.MonthOptions" class="form-select"></select>
-            <select asp-for="Input.Sow2To" asp-items="Model.MonthOptions" class="form-select"></select>
-        </div>
-        <span asp-validation-for="Input.Sow2From" class="text-danger"></span>
+
+    <div class="col-12">
+        <details class="border rounded p-3" id="section-bloom" @(openBloom ? "open" : "")>
+            <summary class="fw-semibold">@L["Window_Bloom"]</summary>
+            <div class="row g-3 mt-0">
+                <partial name="_WindowSection" model="@(new SeedPlanner.Api.Pages.Plants.EditModel.WindowSectionModel("window-bloom", "Input.Bloom", L["Window_Bloom"].Value, Model.Input.Bloom, Model.MonthOptions, Model.PartOptions))" />
+            </div>
+        </details>
     </div>
-    <div class="col-md-6">
-        <label class="form-label" id="harvest1-label" data-harvest="@L["Field_Harvest1"]" data-bloom="@L["Field_Bloom1"]">@L["Field_Harvest1"]</label>
-        <div class="input-group">
-            <select asp-for="Input.Harv1From" asp-items="Model.MonthOptions" class="form-select"></select>
-            <select asp-for="Input.Harv1To" asp-items="Model.MonthOptions" class="form-select"></select>
-        </div>
-        <span asp-validation-for="Input.Harv1From" class="text-danger"></span>
-    </div>
-    <div class="col-md-6">
-        <label class="form-label" id="harvest2-label" data-harvest="@L["Field_Harvest2"]" data-bloom="@L["Field_Bloom2"]">@L["Field_Harvest2"]</label>
-        <div class="input-group">
-            <select asp-for="Input.Harv2From" asp-items="Model.MonthOptions" class="form-select"></select>
-            <select asp-for="Input.Harv2To" asp-items="Model.MonthOptions" class="form-select"></select>
-        </div>
-        <span asp-validation-for="Input.Harv2From" class="text-danger"></span>
+
+    <div class="col-12" id="section-harvest">
+        <details class="border rounded p-3" @(openHarvest ? "open" : "")>
+            <summary class="fw-semibold">@L["Window_Harvest"]</summary>
+            <div class="row g-3 mt-0">
+                <div class="col-md-6">
+                    <label class="form-label">@L["Field_MaturityDays"]</label>
+                    <div class="input-group">
+                        <input asp-for="Input.MaturityDaysMin" class="form-control" />
+                        <input asp-for="Input.MaturityDaysMax" class="form-control" />
+                    </div>
+                    <span asp-validation-for="Input.MaturityDaysMin" class="text-danger"></span>
+                </div>
+                <partial name="_WindowSection" model="@(new SeedPlanner.Api.Pages.Plants.EditModel.WindowSectionModel("window-harvest", "Input.Harvest", L["Window_Harvest"].Value, Model.Input.Harvest, Model.MonthOptions, Model.PartOptions))" />
+            </div>
+        </details>
     </div>
 
     <div class="col-12 d-flex gap-2">
         <button type="submit" class="btn btn-success">@L["Action_Save"]</button>
-        <a class="btn btn-outline-secondary" asp-page="Index">@L["Action_Cancel"]</a>
+        <a class="btn btn-outline-secondary" href="@Model.BackUrl">@L["Action_Cancel"]</a>
     </div>
 </form>
+
+@if (Model.Id is not null)
+{
+    <hr class="my-4" />
+    <h2 class="h5">@L["Where_Title"]</h2>
+
+    @if (Model.PlantingError is not null)
+    {
+        <div class="alert alert-danger" role="alert">@Model.PlantingError</div>
+    }
+
+    @if (Model.Plantings.Count == 0)
+    {
+        <p class="text-muted">@L["Where_None"]</p>
+    }
+    else
+    {
+        <ul class="list-unstyled">
+            @foreach (var x in Model.Plantings)
+            {
+                <li class="d-flex align-items-center gap-3 mb-1">
+                    <span>@x.Where@(x.PlantCount is null ? "" : $" ×{x.PlantCount}")</span>
+                    <form method="post" asp-page-handler="RemovePlanting" asp-route-id="@Model.Id" class="d-inline">
+                        <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+                        <input type="hidden" name="plantingId" value="@x.Id" />
+                        <button type="submit" class="btn btn-link btn-sm p-0 text-danger">@L["Neighbours_Remove"]</button>
+                    </form>
+                </li>
+            }
+        </ul>
+    }
+
+    @if (Model.GroupOptions.Count > 0)
+    {
+        <h3 class="h6 mt-3">@L["Where_FreePots"]</h3>
+        <form method="post" asp-page-handler="AddToPots" asp-route-id="@Model.Id" class="row g-2 mb-3">
+            <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+            <div class="col-md-5">
+                <select name="groupId" asp-items="Model.GroupOptions" class="form-select"></select>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="quantity" value="1" min="1" class="form-control" title="@L["Pots_NumberOfPots"].Value" />
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="plantCount" min="1" class="form-control" placeholder="@L["Field_PlantCount"].Value" />
+            </div>
+            <div class="col-md-auto">
+                <button type="submit" class="btn btn-success">@L["Action_Add"]</button>
+            </div>
+        </form>
+    }
+
+    @if (Model.BedOptions.Count > 0)
+    {
+        <h3 class="h6 mt-3">@L["Where_Bed"]</h3>
+        <form method="post" asp-page-handler="AddToBed" asp-route-id="@Model.Id" class="row g-2 mb-3">
+            <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+            <div class="col-md-5">
+                <select name="bedId" asp-items="Model.BedOptions" class="form-select"></select>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="plantCount" min="1" class="form-control" placeholder="@L["Field_PlantCount"].Value" />
+            </div>
+            <div class="col-md-auto">
+                <button type="submit" class="btn btn-success">@L["Action_Add"]</button>
+            </div>
+        </form>
+    }
+}
 
 @if (Model.Id is not null)
 {
     var confirmText = L["Confirm_Delete"].Value;
     <form method="post" asp-page-handler="Delete" asp-route-id="@Model.Id" class="mt-4"
           data-confirm="@confirmText" onsubmit="return confirm(this.dataset.confirm);">
+        <input type="hidden" asp-for="ReturnUrl" />
         <button type="submit" class="btn btn-outline-danger">@L["Action_Delete"]</button>
     </form>
 }
 
 @section Scripts {
     <script>
-        // Flowers are not harvested: for plant types of the category flower the window is the flowering time
         (function () {
+            // Second window: shown when the user adds it, hidden again (and cleared) when removed
+            document.querySelectorAll(".window-section").forEach(function (section) {
+                var rows = Array.prototype.slice.call(section.querySelectorAll(".window-row"));
+                var addButton = section.querySelector(".window-add");
+                function refresh() {
+                    if (addButton) addButton.hidden = !rows.some(function (r) { return r.hidden; });
+                }
+                if (addButton) {
+                    addButton.addEventListener("click", function () {
+                        var next = rows.find(function (r) { return r.hidden; });
+                        if (next) next.hidden = false;
+                        refresh();
+                    });
+                }
+                section.querySelectorAll(".window-remove").forEach(function (button) {
+                    button.addEventListener("click", function () {
+                        var row = button.closest(".window-row");
+                        row.querySelectorAll("select").forEach(function (s) { s.selectedIndex = 0; });
+                        row.hidden = true;
+                        refresh();
+                    });
+                });
+                refresh();
+            });
+
+            // Pot culture: row and plant spacing are optional, so they stay hidden until the user switches them on
+            var placeSelect = document.getElementById("Input_GrowingPlace");
+            var spacingFields = document.querySelectorAll(".spacing-field");
+            var spacingToggle = document.getElementById("spacing-toggle");
+            var spacingForced = false;
+            function spacingHasData() {
+                return Array.prototype.some.call(spacingFields, function (f) { return f.querySelector("input").value !== ""; });
+            }
+            function updateSpacing() {
+                var hide = placeSelect.value === "Container" && !spacingForced && !spacingHasData();
+                spacingFields.forEach(function (f) { f.hidden = hide; });
+                spacingToggle.hidden = !hide;
+            }
+            spacingToggle.querySelector("button").addEventListener("click", function () {
+                spacingForced = true;
+                updateSpacing();
+            });
+            placeSelect.addEventListener("change", updateSpacing);
+            updateSpacing();
+
+            // Flowers are not harvested: for plant types of the category flower the harvest window is hidden
+            // (unless it still holds data, so nothing disappears unnoticed)
             var flowerTypes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FlowerTypeIds));
             var select = document.getElementById("Input_PlantTypeId");
-            var labels = [document.getElementById("harvest1-label"), document.getElementById("harvest2-label")];
+            var harvest = document.getElementById("section-harvest");
+            function hasData() {
+                var months = Array.prototype.some.call(harvest.querySelectorAll("select[name$='Month']"),
+                    function (s) { return s.value !== ""; });
+                var days = Array.prototype.some.call(harvest.querySelectorAll("input[type='number'], input[type='text']"),
+                    function (i) { return i.value !== ""; });
+                return months || days;
+            }
             function update() {
                 var flower = flowerTypes.indexOf(parseInt(select.value, 10)) >= 0;
-                labels.forEach(function (label) {
-                    label.textContent = flower ? label.dataset.bloom : label.dataset.harvest;
-                });
+                harvest.hidden = flower && !hasData();
             }
             select.addEventListener("change", update);
             update();

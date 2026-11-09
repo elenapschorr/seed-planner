@@ -75,7 +75,8 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(p => p.Propagation).HasConversion<string>().HasDefaultValue(Propagation.Seed);
             e.Property(p => p.SeedType).HasConversion<string>();
             e.Property(p => p.StockStatus).HasConversion<string>();
-            e.Property(p => p.CultivationMethod).HasConversion<string>();
+            e.Property(p => p.SowingMethod).HasConversion<string>();
+            e.Property(p => p.GrowingPlace).HasConversion<string>();
             e.Property(p => p.Exposure).HasConversion<string>();
             e.HasMany(p => p.SeasonWindows).WithOne(w => w.Plant).HasForeignKey(w => w.PlantId);
             e.HasOne<IdentityUser>().WithMany().HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
@@ -85,6 +86,8 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
         modelBuilder.Entity<SeasonWindow>(e =>
         {
             e.Property(w => w.Kind).HasConversion<string>();
+            e.Property(w => w.StartPart).HasConversion<string>().HasMaxLength(10).HasDefaultValue(MonthPart.Whole);
+            e.Property(w => w.EndPart).HasConversion<string>().HasMaxLength(10).HasDefaultValue(MonthPart.Whole);
             e.HasQueryFilter(w => w.Plant!.OwnerId == CurrentUserId);
         });
 

@@ -30,17 +30,12 @@
   <data name="Col_PlantType" xml:space="preserve"><value>Культура</value></data>
   <data name="Col_SeedType" xml:space="preserve"><value>Тип семян</value></data>
   <data name="Col_Stock" xml:space="preserve"><value>Наличие</value></data>
-  <data name="Col_Cultivation" xml:space="preserve"><value>Способ выращивания</value></data>
   <data name="Badge_ToBuy" xml:space="preserve"><value>Купить</value></data>
   <data name="SeedType_OpenPollinated" xml:space="preserve"><value>Сортовые</value></data>
   <data name="SeedType_F1Hybrid" xml:space="preserve"><value>Гибрид F1</value></data>
   <data name="StockStatus_InStock" xml:space="preserve"><value>Есть</value></data>
   <data name="StockStatus_OutOfStock" xml:space="preserve"><value>Нет</value></data>
   <data name="StockStatus_Retired" xml:space="preserve"><value>Выбракованы</value></data>
-  <data name="CultivationMethod_StartIndoors" xml:space="preserve"><value>Через рассаду</value></data>
-  <data name="CultivationMethod_DirectSow" xml:space="preserve"><value>Посев в грунт</value></data>
-  <data name="CultivationMethod_Container" xml:space="preserve"><value>В горшке</value></data>
-  <data name="CultivationMethod_ColdFrame" xml:space="preserve"><value>Парник</value></data>
   <data name="AllMonths" xml:space="preserve"><value>Посев: любой месяц</value></data>
   <data name="Home_SowNow" xml:space="preserve"><value>Что можно сеять сейчас?</value></data>
   <data name="Action_New" xml:space="preserve"><value>Новый сорт</value></data>
@@ -52,6 +47,7 @@
   <data name="Edit_TitleNew" xml:space="preserve"><value>Новый сорт</value></data>
   <data name="Edit_TitleEdit" xml:space="preserve"><value>Изменение сорта</value></data>
   <data name="Field_GerminationDays" xml:space="preserve"><value>Срок прорастания, дни (мин / макс)</value></data>
+  <data name="Field_GerminationTemp" xml:space="preserve"><value>Температура прорастания, °C (мин / макс)</value></data>
   <data name="Field_MaturityDays" xml:space="preserve"><value>Срок созревания, дни (мин / макс)</value></data>
   <data name="Field_RowSpacing" xml:space="preserve"><value>Расстояние между рядами (см)</value></data>
   <data name="Field_PlantSpacing" xml:space="preserve"><value>Расстояние между растениями (см)</value></data>
@@ -123,7 +119,6 @@
   <data name="AllNutrientDemands" xml:space="preserve"><value>Любая требовательность</value></data>
   <data name="AllExposures" xml:space="preserve"><value>Любой свет</value></data>
   <data name="AllSeedTypes" xml:space="preserve"><value>Любой тип семян</value></data>
-  <data name="AllCultivations" xml:space="preserve"><value>Любой способ</value></data>
   <data name="Filter_OnlyToBuy" xml:space="preserve"><value>Только купить</value></data>
   <data name="Nav_Pots" xml:space="preserve"><value>Горшки</value></data>
   <data name="Nav_Saucers" xml:space="preserve"><value>Поддоны</value></data>
@@ -221,4 +216,32 @@
   <data name="PotError_NameExists" xml:space="preserve"><value>Группа с таким названием уже существует.</value></data>
   <data name="PotError_PlantCount" xml:space="preserve"><value>Количество растений должно быть не менее 1.</value></data>
   <data name="Pots_Done" xml:space="preserve"><value>Готово</value></data>
+  <data name="Where_Title" xml:space="preserve"><value>Где растёт?</value></data>
+  <data name="Where_None" xml:space="preserve"><value>Пока нигде не отмечено.</value></data>
+  <data name="Where_FreePots" xml:space="preserve"><value>Посадить в свободные горшки</value></data>
+  <data name="Where_Bed" xml:space="preserve"><value>Посадить на грядку</value></data>
+  <data name="Where_FreeOf" xml:space="preserve"><value>{0} (свободно: {1})</value></data>
+  <data name="PotGroup_Details" xml:space="preserve"><value>Данные группы</value></data>
+  <data name="Window_Sowing" xml:space="preserve"><value>Посев</value></data>
+  <data name="Window_Harvest" xml:space="preserve"><value>Урожай</value></data>
+  <data name="Window_Bloom" xml:space="preserve"><value>Цветение</value></data>
+  <data name="Window_Add" xml:space="preserve"><value>+ добавить ещё период</value></data>
+  <data name="Window_Remove" xml:space="preserve"><value>Удалить</value></data>
+  <data name="Window_To" xml:space="preserve"><value>до</value></data>
+  <data name="Part_Whole" xml:space="preserve"><value>весь месяц</value></data>
+  <data name="Part_Early" xml:space="preserve"><value>начало</value></data>
+  <data name="Part_Mid" xml:space="preserve"><value>середина</value></data>
+  <data name="Part_Late" xml:space="preserve"><value>конец</value></data>
+  <data name="Error_WindowOrder" xml:space="preserve"><value>В пределах одного месяца конец не может быть раньше начала.</value></data>
+  <data name="Col_Sowing" xml:space="preserve"><value>Способ посева</value></data>
+  <data name="Col_GrowingPlace" xml:space="preserve"><value>Место выращивания</value></data>
+  <data name="SowingMethod_StartIndoors" xml:space="preserve"><value>Через рассаду</value></data>
+  <data name="SowingMethod_DirectSow" xml:space="preserve"><value>Посев в грунт</value></data>
+  <data name="GrowingPlace_Container" xml:space="preserve"><value>Горшок</value></data>
+  <data name="GrowingPlace_ColdFrame" xml:space="preserve"><value>Парник</value></data>
+  <data name="GrowingPlace_Open" xml:space="preserve"><value>Открытый грунт</value></data>
+  <data name="AllSowingMethods" xml:space="preserve"><value>Любой способ посева</value></data>
+  <data name="AllGrowingPlaces" xml:space="preserve"><value>Любое место</value></data>
+  <data name="Error_PotSizeRequired" xml:space="preserve"><value>Для выращивания в горшке размер горшка (мин и макс) обязателен.</value></data>
+  <data name="Action_ShowSpacing" xml:space="preserve"><value>Указать расстояния</value></data>
 </root>
