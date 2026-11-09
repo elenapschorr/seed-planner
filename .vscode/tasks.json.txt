@@ -1,0 +1,83 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "db-up",
+            "type": "shell",
+            "command": "docker compose up -d db",
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": []
+        },
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/SeedPlanner.Api/SeedPlanner.Api.csproj",
+                "-c", "Debug",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": { "kind": "build", "isDefault": true }
+        },
+        {
+            "label": "build-release",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/SeedPlanner.Api/SeedPlanner.Api.csproj",
+                "-c", "Release",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "prepare-debug",
+            "dependsOrder": "sequence",
+            "dependsOn": ["db-up", "build"],
+            "problemMatcher": []
+        },
+        {
+            "label": "prepare-release",
+            "dependsOrder": "sequence",
+            "dependsOn": ["db-up", "build-release"],
+            "problemMatcher": []
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "type": "process",
+            "args": ["test", "${workspaceFolder}/SeedPlanner.slnx"],
+            "problemMatcher": "$msCompile",
+            "group": { "kind": "test", "isDefault": true }
+        },
+        {
+            "label": "watch",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch", "run",
+                "--project", "${workspaceFolder}/src/SeedPlanner.Api/SeedPlanner.Api.csproj"
+            ],
+            "isBackground": true,
+            "dependsOn": ["db-up"],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/SeedPlanner.Api/SeedPlanner.Api.csproj",
+                "-c", "Release",
+                "-o", "${workspaceFolder}/publish"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

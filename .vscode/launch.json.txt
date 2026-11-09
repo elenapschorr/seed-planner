@@ -1,0 +1,47 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "SeedPlanner.Api (Debug)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "prepare-debug",
+            "program": "${workspaceFolder}/src/SeedPlanner.Api/bin/Debug/net10.0/SeedPlanner.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/SeedPlanner.Api",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "console": "internalConsole"
+        },
+        {
+            "name": "SeedPlanner.Api (Release)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "prepare-release",
+            "program": "${workspaceFolder}/src/SeedPlanner.Api/bin/Release/net10.0/SeedPlanner.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/SeedPlanner.Api",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "console": "internalConsole"
+        },
+        {
+            "name": "Attach to process",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}"
+        }
+    ]
+}
