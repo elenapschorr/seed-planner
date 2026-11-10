@@ -1,0 +1,48 @@
+@page
+@model SeedPlanner.Api.Pages.Plans.IndexModel
+@using SeedPlanner.Domain
+@{
+    ViewData["Title"] = L["Plans_Title"].Value;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">@L["Plans_Title"]</h1>
+    <a class="btn btn-success" asp-page="Edit">@L["Plans_New"]</a>
+</div>
+
+@if (Model.Rows.Count == 0)
+{
+    <p class="text-muted">@L["Plans_Empty"]</p>
+}
+else
+{
+    <div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>@L["Col_Name"]</th>
+                <th class="text-end">@L["Plan_Year"]</th>
+                <th class="text-end">@L["Plan_Persons"]</th>
+                <th>@L["Plan_Level"]</th>
+                <th class="text-end">@L["Plan_Crops"]</th>
+                <th class="text-end">@L["Plan_Plants"]</th>
+                <th class="text-end">@L["Plan_ToBuy"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model.Rows)
+            {
+                <tr>
+                    <td><a asp-page="Details" asp-route-id="@r.Id"><strong>@r.Name</strong></a></td>
+                    <td class="text-end">@r.Year</td>
+                    <td class="text-end">@r.Persons</td>
+                    <td>@(r.Level == DemandLevel.Custom ? L["DemandLevel_CustomShort", r.CustomPercent].Value : L["DemandLevel_" + r.Level].Value)</td>
+                    <td class="text-end">@r.Crops</td>
+                    <td class="text-end">@r.Plants</td>
+                    <td class="text-end">@(r.ToBuy == 0 ? "–" : r.ToBuy.ToString())</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    </div>
+}

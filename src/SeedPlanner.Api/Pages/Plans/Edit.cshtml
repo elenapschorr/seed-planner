@@ -1,0 +1,62 @@
+@page "{id:int?}"
+@model SeedPlanner.Api.Pages.Plans.EditModel
+@{
+    ViewData["Title"] = (Model.Id is null ? L["PlanEdit_TitleNew"] : L["PlanEdit_TitleEdit"]).Value;
+}
+
+<h1 class="mb-3">@ViewData["Title"]</h1>
+
+<form method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="col-12 text-danger"></div>
+
+    <div class="col-md-6">
+        <label asp-for="Input.Name" class="form-label">@L["Col_Name"]</label>
+        <input asp-for="Input.Name" class="form-control" maxlength="100" />
+        <span asp-validation-for="Input.Name" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Input.Year" class="form-label">@L["Plan_Year"]</label>
+        <input asp-for="Input.Year" class="form-control" inputmode="numeric" />
+        <span asp-validation-for="Input.Year" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Input.Persons" class="form-label">@L["Plan_Persons"]</label>
+        <input asp-for="Input.Persons" class="form-control" inputmode="numeric" />
+        <span asp-validation-for="Input.Persons" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Input.Level" class="form-label">@L["Plan_Level"]</label>
+        <select asp-for="Input.Level" asp-items="Model.LevelOptions" class="form-select"></select>
+        <div class="form-text">@L["Plan_LevelHint"]</div>
+    </div>
+    <div class="col-md-3" id="percent-field">
+        <label asp-for="Input.CustomPercent" class="form-label">@L["Plan_CustomPercent"]</label>
+        <input asp-for="Input.CustomPercent" class="form-control" inputmode="numeric" />
+        <span asp-validation-for="Input.CustomPercent" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <div class="form-check">
+            <input asp-for="Input.IncludeOutOfStock" class="form-check-input" />
+            <label asp-for="Input.IncludeOutOfStock" class="form-check-label">@L["Plan_IncludeOutOfStock"]</label>
+        </div>
+        <div class="form-text">@L["Plan_IncludeOutOfStockHint"]</div>
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-success">@(Model.Id is null ? L["Plan_Calculate"] : L["Plan_SaveRecalculate"])</button>
+        <a class="btn btn-outline-secondary" asp-page="@(Model.Id is null ? "Index" : "Details")" asp-route-id="@Model.Id">@L["Action_Cancel"]</a>
+    </div>
+</form>
+
+<script>
+    // The position between minimum and maximum is only needed for "own value"
+    (function () {
+        var level = document.getElementById("Input_Level");
+        var field = document.getElementById("percent-field");
+        function update() { field.hidden = level.value !== "Custom"; }
+        level.addEventListener("change", update);
+        update();
+    })();
+</script>

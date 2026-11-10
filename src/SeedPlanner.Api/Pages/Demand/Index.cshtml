@@ -1,0 +1,73 @@
+@page
+@model SeedPlanner.Api.Pages.Demand.IndexModel
+@using System.Globalization
+@using SeedPlanner.Domain
+@{
+    ViewData["Title"] = L["Demand_Title"].Value;
+    ViewData["Wide"] = true;
+}
+
+<h1 class="mb-1">@L["Demand_Title"]</h1>
+<p class="text-muted">@L["Demand_Intro"]</p>
+
+@if (Model.Saved)
+{
+    <div class="alert alert-success" role="status">@L["Demand_Saved"]</div>
+}
+@if (Model.RowErrors.Count > 0)
+{
+    <div class="alert alert-danger" role="alert">@L["Demand_ErrorsBelow"]</div>
+}
+
+<form method="post">
+    <div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>@L["Col_PlantType"]</th>
+                <th>@L["Demand_Default"]</th>
+                <th>@L["Demand_Own"]</th>
+                <th>@L["Col_DemandUnit"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (var i = 0; i < Model.Rows.Count; i++)
+            {
+                var row = Model.Rows[i];
+                var input = Model.Inputs.ElementAtOrDefault(i) ?? new SeedPlanner.Api.Pages.Demand.IndexModel.RowInput();
+                <tr class="@(Model.RowErrors.ContainsKey(i) ? "table-danger" : "")">
+                    <td>
+                        <input type="hidden" name="Inputs[@i].TypeId" value="@row.TypeId" />
+                        <a asp-page="/PlantTypes/Details" asp-route-id="@row.TypeId" class="text-decoration-none"><strong>@row.Name</strong></a>
+                    </td>
+                    <td>@(row.Default ?? "–")</td>
+                    <td>
+                        <div class="d-flex gap-2" style="max-width: 14rem;">
+                            <input type="text" inputmode="decimal" name="Inputs[@i].Min" value="@input.Min?.ToString("0.##", CultureInfo.CurrentCulture)"
+                                   class="form-control form-control-sm" aria-label="min" placeholder="min" />
+                            <input type="text" inputmode="decimal" name="Inputs[@i].Max" value="@input.Max?.ToString("0.##", CultureInfo.CurrentCulture)"
+                                   class="form-control form-control-sm" aria-label="max" placeholder="max" />
+                        </div>
+                        @if (Model.RowErrors.TryGetValue(i, out var error))
+                        {
+                            <div class="text-danger small mt-1">@error</div>
+                        }
+                    </td>
+                    <td>
+                        <select name="Inputs[@i].Unit" class="form-select form-select-sm" style="max-width: 11rem;">
+                            <option value="">–</option>
+                            @foreach (var unit in Enum.GetValues<DemandUnit>())
+                            {
+                                <option value="@unit" selected="@(input.Unit == unit)">@L["DemandUnit_" + unit]</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    </div>
+
+    <p class="text-muted small">@L["Demand_ResetHint"]</p>
+    <button type="submit" class="btn btn-success">@L["Action_Save"]</button>
+</form>

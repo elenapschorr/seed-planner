@@ -39,6 +39,10 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         public int? PlantSpacingCm { get; set; }
         public int? PotSizeMinCm { get; set; }
         public int? PotSizeMaxCm { get; set; }
+        public int? HeightMinCm { get; set; }
+        public int? HeightMaxCm { get; set; }
+        public int? VineLengthMaxCm { get; set; }
+        public HeightEvidence? HeightEvidence { get; set; }
 
         // Up to two windows per kind; the second one is added by the user on demand
         public List<WindowInput> Sowing { get; set; } = [new(), new()];
@@ -82,6 +86,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
     public List<SelectListItem> SowingOptions { get; private set; } = new();
     public List<SelectListItem> PlaceOptions { get; private set; } = new();
     public List<SelectListItem> ExposureOptions { get; private set; } = new();
+    public List<SelectListItem> HeightEvidenceOptions { get; private set; } = new();
     public List<SelectListItem> MonthOptions { get; private set; } = new();
     public List<SelectListItem> PartOptions { get; private set; } = new();
 
@@ -270,6 +275,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         CheckMinMax(nameof(Input.GerminationTempMinC), Input.GerminationTempMinC, Input.GerminationTempMaxC);
         CheckMinMax(nameof(Input.MaturityDaysMin), Input.MaturityDaysMin, Input.MaturityDaysMax);
         CheckMinMax(nameof(Input.PotSizeMinCm), Input.PotSizeMinCm, Input.PotSizeMaxCm);
+        CheckMinMax(nameof(Input.HeightMinCm), Input.HeightMinCm, Input.HeightMaxCm);
 
         // The pot size is optional, but required for pot culture
         if (Input.GrowingPlace == GrowingPlace.Container && (Input.PotSizeMinCm is null || Input.PotSizeMaxCm is null))
@@ -336,6 +342,10 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         plant.PlantSpacingCm = Input.PlantSpacingCm;
         plant.PotSizeMinCm = Input.PotSizeMinCm;
         plant.PotSizeMaxCm = Input.PotSizeMaxCm;
+        plant.HeightMinCm = Input.HeightMinCm;
+        plant.HeightMaxCm = Input.HeightMaxCm;
+        plant.VineLengthMaxCm = Input.VineLengthMaxCm;
+        plant.HeightEvidence = Input.HeightEvidence;
 
         // rewrite the season windows
         db.SeasonWindows.RemoveRange(plant.SeasonWindows);
@@ -402,6 +412,10 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             PlantSpacingCm = plant.PlantSpacingCm,
             PotSizeMinCm = plant.PotSizeMinCm,
             PotSizeMaxCm = plant.PotSizeMaxCm,
+            HeightMinCm = plant.HeightMinCm,
+            HeightMaxCm = plant.HeightMaxCm,
+            VineLengthMaxCm = plant.VineLengthMaxCm,
+            HeightEvidence = plant.HeightEvidence,
             Sowing = WindowsOf(plant, WindowKind.Sowing),
             Harvest = WindowsOf(plant, WindowKind.Harvest),
             Bloom = WindowsOf(plant, WindowKind.Bloom)
@@ -434,6 +448,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         SowingOptions = EnumOptions<SowingMethod>(optional: true);
         PlaceOptions = EnumOptions<GrowingPlace>(optional: true);
         ExposureOptions = EnumOptions<Exposure>(optional: true);
+        HeightEvidenceOptions = EnumOptions<HeightEvidence>(optional: true);
 
         MonthOptions = Enumerable.Range(1, 12)
             .Select(m => new SelectListItem(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m), m.ToString()))

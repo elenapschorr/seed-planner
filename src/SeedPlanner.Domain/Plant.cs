@@ -34,6 +34,16 @@ public class Plant
     public int? PotSizeMinCm { get; set; }
     public int? PotSizeMaxCm { get; set; }
 
+    /// <summary>Plant height in cm (range). Used to decide which plants can stand under which.</summary>
+    public int? HeightMinCm { get; set; }
+    public int? HeightMaxCm { get; set; }
+
+    /// <summary>Longest vine or shoot in cm; only for sprawling or climbing plants (melon, squash, ...).</summary>
+    public int? VineLengthMaxCm { get; set; }
+
+    /// <summary>How reliable the height values are.</summary>
+    public HeightEvidence? HeightEvidence { get; set; }
+
     public List<SeasonWindow> SeasonWindows { get; } = [];
 
     // Rule: buy seed only for plants that can be propagated from own seed.

@@ -266,6 +266,159 @@ namespace SeedPlanner.Infrastructure.Migrations
                     b.ToTable("asp_net_user_tokens", (string)null);
                 });
 
+            modelBuilder.Entity("SeedPlanner.Domain.Plan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CustomPercent")
+                        .HasColumnType("integer")
+                        .HasColumnName("custom_percent");
+
+                    b.Property<bool>("IncludeOutOfStock")
+                        .HasColumnType("boolean")
+                        .HasColumnName("include_out_of_stock");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("level");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("owner_id");
+
+                    b.Property<int>("Persons")
+                        .HasColumnType("integer")
+                        .HasColumnName("persons");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
+
+                    b.HasKey("Id")
+                        .HasName("pk_plans");
+
+                    b.HasIndex("OwnerId", "Year", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_plans_owner_id_year_name");
+
+                    b.ToTable("plans", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_plans_custom_percent", "custom_percent BETWEEN 0 AND 100");
+
+                            t.HasCheckConstraint("ck_plans_persons", "persons >= 1");
+                        });
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.PlanItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CalculatedPlants")
+                        .HasColumnType("integer")
+                        .HasColumnName("calculated_plants");
+
+                    b.Property<decimal?>("DemandAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("demand_amount");
+
+                    b.Property<int>("PlanId")
+                        .HasColumnType("integer")
+                        .HasColumnName("plan_id");
+
+                    b.Property<int>("PlantTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("plant_type_id");
+
+                    b.Property<int?>("PlantsOverride")
+                        .HasColumnType("integer")
+                        .HasColumnName("plants_override");
+
+                    b.Property<string>("Unit")
+                        .HasColumnType("text")
+                        .HasColumnName("unit");
+
+                    b.HasKey("Id")
+                        .HasName("pk_plan_items");
+
+                    b.HasIndex("PlantTypeId")
+                        .HasDatabaseName("ix_plan_items_plant_type_id");
+
+                    b.HasIndex("PlanId", "PlantTypeId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_plan_items_plan_id_plant_type_id");
+
+                    b.ToTable("plan_items", (string)null);
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.PlanLine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CalculatedPlants")
+                        .HasColumnType("integer")
+                        .HasColumnName("calculated_plants");
+
+                    b.Property<bool>("Include")
+                        .HasColumnType("boolean")
+                        .HasColumnName("include");
+
+                    b.Property<bool>("OutOfStock")
+                        .HasColumnType("boolean")
+                        .HasColumnName("out_of_stock");
+
+                    b.Property<int>("PlanItemId")
+                        .HasColumnType("integer")
+                        .HasColumnName("plan_item_id");
+
+                    b.Property<int>("PlantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("plant_id");
+
+                    b.Property<int?>("PlantsOverride")
+                        .HasColumnType("integer")
+                        .HasColumnName("plants_override");
+
+                    b.HasKey("Id")
+                        .HasName("pk_plan_lines");
+
+                    b.HasIndex("PlantId")
+                        .HasDatabaseName("ix_plan_lines_plant_id");
+
+                    b.HasIndex("PlanItemId", "PlantId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_plan_lines_plan_item_id_plant_id");
+
+                    b.ToTable("plan_lines", (string)null);
+                });
+
             modelBuilder.Entity("SeedPlanner.Domain.Plant", b =>
                 {
                     b.Property<int>("Id")
@@ -851,6 +1004,54 @@ namespace SeedPlanner.Infrastructure.Migrations
                     b.ToTable("season_windows", (string)null);
                 });
 
+            modelBuilder.Entity("SeedPlanner.Domain.UserDemand", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal?>("Max")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)")
+                        .HasColumnName("max");
+
+                    b.Property<decimal?>("Min")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)")
+                        .HasColumnName("min");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("owner_id");
+
+                    b.Property<int>("PlantTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("plant_type_id");
+
+                    b.Property<string>("Unit")
+                        .HasColumnType("text")
+                        .HasColumnName("unit");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_demands");
+
+                    b.HasIndex("PlantTypeId")
+                        .HasDatabaseName("ix_user_demands_plant_type_id");
+
+                    b.HasIndex("OwnerId", "PlantTypeId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_demands_owner_id_plant_type_id");
+
+                    b.ToTable("user_demands", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_user_demands_range", "(\"min\" IS NULL OR \"min\" >= 0) AND (\"max\" IS NULL OR \"max\" >= 0)");
+                        });
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -906,6 +1107,58 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_asp_net_user_tokens_asp_net_users_user_id");
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.Plan", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_plans_asp_net_users_owner_id");
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.PlanItem", b =>
+                {
+                    b.HasOne("SeedPlanner.Domain.Plan", "Plan")
+                        .WithMany("Items")
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_plan_items_plans_plan_id");
+
+                    b.HasOne("SeedPlanner.Domain.PlantType", "PlantType")
+                        .WithMany()
+                        .HasForeignKey("PlantTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_plan_items_plant_types_plant_type_id");
+
+                    b.Navigation("Plan");
+
+                    b.Navigation("PlantType");
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.PlanLine", b =>
+                {
+                    b.HasOne("SeedPlanner.Domain.PlanItem", "PlanItem")
+                        .WithMany("Lines")
+                        .HasForeignKey("PlanItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_plan_lines_plan_items_plan_item_id");
+
+                    b.HasOne("SeedPlanner.Domain.Plant", "Plant")
+                        .WithMany()
+                        .HasForeignKey("PlantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_plan_lines_plants_plant_id");
+
+                    b.Navigation("PlanItem");
+
+                    b.Navigation("Plant");
                 });
 
             modelBuilder.Entity("SeedPlanner.Domain.Plant", b =>
@@ -1057,6 +1310,35 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasConstraintName("fk_season_windows_plants_plant_id");
 
                     b.Navigation("Plant");
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.UserDemand", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_demands_asp_net_users_owner_id");
+
+                    b.HasOne("SeedPlanner.Domain.PlantType", "PlantType")
+                        .WithMany()
+                        .HasForeignKey("PlantTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_demands_plant_types_plant_type_id");
+
+                    b.Navigation("PlantType");
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.Plan", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.PlanItem", b =>
+                {
+                    b.Navigation("Lines");
                 });
 
             modelBuilder.Entity("SeedPlanner.Domain.Plant", b =>

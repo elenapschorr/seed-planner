@@ -301,4 +301,66 @@
   <data name="BedConfirm_Delete" xml:space="preserve"><value>Удалить эту грядку вместе с посадками?</value></data>
   <data name="Filter_Group_Properties" xml:space="preserve"><value>Свойства</value></data>
   <data name="Filter_Group_Occupancy" xml:space="preserve"><value>Занятость</value></data>
+  <data name="Nav_Demand" xml:space="preserve"><value>Потребность</value></data>
+  <data name="Nav_Plans" xml:space="preserve"><value>Планы</value></data>
+  <data name="Demand_Title" xml:space="preserve"><value>Потребность на человека</value></data>
+  <data name="Demand_Intro" xml:space="preserve"><value>Значение по умолчанию задаётся культурой. Введите свои значения, чтобы использовать их в своих планах; единица тоже может отличаться, например, зелень в квадратных метрах.</value></data>
+  <data name="Demand_Saved" xml:space="preserve"><value>Сохранено.</value></data>
+  <data name="Demand_ErrorsBelow" xml:space="preserve"><value>Некоторые строки не удалось сохранить. Проверьте отмеченные строки.</value></data>
+  <data name="Demand_Default" xml:space="preserve"><value>По умолчанию</value></data>
+  <data name="Demand_Own" xml:space="preserve"><value>Ваше значение на человека (мин / макс)</value></data>
+  <data name="Demand_ResetHint" xml:space="preserve"><value>Пустые строки используют значение по умолчанию.</value></data>
+  <data name="Demand_ErrorNegative" xml:space="preserve"><value>Значения не могут быть отрицательными.</value></data>
+  <data name="Demand_ErrorMinMax" xml:space="preserve"><value>Минимум не может быть больше максимума.</value></data>
+  <data name="Demand_ErrorAmount" xml:space="preserve"><value>Укажите минимум или максимум.</value></data>
+  <data name="Plans_Title" xml:space="preserve"><value>Планы</value></data>
+  <data name="Plans_New" xml:space="preserve"><value>Новый план</value></data>
+  <data name="Plans_Empty" xml:space="preserve"><value>Планов пока нет. Создайте план, чтобы рассчитать, сколько растений нужно.</value></data>
+  <data name="Plan_Year" xml:space="preserve"><value>Год</value></data>
+  <data name="Plan_Persons" xml:space="preserve"><value>Человек</value></data>
+  <data name="Plan_Level" xml:space="preserve"><value>Уровень потребности</value></data>
+  <data name="Plan_Crops" xml:space="preserve"><value>Культуры</value></data>
+  <data name="Plan_Plants" xml:space="preserve"><value>Растения</value></data>
+  <data name="Plan_ToBuy" xml:space="preserve"><value>Купить</value></data>
+  <data name="DemandLevel_Min" xml:space="preserve"><value>Минимум</value></data>
+  <data name="DemandLevel_Middle" xml:space="preserve"><value>Середина</value></data>
+  <data name="DemandLevel_Max" xml:space="preserve"><value>Максимум</value></data>
+  <data name="DemandLevel_Custom" xml:space="preserve"><value>Своё значение</value></data>
+  <data name="DemandLevel_CustomShort" xml:space="preserve"><value>Своё значение ({0} %)</value></data>
+  <data name="PlanEdit_TitleNew" xml:space="preserve"><value>Новый план</value></data>
+  <data name="PlanEdit_TitleEdit" xml:space="preserve"><value>Редактирование плана</value></data>
+  <data name="Plan_LevelHint" xml:space="preserve"><value>Где между минимумом и максимумом потребности на человека считает план.</value></data>
+  <data name="Plan_CustomPercent" xml:space="preserve"><value>Позиция между мин и макс (%)</value></data>
+  <data name="Plan_IncludeOutOfStock" xml:space="preserve"><value>Учитывать сорта, которых нет в наличии</value></data>
+  <data name="Plan_IncludeOutOfStockHint" xml:space="preserve"><value>Они отмечаются как «купить» и попадают в список покупок. В плане каждый сорт можно включить или выключить отдельно.</value></data>
+  <data name="Plan_IncludeOutOfStockShort" xml:space="preserve"><value>включая сорта, которых нет в наличии</value></data>
+  <data name="Plan_Calculate" xml:space="preserve"><value>Рассчитать план</value></data>
+  <data name="Plan_SaveRecalculate" xml:space="preserve"><value>Сохранить и пересчитать</value></data>
+  <data name="PlanError_NameExists" xml:space="preserve"><value>План с таким названием на этот год уже существует.</value></data>
+  <data name="PlanError_Year" xml:space="preserve"><value>Укажите год от 2000 до 2100.</value></data>
+  <data name="PlanError_Persons" xml:space="preserve"><value>Должен быть хотя бы один человек.</value></data>
+  <data name="PlanError_Percent" xml:space="preserve"><value>Позиция должна быть от 0 до 100.</value></data>
+  <data name="Plan_EditSettings" xml:space="preserve"><value>Изменить настройки</value></data>
+  <data name="Plan_SummaryLine" xml:space="preserve"><value>{0} · человек: {1} · {2}</value></data>
+  <data name="Plan_Saved" xml:space="preserve"><value>Сохранено и пересчитано.</value></data>
+  <data name="Plan_NoCrops" xml:space="preserve"><value>Ни у одной культуры пока нет потребности на человека. Сначала задайте её в разделе</value></data>
+  <data name="Plan_CropVariety" xml:space="preserve"><value>Культура / сорт</value></data>
+  <data name="Plan_Demand" xml:space="preserve"><value>Потребность</value></data>
+  <data name="Plan_Calculated" xml:space="preserve"><value>Расчёт</value></data>
+  <data name="Plan_OwnNumber" xml:space="preserve"><value>Своё число</value></data>
+  <data name="Plan_Include" xml:space="preserve"><value>Учитывать</value></data>
+  <data name="Plan_NoSpacing" xml:space="preserve"><value>Количество растений нельзя рассчитать: не указано расстояние между растениями. Введите число сами или добавьте расстояние.</value></data>
+  <data name="Plan_NoVariety" xml:space="preserve"><value>Ни один сорт не выбран, поэтому растения не запланированы.</value></data>
+  <data name="Plan_UnnamedVariety" xml:space="preserve"><value>(без названия сорта)</value></data>
+  <data name="Plan_Total" xml:space="preserve"><value>Итого</value></data>
+  <data name="Plan_SaveHint" xml:space="preserve"><value>При сохранении изменения применяются и план пересчитывается. Ваши числа и выбор сортов сохраняются.</value></data>
+  <data name="Plan_ShoppingList" xml:space="preserve"><value>Список покупок</value></data>
+  <data name="Plan_ShoppingListHint" xml:space="preserve"><value>Этих сортов нет в наличии, но они входят в план.</value></data>
+  <data name="PlanConfirm_Delete" xml:space="preserve"><value>Удалить этот план?</value></data>
+  <data name="Field_Height" xml:space="preserve"><value>Высота, см (мин / макс)</value></data>
+  <data name="Field_VineLength" xml:space="preserve"><value>Самая длинная плеть (см)</value></data>
+  <data name="Field_HeightEvidence" xml:space="preserve"><value>Источник высоты</value></data>
+  <data name="HeightEvidence_Variety" xml:space="preserve"><value>Данные о сорте</value></data>
+  <data name="HeightEvidence_Similar" xml:space="preserve"><value>Похожий сорт</value></data>
+  <data name="HeightEvidence_Species" xml:space="preserve"><value>Значение для вида</value></data>
 </root>

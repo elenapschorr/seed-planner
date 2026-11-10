@@ -18,6 +18,10 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
     public DbSet<Planting> Plantings => Set<Planting>();
     public DbSet<Saucer> Saucers => Set<Saucer>();
     public DbSet<RaisedBed> RaisedBeds => Set<RaisedBed>();
+    public DbSet<UserDemand> UserDemands => Set<UserDemand>();
+    public DbSet<Plan> Plans => Set<Plan>();
+    public DbSet<PlanItem> PlanItems => Set<PlanItem>();
+    public DbSet<PlanLine> PlanLines => Set<PlanLine>();
 
     // Used by the query filters. EF evaluates it for each context instance (= each request).
     // Nobody signed in gives null, and then the filters match no rows at all.
@@ -78,6 +82,7 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(p => p.SowingMethod).HasConversion<string>();
             e.Property(p => p.GrowingPlace).HasConversion<string>();
             e.Property(p => p.Exposure).HasConversion<string>();
+            e.Property(p => p.HeightEvidence).HasConversion<string>();
             e.HasMany(p => p.SeasonWindows).WithOne(w => w.Plant).HasForeignKey(w => w.PlantId);
             e.HasOne<IdentityUser>().WithMany().HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
             e.HasQueryFilter(p => p.OwnerId == CurrentUserId);
@@ -171,6 +176,59 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
                 "width_cm > 0 AND length_cm > 0 AND (height_cm IS NULL OR height_cm > 0)"));
             e.HasMany(b => b.Plantings).WithOne(x => x.RaisedBed).HasForeignKey(x => x.RaisedBedId).OnDelete(DeleteBehavior.Cascade);
             e.HasQueryFilter(b => b.OwnerId == CurrentUserId);
+        });
+
+        // Own demand per person and plans (settings and results): personal data
+        modelBuilder.Entity<UserDemand>(e =>
+        {
+            e.Property(d => d.Min).HasPrecision(8, 2);
+            e.Property(d => d.Max).HasPrecision(8, 2);
+            e.Property(d => d.Unit).HasConversion<string>();
+            e.HasIndex(d => new { d.OwnerId, d.PlantTypeId }).IsUnique();
+            // Deleting a plant type takes the personal values for it along
+            e.HasOne(d => d.PlantType).WithMany().HasForeignKey(d => d.PlantTypeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<IdentityUser>().WithMany().HasForeignKey(d => d.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            e.ToTable(t => t.HasCheckConstraint("ck_user_demands_range",
+                "(\"min\" IS NULL OR \"min\" >= 0) AND (\"max\" IS NULL OR \"max\" >= 0)"));
+            e.HasQueryFilter(d => d.OwnerId == CurrentUserId);
+        });
+
+        modelBuilder.Entity<Plan>(e =>
+        {
+            e.Property(p => p.Name).HasMaxLength(100);
+            e.Property(p => p.Level).HasConversion<string>();
+            e.HasIndex(p => new { p.OwnerId, p.Year, p.Name }).IsUnique();
+            e.HasOne<IdentityUser>().WithMany().HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(p => p.Items).WithOne(i => i.Plan).HasForeignKey(i => i.PlanId).OnDelete(DeleteBehavior.Cascade);
+            e.ToTable(t =>
+            {
+                t.HasCheckConstraint("ck_plans_persons", "persons >= 1");
+                t.HasCheckConstraint("ck_plans_custom_percent", "custom_percent BETWEEN 0 AND 100");
+            });
+            e.Ignore(p => p.ShoppingList);
+            e.HasQueryFilter(p => p.OwnerId == CurrentUserId);
+        });
+
+        modelBuilder.Entity<PlanItem>(e =>
+        {
+            e.Property(i => i.DemandAmount).HasPrecision(10, 2);
+            e.Property(i => i.Unit).HasConversion<string>();
+            e.HasIndex(i => new { i.PlanId, i.PlantTypeId }).IsUnique();
+            // Results can be calculated again, so a plant type that is deleted takes its plan items with it
+            e.HasOne(i => i.PlantType).WithMany().HasForeignKey(i => i.PlantTypeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(i => i.Lines).WithOne(l => l.PlanItem).HasForeignKey(l => l.PlanItemId).OnDelete(DeleteBehavior.Cascade);
+            e.Ignore(i => i.Plants);
+            e.Ignore(i => i.NeedsNumber);
+            e.HasQueryFilter(i => i.Plan!.OwnerId == CurrentUserId);
+        });
+
+        modelBuilder.Entity<PlanLine>(e =>
+        {
+            e.HasIndex(l => new { l.PlanItemId, l.PlantId }).IsUnique();
+            e.HasOne(l => l.Plant).WithMany().HasForeignKey(l => l.PlantId).OnDelete(DeleteBehavior.Cascade);
+            e.Ignore(l => l.Plants);
+            e.Ignore(l => l.ToBuy);
+            e.HasQueryFilter(l => l.PlanItem!.Plan!.OwnerId == CurrentUserId);
         });
     }
 

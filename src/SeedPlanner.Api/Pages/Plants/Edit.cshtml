@@ -77,6 +77,23 @@
         <span asp-validation-for="Input.PotSizeMinCm" class="text-danger"></span>
     </div>
 
+    <div class="col-md-4">
+        <label class="form-label">@L["Field_Height"]</label>
+        <div class="input-group">
+            <input asp-for="Input.HeightMinCm" class="form-control" />
+            <input asp-for="Input.HeightMaxCm" class="form-control" />
+        </div>
+        <span asp-validation-for="Input.HeightMinCm" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Input.VineLengthMaxCm" class="form-label">@L["Field_VineLength"]</label>
+        <input asp-for="Input.VineLengthMaxCm" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Input.HeightEvidence" class="form-label">@L["Field_HeightEvidence"]</label>
+        <select asp-for="Input.HeightEvidence" asp-items="Model.HeightEvidenceOptions" class="form-select"></select>
+    </div>
+
     <div class="col-12">
         <details class="border rounded p-3" id="section-sowing" @(openSowing ? "open" : "")>
             <summary class="fw-semibold">@L["Window_Sowing"]</summary>

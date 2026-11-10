@@ -301,4 +301,66 @@
   <data name="BedConfirm_Delete" xml:space="preserve"><value>Delete this bed and its planting?</value></data>
   <data name="Filter_Group_Properties" xml:space="preserve"><value>Properties</value></data>
   <data name="Filter_Group_Occupancy" xml:space="preserve"><value>Occupancy</value></data>
+  <data name="Nav_Demand" xml:space="preserve"><value>Needs</value></data>
+  <data name="Nav_Plans" xml:space="preserve"><value>Plans</value></data>
+  <data name="Demand_Title" xml:space="preserve"><value>Needs per person</value></data>
+  <data name="Demand_Intro" xml:space="preserve"><value>The crop supplies the default value. Enter your own values to use them in your plans instead; the unit can differ too, e.g. herbs in square meters.</value></data>
+  <data name="Demand_Saved" xml:space="preserve"><value>Saved.</value></data>
+  <data name="Demand_ErrorsBelow" xml:space="preserve"><value>Some rows could not be saved. Please check the marked rows.</value></data>
+  <data name="Demand_Default" xml:space="preserve"><value>Default</value></data>
+  <data name="Demand_Own" xml:space="preserve"><value>Your value per person (min / max)</value></data>
+  <data name="Demand_ResetHint" xml:space="preserve"><value>Empty rows use the default value.</value></data>
+  <data name="Demand_ErrorNegative" xml:space="preserve"><value>Values must not be negative.</value></data>
+  <data name="Demand_ErrorMinMax" xml:space="preserve"><value>The minimum must not be greater than the maximum.</value></data>
+  <data name="Demand_ErrorAmount" xml:space="preserve"><value>Enter a minimum or a maximum.</value></data>
+  <data name="Plans_Title" xml:space="preserve"><value>Plans</value></data>
+  <data name="Plans_New" xml:space="preserve"><value>New plan</value></data>
+  <data name="Plans_Empty" xml:space="preserve"><value>No plans yet. Create one to calculate how many plants you need.</value></data>
+  <data name="Plan_Year" xml:space="preserve"><value>Year</value></data>
+  <data name="Plan_Persons" xml:space="preserve"><value>Persons</value></data>
+  <data name="Plan_Level" xml:space="preserve"><value>Demand level</value></data>
+  <data name="Plan_Crops" xml:space="preserve"><value>Crops</value></data>
+  <data name="Plan_Plants" xml:space="preserve"><value>Plants</value></data>
+  <data name="Plan_ToBuy" xml:space="preserve"><value>To buy</value></data>
+  <data name="DemandLevel_Min" xml:space="preserve"><value>Minimum</value></data>
+  <data name="DemandLevel_Middle" xml:space="preserve"><value>Middle</value></data>
+  <data name="DemandLevel_Max" xml:space="preserve"><value>Maximum</value></data>
+  <data name="DemandLevel_Custom" xml:space="preserve"><value>Own value</value></data>
+  <data name="DemandLevel_CustomShort" xml:space="preserve"><value>Own value ({0} %)</value></data>
+  <data name="PlanEdit_TitleNew" xml:space="preserve"><value>New plan</value></data>
+  <data name="PlanEdit_TitleEdit" xml:space="preserve"><value>Edit plan</value></data>
+  <data name="Plan_LevelHint" xml:space="preserve"><value>Where between minimum and maximum of the demand per person the plan calculates.</value></data>
+  <data name="Plan_CustomPercent" xml:space="preserve"><value>Position between min and max (%)</value></data>
+  <data name="Plan_IncludeOutOfStock" xml:space="preserve"><value>Include varieties that are out of stock</value></data>
+  <data name="Plan_IncludeOutOfStockHint" xml:space="preserve"><value>They are marked "to buy" and appear on the shopping list. In the plan you can switch each variety on or off.</value></data>
+  <data name="Plan_IncludeOutOfStockShort" xml:space="preserve"><value>including varieties out of stock</value></data>
+  <data name="Plan_Calculate" xml:space="preserve"><value>Calculate plan</value></data>
+  <data name="Plan_SaveRecalculate" xml:space="preserve"><value>Save and recalculate</value></data>
+  <data name="PlanError_NameExists" xml:space="preserve"><value>A plan with this name already exists for this year.</value></data>
+  <data name="PlanError_Year" xml:space="preserve"><value>Enter a year between 2000 and 2100.</value></data>
+  <data name="PlanError_Persons" xml:space="preserve"><value>There must be at least one person.</value></data>
+  <data name="PlanError_Percent" xml:space="preserve"><value>The position must be between 0 and 100.</value></data>
+  <data name="Plan_EditSettings" xml:space="preserve"><value>Edit settings</value></data>
+  <data name="Plan_SummaryLine" xml:space="preserve"><value>{0} · {1} persons · {2}</value></data>
+  <data name="Plan_Saved" xml:space="preserve"><value>Saved and recalculated.</value></data>
+  <data name="Plan_NoCrops" xml:space="preserve"><value>No crop has a demand per person yet. Set it first under</value></data>
+  <data name="Plan_CropVariety" xml:space="preserve"><value>Crop / variety</value></data>
+  <data name="Plan_Demand" xml:space="preserve"><value>Demand</value></data>
+  <data name="Plan_Calculated" xml:space="preserve"><value>Calculated</value></data>
+  <data name="Plan_OwnNumber" xml:space="preserve"><value>Own number</value></data>
+  <data name="Plan_Include" xml:space="preserve"><value>Include</value></data>
+  <data name="Plan_NoSpacing" xml:space="preserve"><value>The number of plants cannot be calculated because the spacing of the varieties is missing. Enter the number yourself or add the spacing.</value></data>
+  <data name="Plan_NoVariety" xml:space="preserve"><value>No variety is included, so no plants are planned.</value></data>
+  <data name="Plan_UnnamedVariety" xml:space="preserve"><value>(no variety name)</value></data>
+  <data name="Plan_Total" xml:space="preserve"><value>Total</value></data>
+  <data name="Plan_SaveHint" xml:space="preserve"><value>Saving takes over your changes and calculates again. Own numbers and your choice of varieties are kept.</value></data>
+  <data name="Plan_ShoppingList" xml:space="preserve"><value>Shopping list</value></data>
+  <data name="Plan_ShoppingListHint" xml:space="preserve"><value>These varieties are not in stock and are part of the plan.</value></data>
+  <data name="PlanConfirm_Delete" xml:space="preserve"><value>Delete this plan?</value></data>
+  <data name="Field_Height" xml:space="preserve"><value>Height in cm (min / max)</value></data>
+  <data name="Field_VineLength" xml:space="preserve"><value>Longest vine (cm)</value></data>
+  <data name="Field_HeightEvidence" xml:space="preserve"><value>Height source</value></data>
+  <data name="HeightEvidence_Variety" xml:space="preserve"><value>This variety</value></data>
+  <data name="HeightEvidence_Similar" xml:space="preserve"><value>Similar variety</value></data>
+  <data name="HeightEvidence_Species" xml:space="preserve"><value>Plant type value</value></data>
 </root>

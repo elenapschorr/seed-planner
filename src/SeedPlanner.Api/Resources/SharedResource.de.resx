@@ -301,4 +301,66 @@
   <data name="BedConfirm_Delete" xml:space="preserve"><value>Dieses Beet samt Bepflanzung löschen?</value></data>
   <data name="Filter_Group_Properties" xml:space="preserve"><value>Eigenschaften</value></data>
   <data name="Filter_Group_Occupancy" xml:space="preserve"><value>Belegung</value></data>
+  <data name="Nav_Demand" xml:space="preserve"><value>Bedarf</value></data>
+  <data name="Nav_Plans" xml:space="preserve"><value>Pläne</value></data>
+  <data name="Demand_Title" xml:space="preserve"><value>Bedarf pro Person</value></data>
+  <data name="Demand_Intro" xml:space="preserve"><value>Die Pflanzenart liefert den Standardwert. Trage eigene Werte ein, um sie stattdessen in deinen Plänen zu verwenden; auch die Einheit kann abweichen, z. B. Kräuter in Quadratmetern.</value></data>
+  <data name="Demand_Saved" xml:space="preserve"><value>Gespeichert.</value></data>
+  <data name="Demand_ErrorsBelow" xml:space="preserve"><value>Einige Zeilen konnten nicht gespeichert werden. Bitte prüfe die markierten Zeilen.</value></data>
+  <data name="Demand_Default" xml:space="preserve"><value>Standard</value></data>
+  <data name="Demand_Own" xml:space="preserve"><value>Dein Wert pro Person (min / max)</value></data>
+  <data name="Demand_ResetHint" xml:space="preserve"><value>Leere Zeilen verwenden den Standardwert.</value></data>
+  <data name="Demand_ErrorNegative" xml:space="preserve"><value>Die Werte dürfen nicht negativ sein.</value></data>
+  <data name="Demand_ErrorMinMax" xml:space="preserve"><value>Das Minimum darf nicht größer als das Maximum sein.</value></data>
+  <data name="Demand_ErrorAmount" xml:space="preserve"><value>Gib ein Minimum oder ein Maximum an.</value></data>
+  <data name="Plans_Title" xml:space="preserve"><value>Pläne</value></data>
+  <data name="Plans_New" xml:space="preserve"><value>Neuer Plan</value></data>
+  <data name="Plans_Empty" xml:space="preserve"><value>Noch keine Pläne. Lege einen an, um zu berechnen, wie viele Pflanzen du brauchst.</value></data>
+  <data name="Plan_Year" xml:space="preserve"><value>Jahr</value></data>
+  <data name="Plan_Persons" xml:space="preserve"><value>Personen</value></data>
+  <data name="Plan_Level" xml:space="preserve"><value>Bedarf</value></data>
+  <data name="Plan_Crops" xml:space="preserve"><value>Pflanzenarten</value></data>
+  <data name="Plan_Plants" xml:space="preserve"><value>Pflanzen</value></data>
+  <data name="Plan_ToBuy" xml:space="preserve"><value>Zu kaufen</value></data>
+  <data name="DemandLevel_Min" xml:space="preserve"><value>Minimum</value></data>
+  <data name="DemandLevel_Middle" xml:space="preserve"><value>Mitte</value></data>
+  <data name="DemandLevel_Max" xml:space="preserve"><value>Maximum</value></data>
+  <data name="DemandLevel_Custom" xml:space="preserve"><value>Eigener Wert</value></data>
+  <data name="DemandLevel_CustomShort" xml:space="preserve"><value>Eigener Wert ({0} %)</value></data>
+  <data name="PlanEdit_TitleNew" xml:space="preserve"><value>Neuer Plan</value></data>
+  <data name="PlanEdit_TitleEdit" xml:space="preserve"><value>Plan bearbeiten</value></data>
+  <data name="Plan_LevelHint" xml:space="preserve"><value>Wo zwischen Minimum und Maximum des Bedarfs pro Person der Plan rechnet.</value></data>
+  <data name="Plan_CustomPercent" xml:space="preserve"><value>Position zwischen Min und Max (%)</value></data>
+  <data name="Plan_IncludeOutOfStock" xml:space="preserve"><value>Sorten mitrechnen, die nicht vorrätig sind</value></data>
+  <data name="Plan_IncludeOutOfStockHint" xml:space="preserve"><value>Sie werden als „zu kaufen“ markiert und stehen auf der Einkaufsliste. Im Plan kannst du jede Sorte einzeln ein- oder ausschalten.</value></data>
+  <data name="Plan_IncludeOutOfStockShort" xml:space="preserve"><value>inkl. nicht vorrätiger Sorten</value></data>
+  <data name="Plan_Calculate" xml:space="preserve"><value>Plan berechnen</value></data>
+  <data name="Plan_SaveRecalculate" xml:space="preserve"><value>Speichern und neu berechnen</value></data>
+  <data name="PlanError_NameExists" xml:space="preserve"><value>Einen Plan mit diesem Namen gibt es in diesem Jahr schon.</value></data>
+  <data name="PlanError_Year" xml:space="preserve"><value>Gib ein Jahr zwischen 2000 und 2100 an.</value></data>
+  <data name="PlanError_Persons" xml:space="preserve"><value>Es muss mindestens eine Person geben.</value></data>
+  <data name="PlanError_Percent" xml:space="preserve"><value>Die Position muss zwischen 0 und 100 liegen.</value></data>
+  <data name="Plan_EditSettings" xml:space="preserve"><value>Einstellungen ändern</value></data>
+  <data name="Plan_SummaryLine" xml:space="preserve"><value>{0} · {1} Personen · {2}</value></data>
+  <data name="Plan_Saved" xml:space="preserve"><value>Gespeichert und neu berechnet.</value></data>
+  <data name="Plan_NoCrops" xml:space="preserve"><value>Noch keine Pflanzenart hat einen Bedarf pro Person. Lege ihn zuerst fest unter</value></data>
+  <data name="Plan_CropVariety" xml:space="preserve"><value>Pflanzenart / Sorte</value></data>
+  <data name="Plan_Demand" xml:space="preserve"><value>Bedarf</value></data>
+  <data name="Plan_Calculated" xml:space="preserve"><value>Berechnet</value></data>
+  <data name="Plan_OwnNumber" xml:space="preserve"><value>Eigene Zahl</value></data>
+  <data name="Plan_Include" xml:space="preserve"><value>Mitrechnen</value></data>
+  <data name="Plan_NoSpacing" xml:space="preserve"><value>Die Pflanzenzahl lässt sich nicht berechnen, weil der Abstand der Sorten fehlt. Gib die Zahl selbst ein oder trage den Abstand nach.</value></data>
+  <data name="Plan_NoVariety" xml:space="preserve"><value>Keine Sorte ist ausgewählt, deshalb werden keine Pflanzen eingeplant.</value></data>
+  <data name="Plan_UnnamedVariety" xml:space="preserve"><value>(ohne Sortenname)</value></data>
+  <data name="Plan_Total" xml:space="preserve"><value>Summe</value></data>
+  <data name="Plan_SaveHint" xml:space="preserve"><value>Beim Speichern werden deine Änderungen übernommen und neu berechnet. Eigene Zahlen und deine Auswahl der Sorten bleiben erhalten.</value></data>
+  <data name="Plan_ShoppingList" xml:space="preserve"><value>Einkaufsliste</value></data>
+  <data name="Plan_ShoppingListHint" xml:space="preserve"><value>Diese Sorten sind nicht vorrätig und gehören zum Plan.</value></data>
+  <data name="PlanConfirm_Delete" xml:space="preserve"><value>Diesen Plan löschen?</value></data>
+  <data name="Field_Height" xml:space="preserve"><value>Höhe in cm (min / max)</value></data>
+  <data name="Field_VineLength" xml:space="preserve"><value>Längste Ranke (cm)</value></data>
+  <data name="Field_HeightEvidence" xml:space="preserve"><value>Höhenangabe beruht auf</value></data>
+  <data name="HeightEvidence_Variety" xml:space="preserve"><value>Dieser Sorte</value></data>
+  <data name="HeightEvidence_Similar" xml:space="preserve"><value>Ähnlicher Sorte</value></data>
+  <data name="HeightEvidence_Species" xml:space="preserve"><value>Wert der Pflanzenart</value></data>
 </root>

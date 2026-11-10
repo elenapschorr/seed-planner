@@ -1,0 +1,136 @@
+@page "{id:int}"
+@model SeedPlanner.Api.Pages.Plans.DetailsModel
+@{
+    ViewData["Title"] = Model.Plan.Name;
+    ViewData["Wide"] = true;
+    var itemIndex = 0;
+    var lineIndex = 0;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-1">
+    <h1 class="mb-0">@Model.Plan.Name</h1>
+    <a class="btn btn-outline-secondary" asp-page="Edit" asp-route-id="@Model.Plan.Id">@L["Plan_EditSettings"]</a>
+</div>
+<p class="text-muted">
+    @L["Plan_SummaryLine", Model.Plan.Year, Model.Plan.Persons, Model.LevelText]
+    @if (Model.Plan.IncludeOutOfStock)
+    {
+        <span> · @L["Plan_IncludeOutOfStockShort"]</span>
+    }
+</p>
+
+@if (Model.Saved)
+{
+    <div class="alert alert-success" role="status">@L["Plan_Saved"]</div>
+}
+
+@if (Model.Crops.Count == 0)
+{
+    <p class="text-muted">@L["Plan_NoCrops"] <a asp-page="/Demand/Index">@L["Nav_Demand"]</a></p>
+}
+else
+{
+    <form method="post" asp-page-handler="Save" asp-route-id="@Model.Plan.Id">
+        <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>@L["Plan_CropVariety"]</th>
+                    <th class="text-end">@L["Plan_Demand"]</th>
+                    <th class="text-end">@L["Plan_Calculated"]</th>
+                    <th>@L["Plan_OwnNumber"]</th>
+                    <th>@L["Plan_Include"]</th>
+                </tr>
+            </thead>
+            @foreach (var item in Model.Crops)
+            {
+                <tbody>
+                    <tr class="table-light">
+                        <td>
+                            <input type="hidden" name="Items[@itemIndex].Id" value="@item.Id" />
+                            <a asp-page="/PlantTypes/Details" asp-route-id="@item.PlantTypeId" class="text-decoration-none"><strong>@Model.CropName(item)</strong></a>
+                        </td>
+                        <td class="text-end">@Model.AmountText(item)</td>
+                        <td class="text-end">@(item.CalculatedPlants is null ? "–" : item.CalculatedPlants.ToString())</td>
+                        <td>
+                            <input type="number" min="0" name="Items[@itemIndex].PlantsOverride" value="@item.PlantsOverride"
+                                   class="form-control form-control-sm" style="width: 6rem;" placeholder="@item.CalculatedPlants" aria-label="@L["Plan_OwnNumber"].Value" />
+                        </td>
+                        <td></td>
+                    </tr>
+                    @if (item.NeedsNumber)
+                    {
+                        <tr><td colspan="5" class="text-danger small">@L["Plan_NoSpacing"]</td></tr>
+                    }
+                    else if (!item.Lines.Any(l => l.Include))
+                    {
+                        <tr><td colspan="5" class="text-danger small">@L["Plan_NoVariety"]</td></tr>
+                    }
+                    @foreach (var line in Model.LinesOf(item))
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <input type="hidden" name="Lines[@lineIndex].Id" value="@line.Id" />
+                                <a asp-page="/Plants/Edit" asp-route-id="@line.PlantId" class="text-decoration-none">@Model.VarietyName(line)</a>
+                                @if (line.OutOfStock)
+                                {
+                                    <span class="badge text-bg-warning ms-1">@L["StockStatus_OutOfStock"]</span>
+                                }
+                                @if (line.ToBuy)
+                                {
+                                    <span class="badge text-bg-secondary ms-1">@L["Plan_ToBuy"]</span>
+                                }
+                            </td>
+                            <td></td>
+                            <td class="text-end">@(line.Include ? line.CalculatedPlants : 0)</td>
+                            <td>
+                                <input type="number" min="0" name="Lines[@lineIndex].PlantsOverride" value="@line.PlantsOverride"
+                                       class="form-control form-control-sm" style="width: 6rem;" aria-label="@L["Plan_OwnNumber"].Value" />
+                            </td>
+                            <td>
+                                <input type="checkbox" class="form-check-input" name="Lines[@lineIndex].Include" value="true" checked="@line.Include" aria-label="@L["Plan_Include"].Value" />
+                                <input type="hidden" name="Lines[@lineIndex].Include" value="false" />
+                            </td>
+                        </tr>
+                        lineIndex++;
+                    }
+                </tbody>
+                itemIndex++;
+            }
+            <tfoot>
+                <tr>
+                    <th colspan="2">@L["Plan_Total"]</th>
+                    <th class="text-end">@Model.TotalPlants</th>
+                    <th colspan="2"></th>
+                </tr>
+            </tfoot>
+        </table>
+        </div>
+
+        <p class="text-muted small">@L["Plan_SaveHint"]</p>
+        <button type="submit" class="btn btn-success">@L["Action_Save"]</button>
+    </form>
+
+    @if (Model.Plan.ShoppingList.Any())
+    {
+        <h2 class="h5 mt-5">@L["Plan_ShoppingList"]</h2>
+        <p class="text-muted">@L["Plan_ShoppingListHint"]</p>
+        <ul>
+            @foreach (var item in Model.Crops)
+            {
+                foreach (var line in Model.LinesOf(item).Where(l => l.ToBuy))
+                {
+                    <li>@Model.CropName(item) – @Model.VarietyName(line) <span class="text-muted">×@line.Plants</span></li>
+                }
+            }
+        </ul>
+    }
+}
+
+@{
+    var confirmText = L["PlanConfirm_Delete"].Value;
+}
+<form method="post" asp-page-handler="Delete" asp-route-id="@Model.Plan.Id" class="mt-4"
+      data-confirm="@confirmText" onsubmit="return confirm(this.dataset.confirm);">
+    <button type="submit" class="btn btn-outline-danger">@L["Action_Delete"]</button>
+</form>
