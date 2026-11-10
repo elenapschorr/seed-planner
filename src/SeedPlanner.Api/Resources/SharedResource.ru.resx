@@ -244,4 +244,19 @@
   <data name="AllGrowingPlaces" xml:space="preserve"><value>Любое место</value></data>
   <data name="Error_PotSizeRequired" xml:space="preserve"><value>Для выращивания в горшке размер горшка (мин и макс) обязателен.</value></data>
   <data name="Action_ShowSpacing" xml:space="preserve"><value>Указать расстояния</value></data>
+  <data name="Home_Kicker" xml:space="preserve"><value>Запасы на сегодня</value></data>
+  <data name="Home_Heading" xml:space="preserve"><value>Что лежит в шкафу, что растёт в саду.</value></data>
+  <data name="Home_Stat_Varieties" xml:space="preserve"><value>Сортов</value></data>
+  <data name="Home_Stat_Pots" xml:space="preserve"><value>Горшков в {0} группах</value></data>
+  <data name="Home_Stat_Planted" xml:space="preserve"><value>из них занято</value></data>
+  <data name="Home_Stat_Free" xml:space="preserve"><value>Горшков свободно</value></data>
+  <data name="Home_Register" xml:space="preserve"><value>Каталог</value></data>
+  <data name="Home_Register_Intro" xml:space="preserve"><value>Всё в одном месте, как в каталоге.</value></data>
+  <data name="Home_Desc_PlantTypes" xml:space="preserve"><value>Данные по выращиванию, соседи и потребность в месте</value></data>
+  <data name="Home_Desc_Plants" xml:space="preserve"><value>Семена и рассада с остатками</value></data>
+  <data name="Home_Item_Pots" xml:space="preserve"><value>Горшки и поддоны</value></data>
+  <data name="Home_Desc_Pots" xml:space="preserve"><value>Группы, отдельные горшки и что в них растёт</value></data>
+  <data name="Home_Desc_Beds" xml:space="preserve"><value>Высокие грядки, грядка в грунте и кольца</value></data>
+  <data name="Home_Open" xml:space="preserve"><value>открыть</value></data>
+  <data name="Home_Next" xml:space="preserve"><value>Дальше: планировщик. Он подскажет, что можно сеять сейчас и хватит ли горшков и места.</value></data>
 </root>

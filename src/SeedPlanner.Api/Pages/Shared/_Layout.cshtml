@@ -1,7 +1,14 @@
 @using System.Globalization
 @inject IStringLocalizer<SharedResource> L
+@{
+    // Current page for the active menu entry, current language and the address to return to after switching
+    var page = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var back = Uri.EscapeDataString(Context.Request.Path + Context.Request.QueryString);
+    string Active(string area) => page.StartsWith(area, StringComparison.OrdinalIgnoreCase) ? "page" : null!;
+}
 <!DOCTYPE html>
-<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
+<html lang="@lang">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,57 +19,40 @@
     <link rel="stylesheet" href="~/SeedPlanner.Api.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" href="~/">Seed Planner</a>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/PlantTypes/Index">@L["Nav_PlantTypes"]</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Plants/Index">@L["Nav_Plants"]</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Pots/Index">@L["Nav_Pots"]</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Saucers/Index">@L["Nav_Saucers"]</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/RaisedBeds/Index">@L["Nav_RaisedBeds"]</a>
-                        </li>
-                    </ul>
-                    <div class="btn-group btn-group-sm me-2" role="group">
-                        <a class="btn btn-outline-secondary" href="/culture?c=de&returnUrl=@Context.Request.Path">DE</a>
-                        <a class="btn btn-outline-secondary" href="/culture?c=en&returnUrl=@Context.Request.Path">EN</a>
-                        <a class="btn btn-outline-secondary" href="/culture?c=ru&returnUrl=@Context.Request.Path">RU</a>
-                    </div>
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <form method="post" asp-page="/Account/Logout" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">@L["Nav_Logout"] (@User.Identity.Name)</button>
-                        </form>
-                    }
-                    else
-                    {
-                        <a class="btn btn-sm btn-outline-secondary" asp-page="/Account/Login">@L["Nav_Login"]</a>
-                    }
-                </div>
-            </div>
+    <header class="site-header">
+        <a class="site-brand" href="~/">Seed Planner</a>
+        <nav class="site-nav" aria-label="Main">
+            <a asp-area="" asp-page="/PlantTypes/Index" aria-current="@Active("/PlantTypes")" class="@(Active("/PlantTypes") is null ? "" : "active")">@L["Nav_PlantTypes"]</a>
+            <a asp-area="" asp-page="/Plants/Index" aria-current="@Active("/Plants")" class="@(Active("/Plants") is null ? "" : "active")">@L["Nav_Plants"]</a>
+            <a asp-area="" asp-page="/Pots/Index" aria-current="@Active("/Pots")" class="@(Active("/Pots") is null ? "" : "active")">@L["Nav_Pots"]</a>
+            <a asp-area="" asp-page="/Saucers/Index" aria-current="@Active("/Saucers")" class="@(Active("/Saucers") is null ? "" : "active")">@L["Nav_Saucers"]</a>
+            <a asp-area="" asp-page="/RaisedBeds/Index" aria-current="@Active("/RaisedBeds")" class="@(Active("/RaisedBeds") is null ? "" : "active")">@L["Nav_RaisedBeds"]</a>
         </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Seed Planner - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        <div class="site-tools">
+            <span class="lang">
+                <a href="/culture?c=de&returnUrl=@back" class="@(lang == "de" ? "current" : "")">DE</a> ·
+                <a href="/culture?c=en&returnUrl=@back" class="@(lang == "en" ? "current" : "")">EN</a> ·
+                <a href="/culture?c=ru&returnUrl=@back" class="@(lang == "ru" ? "current" : "")">RU</a>
+            </span>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <form method="post" asp-page="/Account/Logout" class="d-inline">
+                    <button type="submit">@L["Nav_Logout"] (@User.Identity.Name)</button>
+                </form>
+            }
+            else
+            {
+                <a asp-page="/Account/Login">@L["Nav_Login"]</a>
+            }
         </div>
+    </header>
+
+    <main role="main" class="site-main">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        &copy; 2026 - Seed Planner - <a asp-area="" asp-page="/Privacy">Privacy</a>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

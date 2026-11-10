@@ -1,11 +1,69 @@
-﻿@page
+@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = L["Home_Title"].Value;
 }
 
-<div class="text-center">
-    <h1 class="display-4">@L["Home_Title"]</h1>
-    <p>@L["Home_Intro"]</p>
+<p class="home-kicker">@L["Home_Kicker"]</p>
+<h1 class="home-heading">@L["Home_Heading"]</h1>
+
+<section class="home-stats" aria-label="@L["Home_Kicker"].Value">
+    <div class="home-stat">
+        <div class="num">@Model.Varieties</div>
+        <div class="label">@L["Home_Stat_Varieties"]</div>
+    </div>
+    <div class="home-stat">
+        <div class="num">@Model.PotsTotal</div>
+        <div class="label">@L["Home_Stat_Pots", Model.PotGroups]</div>
+    </div>
+    <div class="home-stat">
+        <div class="num accent">@Model.PotsPlanted</div>
+        <div class="label">@L["Home_Stat_Planted"]</div>
+    </div>
+    <div class="home-stat">
+        <div class="num">@Model.PotsFree</div>
+        <div class="label">@L["Home_Stat_Free"]</div>
+    </div>
+</section>
+
+<section>
+    <h2 class="h4">@L["Home_Register"]</h2>
+    <p class="text-muted mb-3">@L["Home_Register_Intro"]</p>
+    <ul class="register">
+        <li>
+            <a asp-page="/PlantTypes/Index">
+                <span class="numeral">I</span>
+                <span class="name">@L["Nav_PlantTypes"]</span>
+                <span class="desc">@L["Home_Desc_PlantTypes"]</span>
+                <span class="go">@L["Home_Open"] →</span>
+            </a>
+        </li>
+        <li>
+            <a asp-page="/Plants/Index">
+                <span class="numeral">II</span>
+                <span class="name">@L["Nav_Plants"]</span>
+                <span class="desc">@L["Home_Desc_Plants"]</span>
+                <span class="go">@L["Home_Open"] →</span>
+            </a>
+        </li>
+        <li>
+            <a asp-page="/Pots/Index">
+                <span class="numeral">III</span>
+                <span class="name">@L["Home_Item_Pots"]</span>
+                <span class="desc">@L["Home_Desc_Pots"]</span>
+                <span class="go">@L["Home_Open"] →</span>
+            </a>
+        </li>
+        <li>
+            <a asp-page="/RaisedBeds/Index">
+                <span class="numeral">IV</span>
+                <span class="name">@L["Nav_RaisedBeds"]</span>
+                <span class="desc">@L["Home_Desc_Beds"]</span>
+                <span class="go">@L["Home_Open"] →</span>
+            </a>
+        </li>
+    </ul>
     <a class="btn btn-success" href="/Plants?month=@DateTime.Today.Month">@L["Home_SowNow"]</a>
-</div>
+</section>
+
+<p class="home-next mt-4">@L["Home_Next"]</p>

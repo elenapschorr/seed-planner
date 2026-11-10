@@ -244,4 +244,19 @@
   <data name="AllGrowingPlaces" xml:space="preserve"><value>Any place</value></data>
   <data name="Error_PotSizeRequired" xml:space="preserve"><value>For pot culture the pot size (min and max) is required.</value></data>
   <data name="Action_ShowSpacing" xml:space="preserve"><value>Specify spacing</value></data>
+  <data name="Home_Kicker" xml:space="preserve"><value>Inventory as of today</value></data>
+  <data name="Home_Heading" xml:space="preserve"><value>What is in the cabinet, what is in the garden.</value></data>
+  <data name="Home_Stat_Varieties" xml:space="preserve"><value>Varieties</value></data>
+  <data name="Home_Stat_Pots" xml:space="preserve"><value>Pots in {0} groups</value></data>
+  <data name="Home_Stat_Planted" xml:space="preserve"><value>of them planted</value></data>
+  <data name="Home_Stat_Free" xml:space="preserve"><value>Pots free</value></data>
+  <data name="Home_Register" xml:space="preserve"><value>Index</value></data>
+  <data name="Home_Register_Intro" xml:space="preserve"><value>Everything in one place, arranged like a catalogue.</value></data>
+  <data name="Home_Desc_PlantTypes" xml:space="preserve"><value>Growing data, neighbours and space needs</value></data>
+  <data name="Home_Desc_Plants" xml:space="preserve"><value>Seeds and young plants with their stock</value></data>
+  <data name="Home_Item_Pots" xml:space="preserve"><value>Pots and saucers</value></data>
+  <data name="Home_Desc_Pots" xml:space="preserve"><value>Groups, single pots and what grows in them</value></data>
+  <data name="Home_Desc_Beds" xml:space="preserve"><value>Raised beds, ground bed and planting rings</value></data>
+  <data name="Home_Open" xml:space="preserve"><value>open</value></data>
+  <data name="Home_Next" xml:space="preserve"><value>Next: the planner. It suggests what can be sown now and whether pots and space are enough.</value></data>
 </root>

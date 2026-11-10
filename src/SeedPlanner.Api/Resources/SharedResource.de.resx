@@ -244,4 +244,19 @@
   <data name="AllGrowingPlaces" xml:space="preserve"><value>Alle Kulturorte</value></data>
   <data name="Error_PotSizeRequired" xml:space="preserve"><value>Bei Topfkultur ist die Topfgröße (min und max) Pflicht.</value></data>
   <data name="Action_ShowSpacing" xml:space="preserve"><value>Abstände angeben</value></data>
+  <data name="Home_Kicker" xml:space="preserve"><value>Bestand, Stand heute</value></data>
+  <data name="Home_Heading" xml:space="preserve"><value>Was liegt im Schrank, was steht im Garten.</value></data>
+  <data name="Home_Stat_Varieties" xml:space="preserve"><value>Sorten</value></data>
+  <data name="Home_Stat_Pots" xml:space="preserve"><value>Töpfe in {0} Gruppen</value></data>
+  <data name="Home_Stat_Planted" xml:space="preserve"><value>davon bepflanzt</value></data>
+  <data name="Home_Stat_Free" xml:space="preserve"><value>Töpfe frei</value></data>
+  <data name="Home_Register" xml:space="preserve"><value>Register</value></data>
+  <data name="Home_Register_Intro" xml:space="preserve"><value>Alles an einem Ort, geordnet wie in einem Katalog.</value></data>
+  <data name="Home_Desc_PlantTypes" xml:space="preserve"><value>Anbaudaten, Nachbarn und Platzbedarf</value></data>
+  <data name="Home_Desc_Plants" xml:space="preserve"><value>Saatgut und Jungpflanzen mit Bestand</value></data>
+  <data name="Home_Item_Pots" xml:space="preserve"><value>Töpfe und Untersetzer</value></data>
+  <data name="Home_Desc_Pots" xml:space="preserve"><value>Gruppen, Einzeltöpfe und was darin wächst</value></data>
+  <data name="Home_Desc_Beds" xml:space="preserve"><value>Hochbeete, Bodenbeet und Pflanzringe</value></data>
+  <data name="Home_Open" xml:space="preserve"><value>öffnen</value></data>
+  <data name="Home_Next" xml:space="preserve"><value>Als Nächstes: der Planer. Er schlägt vor, was jetzt gesät werden kann und ob dafür Töpfe und Platz reichen.</value></data>
 </root>
