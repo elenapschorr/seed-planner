@@ -428,3 +428,4 @@ FodyWeavers.xsd
 
 *.local.json
 data/
+*.md

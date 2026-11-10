@@ -1,0 +1,76 @@
+@* Search box, filter panel and chips: the same on every list *@
+@model SeedPlanner.Api.Pages.ListFilterView
+
+<form method="get" action="@Model.Path#filters" id="filters">
+    <input type="hidden" name="sort" value="@Model.Sort" />
+    <input type="hidden" name="dir" value="@Model.Dir" />
+    <input type="hidden" name="panel" value="1" id="panel-flag" disabled />
+
+    <div class="filter-bar">
+        <input type="search" name="q" value="@Model.Q" class="form-control filter-search" placeholder="@L["Search"].Value" />
+        <button type="submit" class="btn btn-outline-secondary">@L["Filter_Apply"]</button>
+
+        <details class="filter-panel" open="@Model.PanelOpen">
+            <summary class="btn btn-outline-secondary">@L["Filter_Button"]@(Model.ActiveCount > 0 ? $" ({Model.ActiveCount})" : "")</summary>
+            <div class="filter-body">
+                <div class="filter-groups">
+                    @foreach (var group in Model.Fields.GroupBy(f => f.Group))
+                    {
+                        <section class="filter-group">
+                            <h2 class="filter-group-title">@L[group.Key]</h2>
+                            @foreach (var field in group)
+                            {
+                                <fieldset class="filter-field">
+                                    <legend>@field.Label</legend>
+                                    <div class="filter-options @(field.Scroll ? "scroll" : "")">
+                                        @foreach (var option in field.Options)
+                                        {
+                                            <label class="filter-option">
+                                                <input type="checkbox" class="form-check-input" name="@field.Key" value="@option.Value" checked="@option.Selected" />
+                                                <span>@option.Label</span>
+                                                <span class="count">@option.Count</span>
+                                            </label>
+                                        }
+                                    </div>
+                                </fieldset>
+                            }
+                        </section>
+                    }
+                </div>
+                <div class="filter-footer">
+                    @if (Model.ActiveCount > 0)
+                    {
+                        <a href="@Model.ClearUrl">@L["Filter_Clear"]</a>
+                    }
+                    <a href="@Model.ClosePanelUrl" class="ms-auto">@L["Filter_Close"]</a>
+                </div>
+            </div>
+        </details>
+    </div>
+</form>
+
+@if (Model.Chips.Count > 0)
+{
+    <div class="filter-chips">
+        @foreach (var chip in Model.Chips)
+        {
+            <a class="chip" href="@Model.RemoveUrl(chip)" title="@L["Filter_Remove"].Value">@chip.Text <span aria-hidden="true">×</span></a>
+        }
+        <a class="chip-clear" href="@Model.ClearUrl">@L["Filter_Clear"]</a>
+    </div>
+}
+
+<script>
+    // A click on an option reloads the list at once; the panel stays open
+    (function () {
+        var form = document.getElementById("filters");
+        var flag = document.getElementById("panel-flag");
+        if (!form || !flag) return;
+        form.querySelectorAll(".filter-body input[type='checkbox']").forEach(function (box) {
+            box.addEventListener("change", function () {
+                flag.disabled = false;
+                form.submit();
+            });
+        });
+    })();
+</script>

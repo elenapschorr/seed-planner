@@ -259,4 +259,46 @@
   <data name="Home_Desc_Beds" xml:space="preserve"><value>Высокие грядки, грядка в грунте и кольца</value></data>
   <data name="Home_Open" xml:space="preserve"><value>открыть</value></data>
   <data name="Home_Next" xml:space="preserve"><value>Дальше: планировщик. Он подскажет, что можно сеять сейчас и хватит ли горшков и места.</value></data>
+  <data name="Filter_Group_Plant" xml:space="preserve"><value>Растение</value></data>
+  <data name="Filter_Group_Stock" xml:space="preserve"><value>Семена и запас</value></data>
+  <data name="Filter_Group_Growing" xml:space="preserve"><value>Выращивание</value></data>
+  <data name="Filter_Group_Time" xml:space="preserve"><value>Время</value></data>
+  <data name="Filter_Group_Use" xml:space="preserve"><value>Использование и соседи</value></data>
+  <data name="Filter_Group_Data" xml:space="preserve"><value>Данные</value></data>
+  <data name="Filter_Category" xml:space="preserve"><value>Категория</value></data>
+  <data name="Filter_GermType" xml:space="preserve"><value>Тип прорастания</value></data>
+  <data name="Filter_GermTemp" xml:space="preserve"><value>Температура прорастания</value></data>
+  <data name="Filter_SowMonth" xml:space="preserve"><value>Посев в месяце</value></data>
+  <data name="Filter_BloomMonth" xml:space="preserve"><value>Цветение в месяце</value></data>
+  <data name="Filter_HarvestMonth" xml:space="preserve"><value>Сбор урожая в месяце</value></data>
+  <data name="Filter_Use" xml:space="preserve"><value>Где растёт?</value></data>
+  <data name="Filter_GoodWith" xml:space="preserve"><value>Хорошие соседи для</value></data>
+  <data name="Filter_Missing" xml:space="preserve"><value>Нет данных</value></data>
+  <data name="Filter_Button" xml:space="preserve"><value>Фильтр</value></data>
+  <data name="Filter_Apply" xml:space="preserve"><value>Искать</value></data>
+  <data name="Filter_Clear" xml:space="preserve"><value>Сбросить все фильтры</value></data>
+  <data name="Filter_Close" xml:space="preserve"><value>Закрыть</value></data>
+  <data name="Filter_Remove" xml:space="preserve"><value>Убрать фильтр</value></data>
+  <data name="Use_Pot" xml:space="preserve"><value>В горшках</value></data>
+  <data name="Use_Bed" xml:space="preserve"><value>В грядках</value></data>
+  <data name="Use_None" xml:space="preserve"><value>Пока нигде не посажено</value></data>
+  <data name="Temp_Cool" xml:space="preserve"><value>прохладно (до 14 °C)</value></data>
+  <data name="Temp_Mild" xml:space="preserve"><value>умеренно (15–19 °C)</value></data>
+  <data name="Temp_Warm" xml:space="preserve"><value>тепло (от 20 °C)</value></data>
+  <data name="Missing_GermTemp" xml:space="preserve"><value>Температура прорастания</value></data>
+  <data name="Missing_GermDays" xml:space="preserve"><value>Срок прорастания</value></data>
+  <data name="Missing_Sowing" xml:space="preserve"><value>Окно посева</value></data>
+  <data name="Missing_Harvest" xml:space="preserve"><value>Окно сбора</value></data>
+  <data name="Missing_Spacing" xml:space="preserve"><value>Расстояния</value></data>
+  <data name="Missing_PotSize" xml:space="preserve"><value>Размер горшка</value></data>
+  <data name="Saucers_New" xml:space="preserve"><value>Новый поддон</value></data>
+  <data name="SaucerEdit_TitleEdit" xml:space="preserve"><value>Редактирование поддона</value></data>
+  <data name="SaucerConfirm_Delete" xml:space="preserve"><value>Удалить этот поддон?</value></data>
+  <data name="SaucerConfirm_DeleteUsed" xml:space="preserve"><value>Удалить этот поддон? Его используют группы горшков: {0}. Горшки останутся, но без поддона.</value></data>
+  <data name="RaisedBeds_New" xml:space="preserve"><value>Новая грядка</value></data>
+  <data name="BedEdit_TitleEdit" xml:space="preserve"><value>Редактирование грядки</value></data>
+  <data name="BedError_NameExists" xml:space="preserve"><value>Грядка с таким названием уже существует.</value></data>
+  <data name="BedConfirm_Delete" xml:space="preserve"><value>Удалить эту грядку вместе с посадками?</value></data>
+  <data name="Filter_Group_Properties" xml:space="preserve"><value>Свойства</value></data>
+  <data name="Filter_Group_Occupancy" xml:space="preserve"><value>Занятость</value></data>
 </root>

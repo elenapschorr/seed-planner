@@ -13,69 +13,18 @@
     }
 </div>
 
-<form method="get" class="row g-2 mb-3">
-    <input type="hidden" name="sort" value="@Model.Sort" />
-    <input type="hidden" name="dir" value="@Model.Dir" />
-    <div class="col-md">
-        <input type="search" name="q" value="@Model.Q" class="form-control" placeholder="@L["Search"].Value" />
-    </div>
-    <div class="col-md-auto">
-        <select name="category" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllCategories"]</option>
-            @foreach (var c in Enum.GetValues<PlantCategory>())
-            {
-                <option value="@c" selected="@(Model.Category == c)">@L["Category_" + c]</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="lifecycle" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllLifecycles"]</option>
-            @foreach (var lc in Enum.GetValues<Lifecycle>())
-            {
-                <option value="@lc" selected="@(Model.LifecycleFilter == lc)">@L["Lifecycle_" + lc]</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="nutrient" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllNutrientDemands"]</option>
-            @foreach (var n in Enum.GetValues<NutrientDemand>())
-            {
-                <option value="@n" selected="@(Model.NutrientFilter == n)">@L["NutrientDemand_" + n]</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="exposure" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllExposures"]</option>
-            @foreach (var e in Enum.GetValues<Exposure>())
-            {
-                <option value="@e" selected="@(Model.ExposureFilter == e)">@L["Exposure_" + e]</option>
-            }
-        </select>
-    </div>
-</form>
+<partial name="_FilterBar" model="Model.Filter" />
 
-@{
-    // Addresses of the column titles (keep the filters, reverse the direction on a second click)
-    var sort_name = Model.SortRoute("name");
-    var sort_category = Model.SortRoute("category");
-    var sort_lifecycle = Model.SortRoute("lifecycle");
-    var sort_nutrient = Model.SortRoute("nutrient");
-    var sort_exposure = Model.SortRoute("exposure");
-    var sort_plants = Model.SortRoute("plants");
-}
 
 <table class="table table-hover">
     <thead>
         <tr>
-            <th><a asp-page="/PlantTypes/Index" asp-all-route-data="sort_name" class="text-decoration-none text-reset">@L["Col_Name"]@Model.Arrow("name")</a></th>
-            <th><a asp-page="/PlantTypes/Index" asp-all-route-data="sort_category" class="text-decoration-none text-reset">@L["Col_Category"]@Model.Arrow("category")</a></th>
-            <th><a asp-page="/PlantTypes/Index" asp-all-route-data="sort_lifecycle" class="text-decoration-none text-reset">@L["Col_Lifecycle"]@Model.Arrow("lifecycle")</a></th>
-            <th><a asp-page="/PlantTypes/Index" asp-all-route-data="sort_nutrient" class="text-decoration-none text-reset">@L["Col_NutrientDemand"]@Model.Arrow("nutrient")</a></th>
-            <th><a asp-page="/PlantTypes/Index" asp-all-route-data="sort_exposure" class="text-decoration-none text-reset">@L["Col_Exposure"]@Model.Arrow("exposure")</a></th>
-            <th class="text-end"><a asp-page="/PlantTypes/Index" asp-all-route-data="sort_plants" class="text-decoration-none text-reset">@L["Col_Plants"]@Model.Arrow("plants")</a></th>
+            <th><a href="@Model.Filter.SortUrl("name")" class="text-decoration-none text-reset">@L["Col_Name"]@Model.Filter.Arrow("name")</a></th>
+            <th><a href="@Model.Filter.SortUrl("category")" class="text-decoration-none text-reset">@L["Col_Category"]@Model.Filter.Arrow("category")</a></th>
+            <th><a href="@Model.Filter.SortUrl("lifecycle")" class="text-decoration-none text-reset">@L["Col_Lifecycle"]@Model.Filter.Arrow("lifecycle")</a></th>
+            <th><a href="@Model.Filter.SortUrl("nutrient")" class="text-decoration-none text-reset">@L["Col_NutrientDemand"]@Model.Filter.Arrow("nutrient")</a></th>
+            <th><a href="@Model.Filter.SortUrl("exposure")" class="text-decoration-none text-reset">@L["Col_Exposure"]@Model.Filter.Arrow("exposure")</a></th>
+            <th class="text-end"><a href="@Model.Filter.SortUrl("plants")" class="text-decoration-none text-reset">@L["Col_Plants"]@Model.Filter.Arrow("plants")</a></th>
             @if (Model.CanEdit)
             {
                 <th></th>

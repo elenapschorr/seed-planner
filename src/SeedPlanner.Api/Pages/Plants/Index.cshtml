@@ -3,6 +3,7 @@
 @using SeedPlanner.Domain
 @{
     ViewData["Title"] = L["Plants_Title"].Value;
+    ViewData["Wide"] = true;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -10,125 +11,7 @@
     <a class="btn btn-success" asp-page="Edit" asp-route-returnUrl="@Model.ReturnUrl">@L["Action_New"]</a>
 </div>
 
-<form method="get" class="row g-2 mb-3">
-    <input type="hidden" name="sort" value="@Model.Sort" />
-    <input type="hidden" name="dir" value="@Model.Dir" />
-    <div class="col-md">
-        <input type="search" name="q" value="@Model.Q" class="form-control" placeholder="@L["Search"].Value" />
-    </div>
-    <div class="col-md-auto">
-        <select name="typeId" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllTypes"]</option>
-            @foreach (var t in Model.TypeOptions)
-            {
-                <option value="@t.Id" selected="@(Model.TypeId == t.Id)">@t.Name</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="propagation" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllPropagations"]</option>
-            @foreach (var pr in Enum.GetValues<Propagation>())
-            {
-                <option value="@pr" selected="@(Model.PropagationFilter == pr)">@L["Propagation_" + pr]</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="lifecycle" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllLifecycles"]</option>
-            @foreach (var lc in Enum.GetValues<Lifecycle>())
-            {
-                <option value="@lc" selected="@(Model.LifecycleFilter == lc)">@L["Lifecycle_" + lc]</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="seedType" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllSeedTypes"]</option>
-            @foreach (var st in Enum.GetValues<SeedType>())
-            {
-                <option value="@st" selected="@(Model.SeedTypeFilter == st)">@L["SeedType_" + st]</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="stock" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllStock"]</option>
-            @foreach (var s in Enum.GetValues<StockStatus>())
-            {
-                <option value="@s" selected="@(Model.Stock == s)">@L["StockStatus_" + s]</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="sowing" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllSowingMethods"]</option>
-            @foreach (var c in Enum.GetValues<SowingMethod>())
-            {
-                <option value="@c" selected="@(Model.SowingFilter == c)">@L["SowingMethod_" + c]</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="place" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllGrowingPlaces"]</option>
-            @foreach (var c in Enum.GetValues<GrowingPlace>())
-            {
-                <option value="@c" selected="@(Model.PlaceFilter == c)">@L["GrowingPlace_" + c]</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="nutrient" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllNutrientDemands"]</option>
-            @foreach (var n in Enum.GetValues<NutrientDemand>())
-            {
-                <option value="@n" selected="@(Model.NutrientFilter == n)">@L["NutrientDemand_" + n]</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="exposure" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllExposures"]</option>
-            @foreach (var e in Enum.GetValues<Exposure>())
-            {
-                <option value="@e" selected="@(Model.ExposureFilter == e)">@L["Exposure_" + e]</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="month" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllMonths"]</option>
-            @for (var month = 1; month <= 12; month++)
-            {
-                <option value="@month" selected="@(Model.Month == month)">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto d-flex align-items-center">
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="toBuy" name="toBuy" value="true" checked="@Model.OnlyToBuy" onchange="this.form.submit()" />
-            <label class="form-check-label" for="toBuy">@L["Filter_OnlyToBuy"]</label>
-        </div>
-    </div>
-</form>
-
-@{
-    // Addresses of the column titles (keep the filters, reverse the direction on a second click)
-    var sort_name = Model.SortRoute("name");
-    var sort_type = Model.SortRoute("type");
-    var sort_propagation = Model.SortRoute("propagation");
-    var sort_lifecycle = Model.SortRoute("lifecycle");
-    var sort_seedtype = Model.SortRoute("seedtype");
-    var sort_stock = Model.SortRoute("stock");
-    var sort_sowing = Model.SortRoute("sowing");
-    var sort_place = Model.SortRoute("place");
-    var sort_nutrient = Model.SortRoute("nutrient");
-    var sort_exposure = Model.SortRoute("exposure");
-    var sort_pots = Model.SortRoute("pots");
-    var sort_tobuy = Model.SortRoute("tobuy");
-}
+<partial name="_FilterBar" model="Model.Filter" />
 
 @if (Model.SeedRows.Count > 0)
 {
@@ -137,16 +20,16 @@
     <table class="table table-hover">
         <thead>
             <tr>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_type" class="text-decoration-none text-reset">@L["Col_PlantType"]@Model.Arrow("type")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_name" class="text-decoration-none text-reset">@L["Col_Name"]@Model.Arrow("name")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_lifecycle" class="text-decoration-none text-reset">@L["Col_Lifecycle"]@Model.Arrow("lifecycle")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_seedtype" class="text-decoration-none text-reset">@L["Col_SeedType"]@Model.Arrow("seedtype")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_stock" class="text-decoration-none text-reset">@L["Col_Stock"]@Model.Arrow("stock")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_sowing" class="text-decoration-none text-reset">@L["Col_Sowing"]@Model.Arrow("sowing")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_place" class="text-decoration-none text-reset">@L["Col_GrowingPlace"]@Model.Arrow("place")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_nutrient" class="text-decoration-none text-reset">@L["Col_NutrientDemand"]@Model.Arrow("nutrient")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_exposure" class="text-decoration-none text-reset">@L["Col_Exposure"]@Model.Arrow("exposure")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_tobuy" class="text-decoration-none text-reset">@L["Badge_ToBuy"]@Model.Arrow("tobuy")</a></th>
+            <th><a href="@Model.SortUrl("type")" class="text-decoration-none text-reset">@L["Col_PlantType"]@Model.Arrow("type")</a></th>
+            <th><a href="@Model.SortUrl("name")" class="text-decoration-none text-reset">@L["Col_Name"]@Model.Arrow("name")</a></th>
+            <th><a href="@Model.SortUrl("lifecycle")" class="text-decoration-none text-reset">@L["Col_Lifecycle"]@Model.Arrow("lifecycle")</a></th>
+            <th><a href="@Model.SortUrl("seedtype")" class="text-decoration-none text-reset">@L["Col_SeedType"]@Model.Arrow("seedtype")</a></th>
+            <th><a href="@Model.SortUrl("stock")" class="text-decoration-none text-reset">@L["Col_Stock"]@Model.Arrow("stock")</a></th>
+            <th><a href="@Model.SortUrl("sowing")" class="text-decoration-none text-reset">@L["Col_Sowing"]@Model.Arrow("sowing")</a></th>
+            <th><a href="@Model.SortUrl("place")" class="text-decoration-none text-reset">@L["Col_GrowingPlace"]@Model.Arrow("place")</a></th>
+            <th><a href="@Model.SortUrl("nutrient")" class="text-decoration-none text-reset">@L["Col_NutrientDemand"]@Model.Arrow("nutrient")</a></th>
+            <th><a href="@Model.SortUrl("exposure")" class="text-decoration-none text-reset">@L["Col_Exposure"]@Model.Arrow("exposure")</a></th>
+            <th><a href="@Model.SortUrl("tobuy")" class="text-decoration-none text-reset">@L["Badge_ToBuy"]@Model.Arrow("tobuy")</a></th>
             <th></th>
             </tr>
         </thead>
@@ -188,16 +71,16 @@
     <table class="table table-hover">
         <thead>
             <tr>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_type" class="text-decoration-none text-reset">@L["Col_PlantType"]@Model.Arrow("type")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_name" class="text-decoration-none text-reset">@L["Col_Name"]@Model.Arrow("name")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_propagation" class="text-decoration-none text-reset">@L["Col_Propagation"]@Model.Arrow("propagation")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_lifecycle" class="text-decoration-none text-reset">@L["Col_Lifecycle"]@Model.Arrow("lifecycle")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_stock" class="text-decoration-none text-reset">@L["Col_Stock"]@Model.Arrow("stock")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_sowing" class="text-decoration-none text-reset">@L["Col_Sowing"]@Model.Arrow("sowing")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_place" class="text-decoration-none text-reset">@L["Col_GrowingPlace"]@Model.Arrow("place")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_nutrient" class="text-decoration-none text-reset">@L["Col_NutrientDemand"]@Model.Arrow("nutrient")</a></th>
-            <th><a asp-page="/Plants/Index" asp-all-route-data="sort_exposure" class="text-decoration-none text-reset">@L["Col_Exposure"]@Model.Arrow("exposure")</a></th>
-            <th class="text-end"><a asp-page="/Plants/Index" asp-all-route-data="sort_pots" class="text-decoration-none text-reset">@L["Col_Pots"]@Model.Arrow("pots")</a></th>
+            <th><a href="@Model.SortUrl("type")" class="text-decoration-none text-reset">@L["Col_PlantType"]@Model.Arrow("type")</a></th>
+            <th><a href="@Model.SortUrl("name")" class="text-decoration-none text-reset">@L["Col_Name"]@Model.Arrow("name")</a></th>
+            <th><a href="@Model.SortUrl("propagation")" class="text-decoration-none text-reset">@L["Col_Propagation"]@Model.Arrow("propagation")</a></th>
+            <th><a href="@Model.SortUrl("lifecycle")" class="text-decoration-none text-reset">@L["Col_Lifecycle"]@Model.Arrow("lifecycle")</a></th>
+            <th><a href="@Model.SortUrl("stock")" class="text-decoration-none text-reset">@L["Col_Stock"]@Model.Arrow("stock")</a></th>
+            <th><a href="@Model.SortUrl("sowing")" class="text-decoration-none text-reset">@L["Col_Sowing"]@Model.Arrow("sowing")</a></th>
+            <th><a href="@Model.SortUrl("place")" class="text-decoration-none text-reset">@L["Col_GrowingPlace"]@Model.Arrow("place")</a></th>
+            <th><a href="@Model.SortUrl("nutrient")" class="text-decoration-none text-reset">@L["Col_NutrientDemand"]@Model.Arrow("nutrient")</a></th>
+            <th><a href="@Model.SortUrl("exposure")" class="text-decoration-none text-reset">@L["Col_Exposure"]@Model.Arrow("exposure")</a></th>
+            <th class="text-end"><a href="@Model.SortUrl("pots")" class="text-decoration-none text-reset">@L["Col_Pots"]@Model.Arrow("pots")</a></th>
             <th></th>
             </tr>
         </thead>

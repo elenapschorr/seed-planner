@@ -1,0 +1,46 @@
+@page "{id:int?}"
+@model SeedPlanner.Api.Pages.Saucers.EditModel
+@{
+    ViewData["Title"] = (Model.Id is null ? L["Saucers_New"] : L["SaucerEdit_TitleEdit"]).Value;
+}
+
+<h1 class="mb-3">@ViewData["Title"]</h1>
+
+<form method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="col-12 text-danger"></div>
+
+    <div class="col-md-3">
+        <label asp-for="Input.DiameterCm" class="form-label">@L["Col_Diameter"]</label>
+        <input asp-for="Input.DiameterCm" class="form-control" inputmode="decimal" />
+        <span asp-validation-for="Input.DiameterCm" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Input.Color" class="form-label">@L["Col_Color"]</label>
+        <input asp-for="Input.Color" class="form-control" maxlength="50" />
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Input.Quantity" class="form-label">@L["Col_Quantity"]</label>
+        <input asp-for="Input.Quantity" class="form-control" inputmode="numeric" />
+        <span asp-validation-for="Input.Quantity" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Input.Note" class="form-label">@L["Col_Note"]</label>
+        <input asp-for="Input.Note" class="form-control" maxlength="200" />
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-success">@L["Action_Save"]</button>
+        <a class="btn btn-outline-secondary" asp-page="Index">@L["Action_Cancel"]</a>
+    </div>
+</form>
+
+@if (Model.Id is not null)
+{
+    var confirmText = Model.PotGroupCount > 0
+        ? L["SaucerConfirm_DeleteUsed", Model.PotGroupCount].Value
+        : L["SaucerConfirm_Delete"].Value;
+    <form method="post" asp-page-handler="Delete" asp-route-id="@Model.Id" class="mt-4"
+          data-confirm="@confirmText" onsubmit="return confirm(this.dataset.confirm);">
+        <button type="submit" class="btn btn-outline-danger">@L["Action_Delete"]</button>
+    </form>
+}

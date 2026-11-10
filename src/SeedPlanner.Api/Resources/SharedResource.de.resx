@@ -259,4 +259,46 @@
   <data name="Home_Desc_Beds" xml:space="preserve"><value>Hochbeete, Bodenbeet und Pflanzringe</value></data>
   <data name="Home_Open" xml:space="preserve"><value>öffnen</value></data>
   <data name="Home_Next" xml:space="preserve"><value>Als Nächstes: der Planer. Er schlägt vor, was jetzt gesät werden kann und ob dafür Töpfe und Platz reichen.</value></data>
+  <data name="Filter_Group_Plant" xml:space="preserve"><value>Pflanze</value></data>
+  <data name="Filter_Group_Stock" xml:space="preserve"><value>Samen und Bestand</value></data>
+  <data name="Filter_Group_Growing" xml:space="preserve"><value>Anbau</value></data>
+  <data name="Filter_Group_Time" xml:space="preserve"><value>Zeit</value></data>
+  <data name="Filter_Group_Use" xml:space="preserve"><value>Verwendung und Nachbarn</value></data>
+  <data name="Filter_Group_Data" xml:space="preserve"><value>Daten</value></data>
+  <data name="Filter_Category" xml:space="preserve"><value>Kategorie</value></data>
+  <data name="Filter_GermType" xml:space="preserve"><value>Keimart</value></data>
+  <data name="Filter_GermTemp" xml:space="preserve"><value>Keimtemperatur</value></data>
+  <data name="Filter_SowMonth" xml:space="preserve"><value>Aussaat im Monat</value></data>
+  <data name="Filter_BloomMonth" xml:space="preserve"><value>Blüte im Monat</value></data>
+  <data name="Filter_HarvestMonth" xml:space="preserve"><value>Ernte im Monat</value></data>
+  <data name="Filter_Use" xml:space="preserve"><value>Wo steht sie?</value></data>
+  <data name="Filter_GoodWith" xml:space="preserve"><value>Gute Nachbarn von</value></data>
+  <data name="Filter_Missing" xml:space="preserve"><value>Angaben fehlen</value></data>
+  <data name="Filter_Button" xml:space="preserve"><value>Filter</value></data>
+  <data name="Filter_Apply" xml:space="preserve"><value>Suchen</value></data>
+  <data name="Filter_Clear" xml:space="preserve"><value>Alle Filter zurücksetzen</value></data>
+  <data name="Filter_Close" xml:space="preserve"><value>Schließen</value></data>
+  <data name="Filter_Remove" xml:space="preserve"><value>Filter entfernen</value></data>
+  <data name="Use_Pot" xml:space="preserve"><value>In Töpfen</value></data>
+  <data name="Use_Bed" xml:space="preserve"><value>In Beeten</value></data>
+  <data name="Use_None" xml:space="preserve"><value>Noch nirgends gepflanzt</value></data>
+  <data name="Temp_Cool" xml:space="preserve"><value>kühl (bis 14 °C)</value></data>
+  <data name="Temp_Mild" xml:space="preserve"><value>gemäßigt (15–19 °C)</value></data>
+  <data name="Temp_Warm" xml:space="preserve"><value>warm (ab 20 °C)</value></data>
+  <data name="Missing_GermTemp" xml:space="preserve"><value>Keimtemperatur</value></data>
+  <data name="Missing_GermDays" xml:space="preserve"><value>Keimdauer</value></data>
+  <data name="Missing_Sowing" xml:space="preserve"><value>Aussaatfenster</value></data>
+  <data name="Missing_Harvest" xml:space="preserve"><value>Erntefenster</value></data>
+  <data name="Missing_Spacing" xml:space="preserve"><value>Abstände</value></data>
+  <data name="Missing_PotSize" xml:space="preserve"><value>Topfgröße</value></data>
+  <data name="Saucers_New" xml:space="preserve"><value>Neuer Untersetzer</value></data>
+  <data name="SaucerEdit_TitleEdit" xml:space="preserve"><value>Untersetzer bearbeiten</value></data>
+  <data name="SaucerConfirm_Delete" xml:space="preserve"><value>Diesen Untersetzer löschen?</value></data>
+  <data name="SaucerConfirm_DeleteUsed" xml:space="preserve"><value>Diesen Untersetzer löschen? {0} Topfgruppe(n) nutzen ihn; die Töpfe bleiben, haben dann aber keinen Untersetzer mehr.</value></data>
+  <data name="RaisedBeds_New" xml:space="preserve"><value>Neues Beet</value></data>
+  <data name="BedEdit_TitleEdit" xml:space="preserve"><value>Beet bearbeiten</value></data>
+  <data name="BedError_NameExists" xml:space="preserve"><value>Ein Beet mit diesem Namen gibt es schon.</value></data>
+  <data name="BedConfirm_Delete" xml:space="preserve"><value>Dieses Beet samt Bepflanzung löschen?</value></data>
+  <data name="Filter_Group_Properties" xml:space="preserve"><value>Eigenschaften</value></data>
+  <data name="Filter_Group_Occupancy" xml:space="preserve"><value>Belegung</value></data>
 </root>

@@ -32,8 +32,6 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         string? Note);
 
     public List<Row> Rows { get; private set; } = new();
-    public List<string> ColorOptions { get; private set; } = new();
-
     // Totals of the pots shown
     public int TotalPots { get; private set; }
     public int TotalFree { get; private set; }
@@ -41,18 +39,8 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
     [BindProperty(SupportsGet = true)]
     public string? Q { get; set; }
 
-    [BindProperty(Name = "kind", SupportsGet = true)]
-    public PotKind? KindFilter { get; set; }
-
-    [BindProperty(Name = "shape", SupportsGet = true)]
-    public PotShape? ShapeFilter { get; set; }
-
-    [BindProperty(Name = "color", SupportsGet = true)]
-    public string? ColorFilter { get; set; }
-
-    // Only groups that have free pots
-    [BindProperty(Name = "free", SupportsGet = true)]
-    public bool OnlyFree { get; set; }
+    /// <summary>Search, filters, chips and the addresses of the column titles.</summary>
+    public ListFilterView Filter { get; private set; } = null!;
 
     // Column to sort by (name, kind, shape, size, volume, quantity, inuse, free, color, code, saucer, uses, note)
     [BindProperty(SupportsGet = true)]
@@ -73,14 +61,6 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             .Include(g => g.Pots).ThenInclude(p => p.Plantings).ThenInclude(x => x.Plant)
             .ToListAsync();
 
-        ColorOptions = groups
-            .Select(p => p.Color)
-            .Where(c => !string.IsNullOrWhiteSpace(c))
-            .Select(c => c!)
-            .Distinct(StringComparer.CurrentCultureIgnoreCase)
-            .OrderBy(c => c, comparer)
-            .ToList();
-
         var rows = groups.Select(g => new Row(
             g.Id, g.Name, g.Kind, g.Shape, g.TopCm, g.BottomCm, g.HeightCm, g.VolumeLiters,
             g.Quantity, g.SetSize, g.SetCount, g.OccupiedQuantity, g.FreeQuantity,
@@ -88,20 +68,29 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             g.Saucer?.DiameterCm,
             g.Saucer is null ? null : $"{Format(g.Saucer.DiameterCm)} {g.Saucer.Color}".Trim(),
             UsesText(g, language, comparer),
-            g.Note));
+            g.Note)).ToList();
 
-        if (KindFilter is not null) rows = rows.Where(r => r.Kind == KindFilter);
-        if (ShapeFilter is not null) rows = rows.Where(r => r.Shape == ShapeFilter);
-        if (!string.IsNullOrEmpty(ColorFilter))
-            rows = rows.Where(r => string.Equals(r.Color, ColorFilter, StringComparison.CurrentCultureIgnoreCase));
-        if (OnlyFree) rows = rows.Where(r => r.Free > 0);
-        if (!string.IsNullOrWhiteSpace(Q))
+        var colors = rows.Select(r => r.Color).Where(c => !string.IsNullOrWhiteSpace(c)).Select(c => c!)
+            .Distinct(StringComparer.CurrentCultureIgnoreCase).OrderBy(c => c, comparer)
+            .Select(c => (Value: c, Label: c)).ToList();
+        var saucers = rows.Where(r => r.Saucer is not null).GroupBy(r => r.Saucer!)
+            .OrderBy(g => g.First().SaucerDiameter).Select(g => (Value: g.Key, Label: g.Key)).ToList();
+
+        var facets = new List<Facet<Row>>
         {
-            var q = Q.Trim();
-            rows = rows.Where(r =>
-                Contains(r.Name, q) || Contains(r.Color, q) || Contains(r.Code, q) || Contains(r.Note, q) ||
-                Contains(r.Uses, q) || Contains(r.Saucer, q));
-        }
+            new("kind", "Filter_Group_Properties", L["Col_Kind"].Value, r => FilterOptions.One(r.Kind), FilterOptions.Enum<PotKind>(L, "PotKind_")),
+            new("shape", "Filter_Group_Properties", L["Col_Shape"].Value, r => FilterOptions.One(r.Shape), FilterOptions.Enum<PotShape>(L, "PotShape_")),
+            new("color", "Filter_Group_Properties", L["Col_Color"].Value, r => FilterOptions.One(r.Color), colors),
+            new("saucer", "Filter_Group_Properties", L["Col_Saucer"].Value, r => FilterOptions.One(r.Saucer), saucers),
+            new("free", "Filter_Group_Occupancy", L["Col_Free"].Value, r => r.Free > 0 ? new[] { "1" } : Array.Empty<string>(),
+                new List<(string Value, string Label)> { ("1", L["Filter_OnlyFree"].Value) }),
+        };
+
+        var filter = new ListFilter<Row>(Request, Q, Sort, Dir);
+        Filter = filter;
+        rows = filter.Apply(rows, facets, (r, q) =>
+            Contains(r.Name, q) || Contains(r.Color, q) || Contains(r.Code, q) || Contains(r.Note, q) ||
+            Contains(r.Uses, q) || Contains(r.Saucer, q));
 
         // Default order: big pots first
         var byDefault = rows
@@ -112,7 +101,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         TotalPots = byDefault.Sum(r => r.Quantity);
         TotalFree = byDefault.Sum(r => r.Free);
 
-        var desc = Descending;
+        var desc = Filter.Descending;
         Rows = (Sort?.ToLowerInvariant()) switch
         {
             "name" => ListSorting.Sort(byDefault, r => r.Name, desc),
@@ -160,24 +149,4 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
     // "37 × 18 × 60", missing measures as "–"
     public string Size(Row r) =>
         string.Join(" × ", new[] { r.TopCm, r.BottomCm, r.HeightCm }.Select(v => v is null ? "–" : Format(v.Value)));
-
-    // ---------------------------------------------------------------- sort links
-
-    public bool Descending => string.Equals(Dir, "desc", StringComparison.OrdinalIgnoreCase);
-
-    private bool SortedBy(string column) =>
-        string.Equals(Sort ?? "", column, StringComparison.OrdinalIgnoreCase);
-
-    public string Arrow(string column) => SortedBy(column) ? (Descending ? " ▼" : " ▲") : "";
-
-    public Dictionary<string, string?> SortRoute(string column) => new()
-    {
-        ["q"] = Q,
-        ["kind"] = KindFilter?.ToString(),
-        ["shape"] = ShapeFilter?.ToString(),
-        ["color"] = ColorFilter,
-        ["free"] = OnlyFree ? "true" : null,
-        ["sort"] = column,
-        ["dir"] = SortedBy(column) && !Descending ? "desc" : "asc"
-    };
 }

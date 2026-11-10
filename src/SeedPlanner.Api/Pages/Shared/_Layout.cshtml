@@ -47,7 +47,7 @@
         </div>
     </header>
 
-    <main role="main" class="site-main">
+    <main role="main" class="site-main @(ViewData["Wide"] is true ? "wide" : "")">
         @RenderBody()
     </main>
 

@@ -199,3 +199,44 @@ details > summary { cursor: pointer; font-family: var(--sp-serif); font-size: 1.
     .register .name { width: auto; }
     .home-stat, .home-stat + .home-stat { padding-left: 0; border-left: 0; }
 }
+
+/* Filter panel of the lists */
+.filter-bar { position: relative; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem; }
+.filter-search { flex: 1 1 14rem; max-width: 28rem; }
+.filter-panel > summary { list-style: none; cursor: pointer; font-family: var(--sp-sans); font-size: 1rem; }
+.filter-panel > summary::-webkit-details-marker { display: none; }
+.filter-panel[open] > summary { background: var(--sp-ink); color: var(--sp-paper); }
+.filter-body {
+    position: absolute; left: 0; right: 0; top: calc(100% + 0.25rem); z-index: 30;
+    background: var(--sp-field); border: 1px solid var(--sp-ink);
+    padding: 1rem 1.25rem; max-height: 75vh; overflow: auto;
+    box-shadow: 0 0.5rem 1.5rem rgba(31, 42, 51, 0.15);
+}
+.filter-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.5rem; }
+.filter-group-title { font-size: 1.1rem; margin: 0 0 0.5rem; padding-bottom: 0.25rem; border-bottom: 1px solid var(--sp-line); }
+.filter-field { margin: 0 0 1rem; padding: 0; border: 0; min-width: 0; }
+.filter-field legend { float: none; width: auto; margin: 0 0 0.25rem; padding: 0; font-size: 0.9rem; color: var(--sp-muted); }
+.filter-options.scroll { max-height: 12rem; overflow: auto; padding-right: 0.25rem; }
+.filter-option { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.1rem 0; cursor: pointer; }
+.filter-option .form-check-input { margin-top: 0; flex: none; }
+.filter-option .count { margin-left: auto; color: var(--sp-muted); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.filter-footer { display: flex; gap: 1rem; margin-top: 0.5rem; padding-top: 0.75rem; border-top: 1px solid var(--sp-line); }
+
+.filter-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 1rem; }
+.chip {
+    display: inline-block; padding: 0.15rem 0.7rem; border: 1px solid var(--sp-accent); border-radius: 999px;
+    color: var(--sp-accent); text-decoration: none; font-size: 0.9rem;
+}
+.chip:hover { background: var(--sp-accent); color: var(--sp-paper); }
+.chip-clear { font-size: 0.9rem; color: var(--sp-muted); margin-left: 0.25rem; }
+
+@media (max-width: 576px) {
+    .filter-body { padding: 0.75rem; }
+}
+
+/* Lists with many columns use the whole screen, so nobody has to scroll sideways */
+.site-main.wide { max-width: 100%; }
+.site-main.wide .table td { vertical-align: middle; }
+/* The long text columns take the remaining width and wrap */
+.table td.col-uses { min-width: 16rem; }
+.table td.col-note { min-width: 8rem; }

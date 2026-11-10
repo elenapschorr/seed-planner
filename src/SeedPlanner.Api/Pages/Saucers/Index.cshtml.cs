@@ -2,25 +2,25 @@ using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using SeedPlanner.Domain;
 using SeedPlanner.Infrastructure;
 
 namespace SeedPlanner.Api.Pages.Saucers;
 
-public class IndexModel(SeedPlannerDbContext db) : PageModel
+public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource> L) : PageModel
 {
     // PotCount: pots of the groups that are assigned to this saucer size
     public record Row(int Id, decimal DiameterCm, string? Color, int Quantity, int PotCount, string? Note);
 
     public List<Row> Rows { get; private set; } = new();
-    public List<string> ColorOptions { get; private set; } = new();
     public int TotalSaucers { get; private set; }
 
     [BindProperty(SupportsGet = true)]
     public string? Q { get; set; }
 
-    [BindProperty(Name = "color", SupportsGet = true)]
-    public string? ColorFilter { get; set; }
+    /// <summary>Search, filters, chips and the addresses of the column titles.</summary>
+    public ListFilterView Filter { get; private set; } = null!;
 
     // Column to sort by (diameter, color, quantity, pots, note) and direction (asc, desc)
     [BindProperty(SupportsGet = true)]
@@ -42,33 +42,30 @@ public class IndexModel(SeedPlannerDbContext db) : PageModel
             .GroupBy(g => g.SaucerId!.Value)
             .ToDictionary(g => g.Key, g => g.Sum(x => x.Count));
 
-        ColorOptions = saucers
-            .Select(s => s.Color)
-            .Where(c => !string.IsNullOrWhiteSpace(c))
-            .Select(c => c!)
-            .Distinct(StringComparer.CurrentCultureIgnoreCase)
-            .OrderBy(c => c, comparer)
-            .ToList();
-
         var rows = saucers.Select(s => new Row(
             s.Id, s.DiameterCm, s.Color, s.Quantity,
-            potsPerSaucer.GetValueOrDefault(s.Id), s.Note));
+            potsPerSaucer.GetValueOrDefault(s.Id), s.Note)).ToList();
 
-        if (!string.IsNullOrEmpty(ColorFilter))
-            rows = rows.Where(r => string.Equals(r.Color, ColorFilter, StringComparison.CurrentCultureIgnoreCase));
-        if (!string.IsNullOrWhiteSpace(Q))
+        var colors = rows.Select(r => r.Color).Where(c => !string.IsNullOrWhiteSpace(c)).Select(c => c!)
+            .Distinct(StringComparer.CurrentCultureIgnoreCase).OrderBy(c => c, comparer)
+            .Select(c => (Value: c, Label: c)).ToList();
+
+        var facets = new List<Facet<Row>>
         {
-            var q = Q.Trim();
-            rows = rows.Where(r =>
-                (r.Color?.Contains(q, StringComparison.CurrentCultureIgnoreCase) ?? false) ||
-                (r.Note?.Contains(q, StringComparison.CurrentCultureIgnoreCase) ?? false) ||
-                r.DiameterCm.ToString("0.#", CultureInfo.CurrentCulture).Contains(q));
-        }
+            new("color", "Filter_Group_Properties", L["Col_Color"].Value, r => FilterOptions.One(r.Color), colors),
+        };
+
+        var filter = new ListFilter<Row>(Request, Q, Sort, Dir);
+        Filter = filter;
+        rows = filter.Apply(rows, facets, (r, q) =>
+            (r.Color?.Contains(q, StringComparison.CurrentCultureIgnoreCase) ?? false) ||
+            (r.Note?.Contains(q, StringComparison.CurrentCultureIgnoreCase) ?? false) ||
+            r.DiameterCm.ToString("0.#", CultureInfo.CurrentCulture).Contains(q));
 
         var byDefault = rows.OrderBy(r => r.DiameterCm).ThenBy(r => r.Color, comparer).ToList();
         TotalSaucers = byDefault.Sum(r => r.Quantity);
 
-        var desc = Descending;
+        var desc = Filter.Descending;
         Rows = (Sort?.ToLowerInvariant()) switch
         {
             "diameter" => ListSorting.Sort(byDefault, r => r.DiameterCm, desc),
@@ -79,21 +76,4 @@ public class IndexModel(SeedPlannerDbContext db) : PageModel
             _ => byDefault
         };
     }
-
-    // ---------------------------------------------------------------- sort links
-
-    public bool Descending => string.Equals(Dir, "desc", StringComparison.OrdinalIgnoreCase);
-
-    private bool SortedBy(string column) =>
-        string.Equals(Sort ?? "", column, StringComparison.OrdinalIgnoreCase);
-
-    public string Arrow(string column) => SortedBy(column) ? (Descending ? " ▼" : " ▲") : "";
-
-    public Dictionary<string, string?> SortRoute(string column) => new()
-    {
-        ["q"] = Q,
-        ["color"] = ColorFilter,
-        ["sort"] = column,
-        ["dir"] = SortedBy(column) && !Descending ? "desc" : "asc"
-    };
 }

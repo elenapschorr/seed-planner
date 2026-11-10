@@ -29,11 +29,8 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
     [BindProperty(SupportsGet = true)]
     public string? Q { get; set; }
 
-    [BindProperty(Name = "kind", SupportsGet = true)]
-    public BedKind? KindFilter { get; set; }
-
-    [BindProperty(Name = "shape", SupportsGet = true)]
-    public BedShape? ShapeFilter { get; set; }
+    /// <summary>Search, filters, chips and the addresses of the column titles.</summary>
+    public ListFilterView Filter { get; private set; } = null!;
 
     // Column to sort by (name, kind, shape, width, length, height, area, volume, plantings, note) and direction (asc, desc)
     [BindProperty(SupportsGet = true)]
@@ -59,23 +56,25 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             string.Join(", ", b.Plantings
                 .Select(x => PlantName(x, language) + (x.PlantCount is null ? "" : $" ×{x.PlantCount}"))
                 .OrderBy(n => n, comparer)),
-            b.Note));
+            b.Note)).ToList();
 
-        if (KindFilter is not null) rows = rows.Where(r => r.Kind == KindFilter);
-        if (ShapeFilter is not null) rows = rows.Where(r => r.Shape == ShapeFilter);
-        if (!string.IsNullOrWhiteSpace(Q))
+        var facets = new List<Facet<Row>>
         {
-            var q = Q.Trim();
-            rows = rows.Where(r =>
-                r.Name.Contains(q, StringComparison.CurrentCultureIgnoreCase) ||
-                r.Plantings.Contains(q, StringComparison.CurrentCultureIgnoreCase) ||
-                (r.Note?.Contains(q, StringComparison.CurrentCultureIgnoreCase) ?? false));
-        }
+            new("kind", "Filter_Group_Properties", L["Col_BedKind"].Value, r => FilterOptions.One(r.Kind), FilterOptions.Enum<BedKind>(L, "BedKind_")),
+            new("shape", "Filter_Group_Properties", L["Col_Shape"].Value, r => FilterOptions.One(r.Shape), FilterOptions.Enum<BedShape>(L, "BedShape_")),
+        };
+
+        var filter = new ListFilter<Row>(Request, Q, Sort, Dir);
+        Filter = filter;
+        rows = filter.Apply(rows, facets, (r, q) =>
+            r.Name.Contains(q, StringComparison.CurrentCultureIgnoreCase) ||
+            r.Plantings.Contains(q, StringComparison.CurrentCultureIgnoreCase) ||
+            (r.Note?.Contains(q, StringComparison.CurrentCultureIgnoreCase) ?? false));
 
         var byDefault = rows.OrderBy(r => r.Name, comparer).ToList();
         TotalArea = byDefault.Sum(r => r.AreaSquareMeters);
 
-        var desc = Descending;
+        var desc = Filter.Descending;
         Rows = (Sort?.ToLowerInvariant()) switch
         {
             "name" => ListSorting.Sort(byDefault, r => r.Name, desc),
@@ -102,22 +101,4 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         var type = TypeName(x.PlantType!, language);
         return x.Plant is not null && x.Plant.Name != "(unnamed)" ? $"{type} – {x.Plant.Name}" : type;
     }
-
-    // ---------------------------------------------------------------- sort links
-
-    public bool Descending => string.Equals(Dir, "desc", StringComparison.OrdinalIgnoreCase);
-
-    private bool SortedBy(string column) =>
-        string.Equals(Sort ?? "", column, StringComparison.OrdinalIgnoreCase);
-
-    public string Arrow(string column) => SortedBy(column) ? (Descending ? " ▼" : " ▲") : "";
-
-    public Dictionary<string, string?> SortRoute(string column) => new()
-    {
-        ["q"] = Q,
-        ["kind"] = KindFilter?.ToString(),
-        ["shape"] = ShapeFilter?.ToString(),
-        ["sort"] = column,
-        ["dir"] = SortedBy(column) && !Descending ? "desc" : "asc"
-    };
 }

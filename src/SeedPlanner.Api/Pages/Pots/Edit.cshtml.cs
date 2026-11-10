@@ -225,24 +225,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         return Page();
     }
 
-    // "t:12" is a plant type, "p:34" a variety of the user
-    private async Task<(int? TypeId, int? PlantId)> ParseChoiceAsync(string? choice)
-    {
-        if (string.IsNullOrEmpty(choice) || choice.Length < 3 || !int.TryParse(choice[2..], out var number))
-            return (null, null);
-
-        if (choice.StartsWith("t:"))
-        {
-            return await db.PlantTypes.AnyAsync(t => t.Id == number) ? (number, null) : (null, null);
-        }
-        if (choice.StartsWith("p:"))
-        {
-            // The query filter only finds the user's own plants
-            var plant = await db.Plants.AsNoTracking().FirstOrDefaultAsync(p => p.Id == number);
-            return plant is null ? (null, null) : (plant.PlantTypeId, plant.Id);
-        }
-        return (null, null);
-    }
+    private Task<(int? TypeId, int? PlantId)> ParseChoiceAsync(string? choice) => PlantChoices.ParseAsync(db, choice);
 
     private async Task ValidateAsync(int? id, PotGroup? group)
     {
@@ -334,7 +317,6 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
     private async Task PrepareAsync(int? id)
     {
-        var language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         var comparer = StringComparer.Create(CultureInfo.CurrentCulture, ignoreCase: true);
 
         KindOptions = Enum.GetValues<PotKind>()
@@ -351,24 +333,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
         if (id is null) return;
 
-        var types = await db.PlantTypes.AsNoTracking().Include(t => t.Translations).ToListAsync();
-        var typeNames = types.ToDictionary(t => t.Id, t => TypeName(t, language));
-        var plants = await db.Plants.AsNoTracking().ToListAsync();
-
-        // One group per plant type: the type itself, then the user's varieties of it
-        PlantOptions = new List<SelectListItem> { new("–", "") };
-        foreach (var type in types.OrderBy(t => typeNames[t.Id], comparer))
-        {
-            var group = new SelectListGroup { Name = typeNames[type.Id] };
-            PlantOptions.Add(new SelectListItem(
-                $"{typeNames[type.Id]} ({L["PotUse_NoVariety"]})", $"t:{type.Id}") { Group = group });
-            foreach (var plant in plants.Where(p => p.PlantTypeId == type.Id && p.Name != "(unnamed)")
-                         .OrderBy(p => p.Name, comparer))
-            {
-                PlantOptions.Add(new SelectListItem(
-                    $"{typeNames[type.Id]} – {plant.Name}", $"p:{plant.Id}") { Group = group });
-            }
-        }
+        var (options, typeNames) = await PlantChoices.LoadAsync(db, L);
+        PlantOptions = options;
 
         var pots = await db.Pots.AsNoTracking()
             .Where(p => p.PotGroupId == id)
@@ -383,13 +349,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
                 index + 1,
                 p.Plantings
                     .Select(x => new PlantingRow(
-                        x.Id,
-                        x.Plant is not null && x.Plant.Name != "(unnamed)"
-                            ? $"{typeNames[x.PlantTypeId]} – {x.Plant.Name}"
-                            : typeNames[x.PlantTypeId],
-                        x.PlantCount,
-                        x.Note,
-                        x.PlantId is not null ? $"p:{x.PlantId}" : $"t:{x.PlantTypeId}"))
+                        x.Id, PlantChoices.NameOf(x, typeNames), x.PlantCount, x.Note, PlantChoices.ValueOf(x)))
                     .OrderBy(x => x.Name, comparer)
                     .ToList()))
             .Where(p => p.Plantings.Count > 0)
@@ -398,12 +358,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         if (EditingId is not null)
         {
             var current = UsedPots.SelectMany(p => p.Plantings).FirstOrDefault(x => x.Id == EditingId)?.Choice;
-            EditOptions = PlantOptions
-                .Select(o => new SelectListItem(o.Text, o.Value, o.Value == current) { Group = o.Group })
-                .ToList();
+            EditOptions = PlantChoices.WithSelected(PlantOptions, current);
         }
     }
-
-    private static string TypeName(PlantType type, string language) =>
-        type.Translations.FirstOrDefault(t => t.Language == language)?.Name ?? type.Name;
 }

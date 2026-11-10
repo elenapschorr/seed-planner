@@ -3,21 +3,8 @@
 @using SeedPlanner.Domain
 @{
     ViewData["Title"] = L["Pots_Title"].Value;
+    ViewData["Wide"] = true;
 
-    // Addresses of the column titles (keep the filters, reverse the direction on a second click)
-    var sort_name = Model.SortRoute("name");
-    var sort_kind = Model.SortRoute("kind");
-    var sort_shape = Model.SortRoute("shape");
-    var sort_size = Model.SortRoute("size");
-    var sort_volume = Model.SortRoute("volume");
-    var sort_quantity = Model.SortRoute("quantity");
-    var sort_inuse = Model.SortRoute("inuse");
-    var sort_free = Model.SortRoute("free");
-    var sort_color = Model.SortRoute("color");
-    var sort_code = Model.SortRoute("code");
-    var sort_saucer = Model.SortRoute("saucer");
-    var sort_uses = Model.SortRoute("uses");
-    var sort_note = Model.SortRoute("note");
 }
 
 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -26,64 +13,25 @@
 </div>
 <p class="text-muted">@L["Pots_Summary", Model.TotalPots, Model.TotalFree]</p>
 
-<form method="get" class="row g-2 mb-3">
-    <input type="hidden" name="sort" value="@Model.Sort" />
-    <input type="hidden" name="dir" value="@Model.Dir" />
-    <div class="col-md">
-        <input type="search" name="q" value="@Model.Q" class="form-control" placeholder="@L["Search"].Value" />
-    </div>
-    <div class="col-md-auto">
-        <select name="kind" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllKinds"]</option>
-            @foreach (var k in Enum.GetValues<PotKind>())
-            {
-                <option value="@k" selected="@(Model.KindFilter == k)">@L["PotKind_" + k]</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="shape" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllShapes"]</option>
-            @foreach (var s in Enum.GetValues<PotShape>())
-            {
-                <option value="@s" selected="@(Model.ShapeFilter == s)">@L["PotShape_" + s]</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto">
-        <select name="color" class="form-select" onchange="this.form.submit()">
-            <option value="">@L["AllColors"]</option>
-            @foreach (var c in Model.ColorOptions)
-            {
-                <option value="@c" selected="@string.Equals(Model.ColorFilter, c, StringComparison.CurrentCultureIgnoreCase)">@c</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-auto d-flex align-items-center">
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="onlyFree" name="free" value="true" checked="@Model.OnlyFree" onchange="this.form.submit()" />
-            <label class="form-check-label" for="onlyFree">@L["Filter_OnlyFree"]</label>
-        </div>
-    </div>
-</form>
+<partial name="_FilterBar" model="Model.Filter" />
 
 <div class="table-responsive">
 <table class="table table-hover align-middle">
     <thead>
         <tr>
-            <th><a asp-page="/Pots/Index" asp-all-route-data="sort_name" class="text-decoration-none text-reset">@L["Col_Group"]@Model.Arrow("name")</a></th>
-            <th><a asp-page="/Pots/Index" asp-all-route-data="sort_kind" class="text-decoration-none text-reset">@L["Col_Kind"]@Model.Arrow("kind")</a></th>
-            <th><a asp-page="/Pots/Index" asp-all-route-data="sort_shape" class="text-decoration-none text-reset">@L["Col_Shape"]@Model.Arrow("shape")</a></th>
-            <th><a asp-page="/Pots/Index" asp-all-route-data="sort_size" class="text-decoration-none text-reset">@L["Col_Size"]@Model.Arrow("size")</a></th>
-            <th class="text-end"><a asp-page="/Pots/Index" asp-all-route-data="sort_volume" class="text-decoration-none text-reset">@L["Col_Volume"]@Model.Arrow("volume")</a></th>
-            <th class="text-end"><a asp-page="/Pots/Index" asp-all-route-data="sort_quantity" class="text-decoration-none text-reset">@L["Col_Quantity"]@Model.Arrow("quantity")</a></th>
-            <th class="text-end"><a asp-page="/Pots/Index" asp-all-route-data="sort_inuse" class="text-decoration-none text-reset">@L["Col_InUse"]@Model.Arrow("inuse")</a></th>
-            <th class="text-end"><a asp-page="/Pots/Index" asp-all-route-data="sort_free" class="text-decoration-none text-reset">@L["Col_Free"]@Model.Arrow("free")</a></th>
-            <th><a asp-page="/Pots/Index" asp-all-route-data="sort_color" class="text-decoration-none text-reset">@L["Col_Color"]@Model.Arrow("color")</a></th>
-            <th><a asp-page="/Pots/Index" asp-all-route-data="sort_code" class="text-decoration-none text-reset">@L["Col_Code"]@Model.Arrow("code")</a></th>
-            <th><a asp-page="/Pots/Index" asp-all-route-data="sort_saucer" class="text-decoration-none text-reset">@L["Col_Saucer"]@Model.Arrow("saucer")</a></th>
-            <th><a asp-page="/Pots/Index" asp-all-route-data="sort_uses" class="text-decoration-none text-reset">@L["Col_UsedFor"]@Model.Arrow("uses")</a></th>
-            <th><a asp-page="/Pots/Index" asp-all-route-data="sort_note" class="text-decoration-none text-reset">@L["Col_Note"]@Model.Arrow("note")</a></th>
+            <th><a href="@Model.Filter.SortUrl("name")" class="text-decoration-none text-reset">@L["Col_Group"]@Model.Filter.Arrow("name")</a></th>
+            <th><a href="@Model.Filter.SortUrl("kind")" class="text-decoration-none text-reset">@L["Col_Kind"]@Model.Filter.Arrow("kind")</a></th>
+            <th><a href="@Model.Filter.SortUrl("shape")" class="text-decoration-none text-reset">@L["Col_Shape"]@Model.Filter.Arrow("shape")</a></th>
+            <th><a href="@Model.Filter.SortUrl("size")" class="text-decoration-none text-reset">@L["Col_Size"]@Model.Filter.Arrow("size")</a></th>
+            <th class="text-end"><a href="@Model.Filter.SortUrl("volume")" class="text-decoration-none text-reset">@L["Col_Volume"]@Model.Filter.Arrow("volume")</a></th>
+            <th class="text-end"><a href="@Model.Filter.SortUrl("quantity")" class="text-decoration-none text-reset">@L["Col_Quantity"]@Model.Filter.Arrow("quantity")</a></th>
+            <th class="text-end"><a href="@Model.Filter.SortUrl("inuse")" class="text-decoration-none text-reset">@L["Col_InUse"]@Model.Filter.Arrow("inuse")</a></th>
+            <th class="text-end"><a href="@Model.Filter.SortUrl("free")" class="text-decoration-none text-reset">@L["Col_Free"]@Model.Filter.Arrow("free")</a></th>
+            <th><a href="@Model.Filter.SortUrl("color")" class="text-decoration-none text-reset">@L["Col_Color"]@Model.Filter.Arrow("color")</a></th>
+            <th><a href="@Model.Filter.SortUrl("code")" class="text-decoration-none text-reset">@L["Col_Code"]@Model.Filter.Arrow("code")</a></th>
+            <th><a href="@Model.Filter.SortUrl("saucer")" class="text-decoration-none text-reset">@L["Col_Saucer"]@Model.Filter.Arrow("saucer")</a></th>
+            <th><a href="@Model.Filter.SortUrl("uses")" class="text-decoration-none text-reset">@L["Col_UsedFor"]@Model.Filter.Arrow("uses")</a></th>
+            <th><a href="@Model.Filter.SortUrl("note")" class="text-decoration-none text-reset">@L["Col_Note"]@Model.Filter.Arrow("note")</a></th>
             <th></th>
         </tr>
     </thead>
@@ -91,7 +39,7 @@
         @foreach (var r in Model.Rows)
         {
             <tr>
-                <td><strong>@r.Name</strong></td>
+                <td><a asp-page="Edit" asp-route-id="@r.Id" title="@L["Action_Edit"].Value"><strong>@r.Name</strong></a></td>
                 <td>@L["PotKind_" + r.Kind]</td>
                 <td>@L["PotShape_" + r.Shape]</td>
                 <td>@Model.Size(r)</td>
@@ -108,8 +56,8 @@
                 <td>@(r.Color ?? "–")</td>
                 <td>@(r.Code ?? "–")</td>
                 <td>@(r.Saucer ?? "–")</td>
-                <td>@(r.Uses.Length == 0 ? "–" : r.Uses)</td>
-                <td>@(r.Note ?? "")</td>
+                <td class="col-uses">@(r.Uses.Length == 0 ? "–" : r.Uses)</td>
+                <td class="col-note">@(r.Note ?? "")</td>
                 <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id">@L["Action_Edit"]</a></td>
             </tr>
         }
