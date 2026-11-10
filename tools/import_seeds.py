@@ -376,7 +376,7 @@ def read_plants(ws, types, report):
             "maturity_days_max": number(ws, row, S_MATURITY_MAX, "Samen", "Reifezeit max", report),
             "row_spacing_cm": number(ws, row, S_ROW_SPACING, "Samen", "Abstand Zeile", report),
             "plant_spacing_cm": number(ws, row, S_PLANT_SPACING, "Samen", "Abstand Spalte", report),
-            "pot_size_min_cm": pot_min, "pot_size_max_cm": pot_max,
+            "pot_size_min_liters": pot_min, "pot_size_max_liters": pot_max,
             "windows": windows,
         })
     return plants
@@ -433,7 +433,7 @@ def write_sql(path, types, plants, owner_email, mode):
                   "germination_days_min", "germination_days_max",
                   "maturity_days_min", "maturity_days_max",
                   "row_spacing_cm", "plant_spacing_cm",
-                  "pot_size_min_cm", "pot_size_max_cm"]
+                  "pot_size_min_liters", "pot_size_max_liters"]
 
     with_types = mode in ("all", "reference")
     with_plants = mode in ("all", "plants")

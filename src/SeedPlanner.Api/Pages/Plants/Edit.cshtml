@@ -71,10 +71,10 @@
     <div class="col-md-4">
         <label class="form-label">@L["Field_PotSize"]@(Model.Input.GrowingPlace == SeedPlanner.Domain.GrowingPlace.Container ? " *" : "")</label>
         <div class="input-group">
-            <input asp-for="Input.PotSizeMinCm" class="form-control" />
-            <input asp-for="Input.PotSizeMaxCm" class="form-control" />
+            <input asp-for="Input.PotSizeMinLiters" class="form-control" />
+            <input asp-for="Input.PotSizeMaxLiters" class="form-control" />
         </div>
-        <span asp-validation-for="Input.PotSizeMinCm" class="text-danger"></span>
+        <span asp-validation-for="Input.PotSizeMinLiters" class="text-danger"></span>
     </div>
 
     <div class="col-md-4">

@@ -118,12 +118,12 @@ public class DetailsModel(
         // The user's own varieties of this plant type (the query filter limits the rows to the signed-in user)
         var varieties = await db.Plants.AsNoTracking()
             .Where(p => p.PlantTypeId == id)
-            .Select(p => new { p.PotSizeMinCm, p.PotSizeMaxCm, p.RowSpacingCm, p.PlantSpacingCm })
+            .Select(p => new { p.PotSizeMinLiters, p.PotSizeMaxLiters, p.RowSpacingCm, p.PlantSpacingCm })
             .ToListAsync();
         VarietyCount = varieties.Count;
         PotSize = Range(
-            varieties.Min(v => v.PotSizeMinCm ?? v.PotSizeMaxCm),
-            varieties.Max(v => v.PotSizeMaxCm ?? v.PotSizeMinCm));
+            varieties.Min(v => v.PotSizeMinLiters ?? v.PotSizeMaxLiters),
+            varieties.Max(v => v.PotSizeMaxLiters ?? v.PotSizeMinLiters));
         RowSpacing = Range(varieties.Min(v => v.RowSpacingCm), varieties.Max(v => v.RowSpacingCm));
         PlantSpacing = Range(varieties.Min(v => v.PlantSpacingCm), varieties.Max(v => v.PlantSpacingCm));
 

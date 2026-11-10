@@ -51,7 +51,7 @@
   <data name="Field_MaturityDays" xml:space="preserve"><value>Days to maturity (min / max)</value></data>
   <data name="Field_RowSpacing" xml:space="preserve"><value>Row spacing (cm)</value></data>
   <data name="Field_PlantSpacing" xml:space="preserve"><value>Plant spacing (cm)</value></data>
-  <data name="Field_PotSize" xml:space="preserve"><value>Pot size in cm (min / max)</value></data>
+  <data name="Field_PotSize" xml:space="preserve"><value>Pot size in litres (min / max)</value></data>
   <data name="Field_Sowing1" xml:space="preserve"><value>Sowing window 1 (from / to)</value></data>
   <data name="Field_Sowing2" xml:space="preserve"><value>Sowing window 2 (from / to)</value></data>
   <data name="Field_Harvest1" xml:space="preserve"><value>Harvest window 1 (from / to)</value></data>

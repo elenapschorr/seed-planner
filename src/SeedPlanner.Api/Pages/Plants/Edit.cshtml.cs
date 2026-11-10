@@ -37,8 +37,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         public int? MaturityDaysMax { get; set; }
         public int? RowSpacingCm { get; set; }
         public int? PlantSpacingCm { get; set; }
-        public int? PotSizeMinCm { get; set; }
-        public int? PotSizeMaxCm { get; set; }
+        public int? PotSizeMinLiters { get; set; }
+        public int? PotSizeMaxLiters { get; set; }
         public int? HeightMinCm { get; set; }
         public int? HeightMaxCm { get; set; }
         public int? VineLengthMaxCm { get; set; }
@@ -274,12 +274,12 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         CheckMinMax(nameof(Input.GerminationDaysMin), Input.GerminationDaysMin, Input.GerminationDaysMax);
         CheckMinMax(nameof(Input.GerminationTempMinC), Input.GerminationTempMinC, Input.GerminationTempMaxC);
         CheckMinMax(nameof(Input.MaturityDaysMin), Input.MaturityDaysMin, Input.MaturityDaysMax);
-        CheckMinMax(nameof(Input.PotSizeMinCm), Input.PotSizeMinCm, Input.PotSizeMaxCm);
+        CheckMinMax(nameof(Input.PotSizeMinLiters), Input.PotSizeMinLiters, Input.PotSizeMaxLiters);
         CheckMinMax(nameof(Input.HeightMinCm), Input.HeightMinCm, Input.HeightMaxCm);
 
         // The pot size is optional, but required for pot culture
-        if (Input.GrowingPlace == GrowingPlace.Container && (Input.PotSizeMinCm is null || Input.PotSizeMaxCm is null))
-            ModelState.AddModelError($"Input.{nameof(Input.PotSizeMinCm)}", L["Error_PotSizeRequired"]);
+        if (Input.GrowingPlace == GrowingPlace.Container && (Input.PotSizeMinLiters is null || Input.PotSizeMaxLiters is null))
+            ModelState.AddModelError($"Input.{nameof(Input.PotSizeMinLiters)}", L["Error_PotSizeRequired"]);
     }
 
     // Both months or none (a window may run across the new year, so from > to is fine).
@@ -340,8 +340,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         plant.MaturityDaysMax = Input.MaturityDaysMax;
         plant.RowSpacingCm = Input.RowSpacingCm;
         plant.PlantSpacingCm = Input.PlantSpacingCm;
-        plant.PotSizeMinCm = Input.PotSizeMinCm;
-        plant.PotSizeMaxCm = Input.PotSizeMaxCm;
+        plant.PotSizeMinLiters = Input.PotSizeMinLiters;
+        plant.PotSizeMaxLiters = Input.PotSizeMaxLiters;
         plant.HeightMinCm = Input.HeightMinCm;
         plant.HeightMaxCm = Input.HeightMaxCm;
         plant.VineLengthMaxCm = Input.VineLengthMaxCm;
@@ -410,8 +410,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             MaturityDaysMax = plant.MaturityDaysMax,
             RowSpacingCm = plant.RowSpacingCm,
             PlantSpacingCm = plant.PlantSpacingCm,
-            PotSizeMinCm = plant.PotSizeMinCm,
-            PotSizeMaxCm = plant.PotSizeMaxCm,
+            PotSizeMinLiters = plant.PotSizeMinLiters,
+            PotSizeMaxLiters = plant.PotSizeMaxLiters,
             HeightMinCm = plant.HeightMinCm,
             HeightMaxCm = plant.HeightMaxCm,
             VineLengthMaxCm = plant.VineLengthMaxCm,

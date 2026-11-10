@@ -51,7 +51,7 @@
   <data name="Field_MaturityDays" xml:space="preserve"><value>Reifezeit in Tagen (min / max)</value></data>
   <data name="Field_RowSpacing" xml:space="preserve"><value>Reihenabstand (cm)</value></data>
   <data name="Field_PlantSpacing" xml:space="preserve"><value>Pflanzabstand (cm)</value></data>
-  <data name="Field_PotSize" xml:space="preserve"><value>Topfgröße in cm (min / max)</value></data>
+  <data name="Field_PotSize" xml:space="preserve"><value>Topfgröße in Litern (min / max)</value></data>
   <data name="Field_Sowing1" xml:space="preserve"><value>Aussaat 1 (von / bis)</value></data>
   <data name="Field_Sowing2" xml:space="preserve"><value>Aussaat 2 (von / bis)</value></data>
   <data name="Field_Harvest1" xml:space="preserve"><value>Ernte 1 (von / bis)</value></data>

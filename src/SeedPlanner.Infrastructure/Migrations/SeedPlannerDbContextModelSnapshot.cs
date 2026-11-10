@@ -452,6 +452,18 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("growing_place");
 
+                    b.Property<string>("HeightEvidence")
+                        .HasColumnType("text")
+                        .HasColumnName("height_evidence");
+
+                    b.Property<int?>("HeightMaxCm")
+                        .HasColumnType("integer")
+                        .HasColumnName("height_max_cm");
+
+                    b.Property<int?>("HeightMinCm")
+                        .HasColumnType("integer")
+                        .HasColumnName("height_min_cm");
+
                     b.Property<int?>("MaturityDaysMax")
                         .HasColumnType("integer")
                         .HasColumnName("maturity_days_max");
@@ -478,13 +490,13 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("plant_type_id");
 
-                    b.Property<int?>("PotSizeMaxCm")
+                    b.Property<int?>("PotSizeMaxLiters")
                         .HasColumnType("integer")
-                        .HasColumnName("pot_size_max_cm");
+                        .HasColumnName("pot_size_max_liters");
 
-                    b.Property<int?>("PotSizeMinCm")
+                    b.Property<int?>("PotSizeMinLiters")
                         .HasColumnType("integer")
-                        .HasColumnName("pot_size_min_cm");
+                        .HasColumnName("pot_size_min_liters");
 
                     b.Property<string>("Propagation")
                         .IsRequired()
@@ -509,6 +521,10 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("stock_status");
+
+                    b.Property<int?>("VineLengthMaxCm")
+                        .HasColumnType("integer")
+                        .HasColumnName("vine_length_max_cm");
 
                     b.HasKey("Id")
                         .HasName("pk_plants");

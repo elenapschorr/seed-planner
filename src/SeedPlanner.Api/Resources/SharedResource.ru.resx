@@ -51,7 +51,7 @@
   <data name="Field_MaturityDays" xml:space="preserve"><value>Срок созревания, дни (мин / макс)</value></data>
   <data name="Field_RowSpacing" xml:space="preserve"><value>Расстояние между рядами (см)</value></data>
   <data name="Field_PlantSpacing" xml:space="preserve"><value>Расстояние между растениями (см)</value></data>
-  <data name="Field_PotSize" xml:space="preserve"><value>Размер горшка, см (мин / макс)</value></data>
+  <data name="Field_PotSize" xml:space="preserve"><value>Объём горшка, л (мин / макс)</value></data>
   <data name="Field_Sowing1" xml:space="preserve"><value>Посев 1 (с / по)</value></data>
   <data name="Field_Sowing2" xml:space="preserve"><value>Посев 2 (с / по)</value></data>
   <data name="Field_Harvest1" xml:space="preserve"><value>Сбор урожая 1 (с / по)</value></data>

@@ -31,8 +31,8 @@ public class Plant
 
     public int? RowSpacingCm { get; set; }
     public int? PlantSpacingCm { get; set; }
-    public int? PotSizeMinCm { get; set; }
-    public int? PotSizeMaxCm { get; set; }
+    public int? PotSizeMinLiters { get; set; }
+    public int? PotSizeMaxLiters { get; set; }
 
     /// <summary>Plant height in cm (range). Used to decide which plants can stand under which.</summary>
     public int? HeightMinCm { get; set; }

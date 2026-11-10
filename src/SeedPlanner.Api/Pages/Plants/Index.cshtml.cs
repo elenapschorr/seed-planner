@@ -179,7 +179,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
                     if (!IsFlower(p) && !p.SeasonWindows.Any(w => w.Kind == WindowKind.Harvest)) list.Add("harvest");
                     // spacing is optional for pot culture, the pot size is required there
                     if (p.GrowingPlace != GrowingPlace.Container && p.RowSpacingCm is null && p.PlantSpacingCm is null) list.Add("spacing");
-                    if (p.GrowingPlace == GrowingPlace.Container && (p.PotSizeMinCm is null || p.PotSizeMaxCm is null)) list.Add("potSize");
+                    if (p.GrowingPlace == GrowingPlace.Container && (p.PotSizeMinLiters is null || p.PotSizeMaxLiters is null)) list.Add("potSize");
                     return list;
                 },
                 new List<(string Value, string Label)>
