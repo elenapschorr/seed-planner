@@ -74,6 +74,23 @@ public class IndexModel(
             new("lifecycle", "Filter_Group_Plant", L["Col_Lifecycle"].Value, r => FilterOptions.One(r.Lifecycle), FilterOptions.Enum<Lifecycle>(L, "Lifecycle_")),
             new("nutrient", "Filter_Group_Plant", L["Col_NutrientDemand"].Value, r => FilterOptions.One(r.NutrientDemand), FilterOptions.Enum<NutrientDemand>(L, "NutrientDemand_")),
             new("exposure", "Filter_Group_Plant", L["Col_Exposure"].Value, r => FilterOptions.One(r.Exposure), FilterOptions.Enum<Exposure>(L, "Exposure_")),
+            new("varieties", "Filter_Group_Plant", L["Filter_Varieties"].Value, r => new[] { r.PlantCount > 0 ? "with" : "without" },
+                new List<(string Value, string Label)> { ("with", L["Filter_WithVarieties"].Value), ("without", L["Filter_WithoutVarieties"].Value) }),
+            new("missing", "Filter_Group_Data", L["Filter_Missing"].Value,
+                r =>
+                {
+                    var list = new List<string>();
+                    if (r.Category is null) list.Add("category");
+                    if (r.Lifecycle is null) list.Add("lifecycle");
+                    if (r.NutrientDemand is null) list.Add("nutrient");
+                    if (r.Exposure is null) list.Add("exposure");
+                    return list;
+                },
+                new List<(string Value, string Label)>
+                {
+                    ("category", L["Missing_Category"].Value), ("lifecycle", L["Missing_Lifecycle"].Value),
+                    ("nutrient", L["Missing_Nutrient"].Value), ("exposure", L["Missing_Exposure"].Value)
+                }),
         };
 
         var filter = new ListFilter<Row>(Request, Q, Sort, Dir, defaultSort: "name");

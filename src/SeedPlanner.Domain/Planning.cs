@@ -90,6 +90,19 @@ public class PlanItem
     /// <summary>True if neither a calculation nor an own number exists, e.g. because the spacing is missing.</summary>
     public bool NeedsNumber => PlantsOverride is null && CalculatedPlants is null;
 
+    // The choice is made per variety; the state of the crop follows from it
+    /// <summary>Number of varieties that are part of the plan.</summary>
+    public int IncludedVarieties => Lines.Count(l => l.Include);
+
+    /// <summary>At least one variety is part of the plan.</summary>
+    public bool IsIncluded => IncludedVarieties > 0;
+
+    /// <summary>All varieties are part of the plan.</summary>
+    public bool IsFullyIncluded => Lines.Count > 0 && IncludedVarieties == Lines.Count;
+
+    /// <summary>Some, but not all, varieties are part of the plan.</summary>
+    public bool IsPartlyIncluded => IsIncluded && !IsFullyIncluded;
+
     /// <summary>Spreads the plants of the crop evenly over the included varieties. Own numbers of a variety are kept.</summary>
     public void Spread()
     {

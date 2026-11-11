@@ -277,6 +277,28 @@
   <data name="Filter_Button" xml:space="preserve"><value>Filter</value></data>
   <data name="Filter_Apply" xml:space="preserve"><value>Suchen</value></data>
   <data name="Filter_Clear" xml:space="preserve"><value>Alle Filter zurücksetzen</value></data>
+  <data name="Filter_Any" xml:space="preserve"><value>alle</value></data>
+  <data name="Filter_Active" xml:space="preserve"><value>{0} aktiv</value></data>
+  <data name="Filter_PlantType" xml:space="preserve"><value>Pflanzenart</value></data>
+  <data name="Filter_SubChosen" xml:space="preserve"><value>{0} von {1}</value></data>
+  <data name="Filter_Used" xml:space="preserve"><value>In Benutzung</value></data>
+  <data name="Filter_Unused" xml:space="preserve"><value>Nicht benutzt</value></data>
+  <data name="Filter_OnlyCovered" xml:space="preserve"><value>Nur mit Abdeckung</value></data>
+  <data name="Filter_Varieties" xml:space="preserve"><value>Sorten</value></data>
+  <data name="Filter_WithVarieties" xml:space="preserve"><value>Mit Sorten</value></data>
+  <data name="Filter_WithoutVarieties" xml:space="preserve"><value>Ohne Sorten</value></data>
+  <data name="Filter_Diameter" xml:space="preserve"><value>Durchmesser</value></data>
+  <data name="Missing_SeedType" xml:space="preserve"><value>Samentyp</value></data>
+  <data name="Missing_SowingMethod" xml:space="preserve"><value>Aussaatart</value></data>
+  <data name="Missing_Place" xml:space="preserve"><value>Kulturort</value></data>
+  <data name="Missing_Exposure" xml:space="preserve"><value>Standort</value></data>
+  <data name="Missing_Maturity" xml:space="preserve"><value>Reifedauer</value></data>
+  <data name="Missing_Bloom" xml:space="preserve"><value>Blütefenster</value></data>
+  <data name="Missing_Height" xml:space="preserve"><value>Höhe</value></data>
+  <data name="Missing_Category" xml:space="preserve"><value>Kategorie</value></data>
+  <data name="Missing_Lifecycle" xml:space="preserve"><value>Lebensdauer</value></data>
+  <data name="Missing_Nutrient" xml:space="preserve"><value>Nährstoffbedarf</value></data>
+  <data name="Missing_GermType" xml:space="preserve"><value>Keimart</value></data>
   <data name="Filter_Close" xml:space="preserve"><value>Schließen</value></data>
   <data name="Filter_Remove" xml:space="preserve"><value>Filter entfernen</value></data>
   <data name="Use_Pot" xml:space="preserve"><value>In Töpfen</value></data>
@@ -359,8 +381,10 @@
   <data name="PlanConfirm_Delete" xml:space="preserve"><value>Diesen Plan löschen?</value></data>
   <data name="Field_Height" xml:space="preserve"><value>Höhe in cm (min / max)</value></data>
   <data name="Field_VineLength" xml:space="preserve"><value>Längste Ranke (cm)</value></data>
-  <data name="Field_HeightEvidence" xml:space="preserve"><value>Höhenangabe beruht auf</value></data>
-  <data name="HeightEvidence_Variety" xml:space="preserve"><value>Dieser Sorte</value></data>
-  <data name="HeightEvidence_Similar" xml:space="preserve"><value>Ähnlicher Sorte</value></data>
-  <data name="HeightEvidence_Species" xml:space="preserve"><value>Wert der Pflanzenart</value></data>
+  <data name="Col_HasCover" xml:space="preserve"><value>Mit Abdeckung (Frühbeet, Haube)</value></data>
+  <data name="Plan_IncludeCrop" xml:space="preserve"><value>Art mitrechnen</value></data>
+  <data name="Plan_IncludeAll" xml:space="preserve"><value>Alle Arten mitrechnen</value></data>
+  <data name="Plan_CropFull" xml:space="preserve"><value>alle Sorten</value></data>
+  <data name="Plan_CropPartial" xml:space="preserve"><value>teilweise</value></data>
+  <data name="Plan_CropsIncluded" xml:space="preserve"><value>{0} von {1} Arten ausgewählt</value></data>
 </root>

@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Writes a SQL file that sets plant height (min/max in cm), longest vine and the evidence grade of existing varieties.
+"""Writes a SQL file that sets plant height (min/max in cm) and longest vine of existing varieties.
 
 Reads the sheet "Höhen" of data/Samen_Hoehen.xlsx (A = row in Samen, B = Art, C = Sorte, E/F = height min/max,
-H = longest vine, I = Beleg A/B/C) and creates one UPDATE per variety. The plant type is found through its German
-name (plant_type_translations, language 'de'). Beleg A = Variety, B = Similar, C = Species (enum HeightEvidence).
-Only the four height columns are changed. Safe to run twice.
+H = longest vine) and creates one UPDATE per variety. The plant type is found through its German
+name (plant_type_translations, language 'de'). Only the three height columns are changed. Safe to run twice.
 
 Usage:
     python tools/import_heights.py data/Samen_Hoehen.xlsx --out data/heights.sql
@@ -20,9 +19,8 @@ from pathlib import Path
 import openpyxl
 
 SHEET = "Höhen"
-FIRST_ROW, COL_TYPE, COL_NAME, COL_HMIN, COL_HMAX, COL_VINE, COL_GRADE = 2, 2, 3, 5, 6, 8, 9
+FIRST_ROW, COL_TYPE, COL_NAME, COL_HMIN, COL_HMAX, COL_VINE = 2, 2, 3, 5, 6, 8
 UNNAMED = "(unnamed)"
-EVIDENCE = {"A": "Variety", "B": "Similar", "C": "Species"}
 
 
 def lit(v):
@@ -57,31 +55,27 @@ def main():
             name = UNNAMED
         hmin, hmax = as_int(ws.cell(r, COL_HMIN).value), as_int(ws.cell(r, COL_HMAX).value)
         vine = as_int(ws.cell(r, COL_VINE).value)
-        grade = EVIDENCE.get(str(ws.cell(r, COL_GRADE).value).strip().upper())
         if not gattung or (hmin is None and hmax is None):
             skipped.append((r, gattung, name))
             continue
         if hmin is not None and hmax is not None and hmin > hmax:
             hmin, hmax = hmax, hmin
-        rows.append((gattung, name, hmin, hmax, vine, grade))
+        rows.append((gattung, name, hmin, hmax, vine))
 
     def num(v):
         return "NULL::int" if v is None else str(v)
 
-    def txt(v):
-        return "NULL::text" if v is None else lit(v)
-
     out = [
-        "-- Sets height, longest vine and evidence of varieties, from data/Samen_Hoehen.xlsx.",
+        "-- Sets height and longest vine of varieties, from data/Samen_Hoehen.xlsx.",
         "-- Usage: psql -v owner=you@example.com -f heights.sql",
         "SET client_encoding = 'UTF8';",
         "BEGIN;",
-        "CREATE TEMP TABLE ht (type_de text, name text, hmin int, hmax int, vine int, evidence text) ON COMMIT DROP;",
+        "CREATE TEMP TABLE ht (type_de text, name text, hmin int, hmax int, vine int) ON COMMIT DROP;",
         "INSERT INTO ht VALUES",
-        ",\n".join(f"  ({lit(g)}, {lit(n)}, {num(a)}, {num(b)}, {num(v)}, {txt(e)})" for g, n, a, b, v, e in rows) + ";",
+        ",\n".join(f"  ({lit(g)}, {lit(n)}, {num(a)}, {num(b)}, {num(v)})" for g, n, a, b, v in rows) + ";",
         "",
         "UPDATE plants p SET height_min_cm = ht.hmin, height_max_cm = ht.hmax,",
-        "  vine_length_max_cm = ht.vine, height_evidence = ht.evidence",
+        "  vine_length_max_cm = ht.vine",
         "FROM ht, plant_type_translations tr, asp_net_users u",
         "WHERE u.normalized_email = upper(:'owner')",
         "  AND p.owner_id = u.id",

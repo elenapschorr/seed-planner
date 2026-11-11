@@ -289,4 +289,53 @@ public class PlanCalculatorTests
 
         Assert.Equal(15, plan.Items[0].CalculatedPlants);   // 3 m / 0.20 m
     }
+
+    // ---------------------------------------------------------------- selection of crops and varieties
+
+    [Fact]
+    public void A_crop_is_fully_partly_or_not_included_depending_on_its_varieties()
+    {
+        var item = new PlanItem();
+        item.Lines.Add(new PlanLine { Include = true });
+        item.Lines.Add(new PlanLine { Include = false });
+
+        Assert.True(item.IsIncluded);
+        Assert.True(item.IsPartlyIncluded);
+        Assert.False(item.IsFullyIncluded);
+
+        item.Lines[1].Include = true;
+        Assert.True(item.IsFullyIncluded);
+        Assert.False(item.IsPartlyIncluded);
+
+        item.Lines[0].Include = false;
+        item.Lines[1].Include = false;
+        Assert.False(item.IsIncluded);
+        Assert.False(item.IsPartlyIncluded);
+        Assert.False(item.IsFullyIncluded);
+    }
+
+    [Fact]
+    public void Only_the_selected_varieties_get_plants()
+    {
+        var item = new PlanItem { CalculatedPlants = 6 };
+        item.Lines.Add(new PlanLine { Include = true });
+        item.Lines.Add(new PlanLine { Include = false });
+        item.Spread();
+
+        Assert.Equal(6, item.Lines[0].CalculatedPlants);
+        Assert.Equal(0, item.Lines[1].CalculatedPlants);
+    }
+
+    [Fact]
+    public void A_crop_without_selected_varieties_gets_no_plants_and_no_shopping_list()
+    {
+        var item = new PlanItem { CalculatedPlants = 6 };
+        item.Lines.Add(new PlanLine { Include = false, OutOfStock = true });
+        item.Spread();
+
+        var plan = new Plan();
+        plan.Items.Add(item);
+        Assert.Equal(0, item.Lines[0].Plants);
+        Assert.Empty(plan.ShoppingList);
+    }
 }

@@ -121,4 +121,10 @@ public class DetailsModel(SeedPlannerDbContext db, IStringLocalizer<SharedResour
         : L["DemandLevel_" + Plan.Level].Value;
 
     public int TotalPlants => Plan.Items.Sum(i => i.Lines.Sum(l => l.Plants));
+
+    /// <summary>Crops with at least one variety in the plan.</summary>
+    public int IncludedCrops => Plan.Items.Count(i => i.IsIncluded);
+
+    // State of a crop for the page: all, some or none of its varieties are part of the plan
+    public static string StateOf(PlanItem item) => item.IsFullyIncluded ? "full" : item.IsPartlyIncluded ? "partial" : "none";
 }

@@ -16,25 +16,72 @@
                 <div class="filter-groups">
                     @foreach (var group in Model.Fields.GroupBy(f => f.Group))
                     {
-                        <section class="filter-group">
-                            <h2 class="filter-group-title">@L[group.Key]</h2>
-                            @foreach (var field in group)
+                        var active = group.Sum(f => f.Options.Count(o => o.Selected));
+                        <details class="filter-group" data-key="group:@group.Key" open>
+                            <summary class="filter-group-title">
+                                <span>@L[group.Key]</span>
+                                @if (active > 0)
+                                {
+                                    <span class="filter-group-active">@L["Filter_Active", active]</span>
+                                }
+                            </summary>
+                            @foreach (var field in group.Where(f => f.ParentKey is null))
                             {
-                                <fieldset class="filter-field">
-                                    <legend>@field.Label</legend>
+                                var sub = group.FirstOrDefault(f => f.ParentKey == field.Key);
+                                var picked = field.Options.Where(o => o.Selected).Select(o => o.Label)
+                                    .Concat(sub?.Options.Where(o => o.Selected).Select(o => o.Label) ?? Enumerable.Empty<string>()).ToList();
+                                <details class="filter-field" data-key="@field.Key" open="@(picked.Count > 0)">
+                                    <summary>
+                                        <span class="filter-field-title">@field.Label</span>
+                                        <span class="filter-field-summary">@(picked.Count > 0 ? string.Join(", ", picked) : L["Filter_Any"].Value)</span>
+                                    </summary>
                                     <div class="filter-options @(field.Scroll ? "scroll" : "")">
                                         @foreach (var option in field.Options)
                                         {
-                                            <label class="filter-option">
-                                                <input type="checkbox" class="form-check-input" name="@field.Key" value="@option.Value" checked="@option.Selected" />
-                                                <span>@option.Label</span>
-                                                <span class="count">@option.Count</span>
-                                            </label>
+                                            var children = sub?.Options.Where(o => o.Parent == option.Value).ToList() ?? new List<FilterOption>();
+                                            var chosen = children.Count(o => o.Selected);
+                                            // like on the plan page: the category is ticked when all its types are, partly ticked otherwise
+                                            var allTypes = children.Count > 0 && (chosen == children.Count || (option.Selected && chosen == 0));
+                                            <div class="filter-row" data-key="sub:@field.Key:@option.Value" data-open="@(chosen > 0 ? "1" : "0")">
+                                                @if (sub is not null)
+                                                {
+                                                    if (children.Count > 0)
+                                                    {
+                                                        <button type="button" class="filter-toggle" aria-label="@sub.Label"></button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="filter-toggle-space"></span>
+                                                    }
+                                                }
+                                                <label class="filter-option">
+                                                    <input type="checkbox" class="form-check-input @(children.Count > 0 ? "filter-parent" : "")" name="@field.Key" value="@option.Value" checked="@(children.Count > 0 ? allTypes : option.Selected)" />
+                                                    <span>@option.Label</span>
+                                                    @if (chosen > 0 && chosen < children.Count)
+                                                    {
+                                                        <span class="filter-sub-note">@L["Filter_SubChosen", chosen, children.Count]</span>
+                                                    }
+                                                    <span class="count">@option.Count</span>
+                                                </label>
+                                            </div>
+                                            @if (children.Count > 0)
+                                            {
+                                                <div class="filter-children">
+                                                    @foreach (var child in children)
+                                                    {
+                                                        <label class="filter-option">
+                                                            <input type="checkbox" class="form-check-input filter-child" name="@(sub!.Key)" value="@child.Value" checked="@(child.Selected || allTypes)" />
+                                                            <span>@child.Label</span>
+                                                            <span class="count">@child.Count</span>
+                                                        </label>
+                                                    }
+                                                </div>
+                                            }
                                         }
                                     </div>
-                                </fieldset>
+                                </details>
                             }
-                        </section>
+                        </details>
                     }
                 </div>
                 <div class="filter-footer">
@@ -42,7 +89,7 @@
                     {
                         <a href="@Model.ClearUrl">@L["Filter_Clear"]</a>
                     }
-                    <a href="@Model.ClosePanelUrl" class="ms-auto">@L["Filter_Close"]</a>
+                    <a href="@Model.ClosePanelUrl" class="ms-auto filter-close">@L["Filter_Close"]</a>
                 </div>
             </div>
         </details>
@@ -61,15 +108,164 @@
 }
 
 <script>
-    // A click on an option reloads the list at once; the panel stays open
+    // Filter panel: a click on an option only recalculates the numbers in the panel (in the background).
+    // The list itself is reloaded once, when the panel is closed.
     (function () {
         var form = document.getElementById("filters");
         var flag = document.getElementById("panel-flag");
-        if (!form || !flag) return;
-        form.querySelectorAll(".filter-body input[type='checkbox']").forEach(function (box) {
-            box.addEventListener("change", function () {
-                flag.disabled = false;
-                form.submit();
+        var panel = form && form.querySelector("details.filter-panel");
+        if (!form || !flag || !panel) return;
+
+        var path = location.pathname;
+        var openKey = "filter-open-v2:" + path, subKey = "filter-sub-v1:" + path, scrollKey = "filter-scroll:" + path;
+        var dirty = false, seq = 0, controller = null;
+
+        function load(key) { try { return JSON.parse(sessionStorage.getItem(key) || "{}"); } catch (e) { return {}; } }
+        function save(key, value) { try { sessionStorage.setItem(key, JSON.stringify(value)); } catch (e) { } }
+        var openState = load(openKey), subState = load(subKey);
+
+        // ---- scroll position over the reload (page and long option lists), so that the page does not jump
+        function lists(root) { return root.querySelectorAll(".filter-options.scroll"); }
+        function restoreScroll() {
+            var saved = null;
+            try { saved = JSON.parse(sessionStorage.getItem(scrollKey) || "null"); sessionStorage.removeItem(scrollKey); } catch (e) { }
+            if (!saved) return;
+            lists(document).forEach(function (el, i) { if (saved.lists && saved.lists[i] != null) el.scrollTop = saved.lists[i]; });
+            window.scrollTo(0, saved.y);
+        }
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", restoreScroll); else restoreScroll();
+
+        // ---- category with its plant types (as on the plan page)
+        function childList(row) { var l = row.nextElementSibling; return l && l.classList.contains("filter-children") ? l : null; }
+        function kids(row) { var l = childList(row); return l ? l.querySelectorAll(".filter-child") : []; }
+        function rowOfChild(box) { return box.closest(".filter-children").previousElementSibling; }
+        function counts(row) { var n = 0, all = kids(row); all.forEach(function (k) { if (k.checked) n++; }); return { n: n, total: all.length }; }
+        function sync(row) {
+            var parent = row.querySelector(".filter-parent");
+            var c = counts(row);
+            if (!parent || c.total === 0) return;
+            parent.checked = c.n === c.total;
+            parent.indeterminate = c.n > 0 && c.n < c.total;
+        }
+        function syncAll() { form.querySelectorAll(".filter-row").forEach(sync); }
+        function setRowOpen(row, open) {
+            row.classList.toggle("open", open);
+            var button = row.querySelector(".filter-toggle");
+            if (button) button.setAttribute("aria-expanded", open ? "true" : "false");
+            var list = childList(row);
+            if (list) list.hidden = !open;
+        }
+
+        // ---- folded areas: restore what the user opened or closed
+        function applyFolds() {
+            form.querySelectorAll("details.filter-field, details.filter-group").forEach(function (d) {
+                if (d.dataset.key in openState) d.open = openState[d.dataset.key];
+            });
+            form.querySelectorAll(".filter-row").forEach(function (row) {
+                if (!childList(row)) return;
+                var key = row.dataset.key;
+                setRowOpen(row, key in subState ? subState[key] : row.dataset.open === "1");
+            });
+        }
+        applyFolds();
+        syncAll();
+
+        // ---- what is sent: the category if all its types are ticked, otherwise the single types
+        function sent(el) {
+            if (!el.name || el.name === "panel" || el.disabled) return false;
+            if ((el.type === "checkbox" || el.type === "radio") && !el.checked) return false;
+            if (el.type === "submit" || el.type === "button") return false;
+            if (el.classList.contains("filter-child")) { var c = counts(rowOfChild(el)); if (c.n === c.total) return false; }
+            return true;
+        }
+        function params() {
+            var p = new URLSearchParams();
+            Array.prototype.forEach.call(form.elements, function (el) { if (sent(el)) p.append(el.name, el.value); });
+            return p;
+        }
+
+        // ---- recalculate the numbers in the background
+        function refresh() {
+            var mine = ++seq;
+            if (controller) controller.abort();
+            controller = new AbortController();
+            fetch(path + "?" + params().toString(), { signal: controller.signal, credentials: "same-origin" })
+                .then(function (r) { return r.ok ? r.text() : null; })
+                .then(function (html) {
+                    if (html === null || mine !== seq) return;
+                    var doc = new DOMParser().parseFromString(html, "text/html");
+                    var fresh = doc.querySelector(".filter-body"), body = form.querySelector(".filter-body");
+                    if (!fresh || !body) return;
+                    var scrolls = Array.prototype.map.call(lists(body), function (el) { return el.scrollTop; });
+                    body.innerHTML = fresh.innerHTML;
+                    lists(body).forEach(function (el, i) { if (scrolls[i] != null) el.scrollTop = scrolls[i]; });
+                    applyFolds();
+                    syncAll();
+                    var title = doc.querySelector("details.filter-panel > summary"), mineTitle = panel.querySelector(":scope > summary");
+                    if (title && mineTitle) mineTitle.textContent = title.textContent;
+                    var oldChips = document.querySelector(".filter-chips"), newChips = doc.querySelector(".filter-chips");
+                    if (oldChips && newChips) oldChips.innerHTML = newChips.innerHTML;
+                    else if (oldChips) oldChips.remove();
+                    else if (newChips) form.insertAdjacentElement("afterend", document.importNode(newChips, true));
+                })
+                .catch(function () { });
+        }
+
+        // ---- the list is reloaded when the panel is closed
+        function closed() {
+            if (!dirty) {
+                var url = new URL(location.href);
+                url.searchParams.delete("panel");
+                history.replaceState(null, "", url);
+                return;
+            }
+            flag.disabled = true;
+            try {
+                sessionStorage.setItem(scrollKey, JSON.stringify({ y: window.scrollY, lists: Array.prototype.map.call(lists(document), function (el) { return el.scrollTop; }) }));
+            } catch (e) { }
+            form.action = form.action.split("#")[0];
+            if (form.requestSubmit) form.requestSubmit(); else form.submit();
+        }
+
+        form.addEventListener("click", function (e) {
+            var t = e.target;
+            if (t.matches(".filter-parent")) {
+                var row = t.closest(".filter-row");
+                kids(row).forEach(function (k) { k.checked = t.checked; });
+                t.indeterminate = false;
+                return;
+            }
+            if (t.matches(".filter-child")) { sync(rowOfChild(t)); return; }
+            var toggle = t.closest(".filter-toggle");
+            if (toggle) {
+                var r = toggle.closest(".filter-row");
+                var open = childList(r).hidden;
+                setRowOpen(r, open);
+                subState[r.dataset.key] = open;
+                save(subKey, subState);
+                return;
+            }
+            var close = t.closest(".filter-close");
+            if (close) { e.preventDefault(); panel.open = false; closed(); return; }
+            var summary = t.closest("summary");
+            if (!summary) return;
+            var d = summary.parentElement;
+            if (d === panel) setTimeout(function () { if (!panel.open) closed(); }, 0);
+            else if (d.dataset.key) setTimeout(function () { openState[d.dataset.key] = d.open; save(openKey, openState); }, 0);
+        });
+
+        form.addEventListener("change", function (e) {
+            if (!e.target.matches(".filter-body input[type='checkbox']")) return;
+            dirty = true;
+            refresh();
+        });
+
+        // Before the form is sent: when all types of a category are ticked, only the category goes along
+        form.addEventListener("submit", function () {
+            syncAll();
+            form.querySelectorAll(".filter-row").forEach(function (row) {
+                var c = counts(row);
+                kids(row).forEach(function (k) { k.disabled = c.total > 0 && c.n === c.total; });
             });
         });
     })();

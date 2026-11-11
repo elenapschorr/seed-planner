@@ -452,10 +452,6 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("growing_place");
 
-                    b.Property<string>("HeightEvidence")
-                        .HasColumnType("text")
-                        .HasColumnName("height_evidence");
-
                     b.Property<int?>("HeightMaxCm")
                         .HasColumnType("integer")
                         .HasColumnName("height_max_cm");
@@ -865,6 +861,10 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("HasCover")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_cover");
 
                     b.Property<decimal?>("HeightCm")
                         .HasPrecision(6, 1)

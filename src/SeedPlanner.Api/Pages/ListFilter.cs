@@ -2,10 +2,11 @@ using Microsoft.Extensions.Localization;
 
 namespace SeedPlanner.Api.Pages;
 
-public record FilterOption(string Value, string Label, int Count, bool Selected);
+public record FilterOption(string Value, string Label, int Count, bool Selected, string? Parent = null);
 
 /// <summary>One filter in the panel: a title and its options. Several options of one filter are combined with OR.</summary>
-public record FilterField(string Key, string Group, string Label, List<FilterOption> Options, bool Scroll);
+/// <param name="ParentKey">Set for a sub-filter: its options are shown below the options of the parent filter.</param>
+public record FilterField(string Key, string Group, string Label, List<FilterOption> Options, bool Scroll, string? ParentKey = null);
 
 public record FilterChip(string Key, string Value, string Text);
 
@@ -14,6 +15,9 @@ public record FilterChip(string Key, string Value, string Text);
 /// which values an item has, and which options the panel offers.
 /// </summary>
 /// <param name="Normalize">Maps values from addresses of older versions to the current ones.</param>
+/// <param name="ParentKey">Makes this a sub-filter of the filter with this key (e.g. plant types below categories).
+/// Choosing an option of the parent alone means everything below it; choosing options below it narrows that down.</param>
+/// <param name="ParentOf">For a sub-filter: the option of the parent filter that a value belongs to.</param>
 public sealed record Facet<T>(
     string Key,
     string Group,
@@ -21,7 +25,9 @@ public sealed record Facet<T>(
     Func<T, IEnumerable<string>> Values,
     List<(string Value, string Label)> Options,
     bool Scroll = false,
-    Func<string, string>? Normalize = null);
+    Func<string, string>? Normalize = null,
+    string? ParentKey = null,
+    Func<string, string?>? ParentOf = null);
 
 /// <summary>
 /// What the shared filter panel (Pages/Shared/_FilterBar.cshtml) needs, plus the addresses of the
@@ -105,15 +111,22 @@ public sealed class ListFilter<T>(HttpRequest request, string? q, string? sort, 
 
         var selected = facets.ToDictionary(f => f.Key, f => ReadSelection(Request, f));
 
+        var parents = facets.Where(f => f.ParentKey is not null).Select(f => f.ParentKey!).ToHashSet();
+
         var search = Q?.Trim();
         bool Matches(int index, string? exceptKey)
         {
             if (!string.IsNullOrEmpty(search) && searchMatch is not null && !searchMatch(items[index], search)) return false;
             foreach (var f in facets)
             {
-                if (f.Key == exceptKey) continue;
+                if (f.Key == exceptKey || f.ParentKey is not null || parents.Contains(f.Key)) continue;
                 var chosen = selected[f.Key];
                 if (chosen.Count > 0 && !values[index][f.Key].Overlaps(chosen)) return false;
+            }
+            foreach (var child in facets.Where(f => f.ParentKey is not null))
+            {
+                if (child.Key == exceptKey || child.ParentKey == exceptKey) continue;
+                if (!MatchesPair(values[index], child, selected)) return false;
             }
             return true;
         }
@@ -123,10 +136,12 @@ public sealed class ListFilter<T>(HttpRequest request, string? q, string? sort, 
                 f.Options.Select(o => new FilterOption(
                         o.Value, o.Label,
                         Enumerable.Range(0, items.Count).Count(i => Matches(i, f.Key) && values[i][f.Key].Contains(o.Value)),
-                        selected[f.Key].Contains(o.Value)))
+                        selected[f.Key].Contains(o.Value),
+                        f.ParentOf?.Invoke(o.Value)))
                     .Where(o => o.Count > 0 || o.Selected)
                     .ToList(),
-                f.Scroll))
+                f.Scroll,
+                f.ParentKey))
             .Where(f => f.Options.Count > 0)
             .ToList();
 
@@ -136,6 +151,18 @@ public sealed class ListFilter<T>(HttpRequest request, string? q, string? sort, 
             .ToList();
 
         return Enumerable.Range(0, items.Count).Where(i => Matches(i, null)).Select(i => items[i]).ToList();
+    }
+
+    // A sub-filter and its parent act as one filter: an item matches if its own option below the parent is chosen,
+    // or if its parent option is chosen and nothing below that parent option is chosen
+    private static bool MatchesPair(Dictionary<string, HashSet<string>> item, Facet<T> child, Dictionary<string, HashSet<string>> selected)
+    {
+        var chosenParents = selected[child.ParentKey!];
+        var chosenChildren = selected[child.Key];
+        if (chosenParents.Count == 0 && chosenChildren.Count == 0) return true;
+        if (item[child.Key].Overlaps(chosenChildren)) return true;
+        return item[child.ParentKey!].Any(p =>
+            chosenParents.Contains(p) && !chosenChildren.Any(c => string.Equals(child.ParentOf?.Invoke(c), p, StringComparison.OrdinalIgnoreCase)));
     }
 
     private static HashSet<string> ReadSelection(HttpRequest request, Facet<T> facet) =>

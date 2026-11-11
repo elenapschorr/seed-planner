@@ -174,6 +174,9 @@ public class RaisedBed : IOwnedByUser
 
     /// <summary>Height of the walls; empty for a ground bed.</summary>
     public decimal? HeightCm { get; set; }
+
+    /// <summary>The bed has a cover (cold frame, hood). Plants for the cold frame only go into such beds.</summary>
+    public bool HasCover { get; set; }
     public string? Note { get; set; }
 
     public List<Planting> Plantings { get; set; } = new();

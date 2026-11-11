@@ -52,7 +52,12 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
 
         var facets = new List<Facet<Row>>
         {
+            new("diameter", "Filter_Group_Properties", L["Filter_Diameter"].Value, r => new[] { r.DiameterCm.ToString("0.#", CultureInfo.InvariantCulture) },
+                rows.Select(r => r.DiameterCm).Distinct().OrderBy(d => d)
+                    .Select(d => (Value: d.ToString("0.#", CultureInfo.InvariantCulture), Label: d.ToString("0.#", CultureInfo.CurrentCulture) + " cm")).ToList()),
             new("color", "Filter_Group_Properties", L["Col_Color"].Value, r => FilterOptions.One(r.Color), colors),
+            new("inuse", "Filter_Group_Occupancy", L["Col_InUse"].Value, r => new[] { r.PotCount > 0 ? "used" : "free" },
+                new List<(string Value, string Label)> { ("free", L["Filter_Unused"].Value), ("used", L["Filter_Used"].Value) }),
         };
 
         var filter = new ListFilter<Row>(Request, Q, Sort, Dir);

@@ -82,7 +82,6 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(p => p.SowingMethod).HasConversion<string>();
             e.Property(p => p.GrowingPlace).HasConversion<string>();
             e.Property(p => p.Exposure).HasConversion<string>();
-            e.Property(p => p.HeightEvidence).HasConversion<string>();
             e.HasMany(p => p.SeasonWindows).WithOne(w => w.Plant).HasForeignKey(w => w.PlantId);
             e.HasOne<IdentityUser>().WithMany().HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
             e.HasQueryFilter(p => p.OwnerId == CurrentUserId);
@@ -219,6 +218,10 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.HasMany(i => i.Lines).WithOne(l => l.PlanItem).HasForeignKey(l => l.PlanItemId).OnDelete(DeleteBehavior.Cascade);
             e.Ignore(i => i.Plants);
             e.Ignore(i => i.NeedsNumber);
+            e.Ignore(i => i.IncludedVarieties);
+            e.Ignore(i => i.IsIncluded);
+            e.Ignore(i => i.IsFullyIncluded);
+            e.Ignore(i => i.IsPartlyIncluded);
             e.HasQueryFilter(i => i.Plan!.OwnerId == CurrentUserId);
         });
 

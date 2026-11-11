@@ -41,9 +41,6 @@ public class Plant
     /// <summary>Longest vine or shoot in cm; only for sprawling or climbing plants (melon, squash, ...).</summary>
     public int? VineLengthMaxCm { get; set; }
 
-    /// <summary>How reliable the height values are.</summary>
-    public HeightEvidence? HeightEvidence { get; set; }
-
     public List<SeasonWindow> SeasonWindows { get; } = [];
 
     // Rule: buy seed only for plants that can be propagated from own seed.

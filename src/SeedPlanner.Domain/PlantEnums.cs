@@ -18,16 +18,3 @@ public enum Propagation
     Plant,
     Cutting
 }
-
-/// <summary>Where the height values of a variety come from.</summary>
-public enum HeightEvidence
-{
-    /// <summary>A source names this exact variety.</summary>
-    Variety,
-
-    /// <summary>Partial source or a similar variety of the same type.</summary>
-    Similar,
-
-    /// <summary>Typical value of the plant type, not checked for this variety.</summary>
-    Species
-}

@@ -277,6 +277,28 @@
   <data name="Filter_Button" xml:space="preserve"><value>Фильтр</value></data>
   <data name="Filter_Apply" xml:space="preserve"><value>Искать</value></data>
   <data name="Filter_Clear" xml:space="preserve"><value>Сбросить все фильтры</value></data>
+  <data name="Filter_Any" xml:space="preserve"><value>все</value></data>
+  <data name="Filter_Active" xml:space="preserve"><value>активно: {0}</value></data>
+  <data name="Filter_PlantType" xml:space="preserve"><value>Вид растения</value></data>
+  <data name="Filter_SubChosen" xml:space="preserve"><value>{0} из {1}</value></data>
+  <data name="Filter_Used" xml:space="preserve"><value>Используется</value></data>
+  <data name="Filter_Unused" xml:space="preserve"><value>Не используется</value></data>
+  <data name="Filter_OnlyCovered" xml:space="preserve"><value>Только с укрытием</value></data>
+  <data name="Filter_Varieties" xml:space="preserve"><value>Сорта</value></data>
+  <data name="Filter_WithVarieties" xml:space="preserve"><value>Есть сорта</value></data>
+  <data name="Filter_WithoutVarieties" xml:space="preserve"><value>Нет сортов</value></data>
+  <data name="Filter_Diameter" xml:space="preserve"><value>Диаметр</value></data>
+  <data name="Missing_SeedType" xml:space="preserve"><value>Тип семян</value></data>
+  <data name="Missing_SowingMethod" xml:space="preserve"><value>Способ посева</value></data>
+  <data name="Missing_Place" xml:space="preserve"><value>Место выращивания</value></data>
+  <data name="Missing_Exposure" xml:space="preserve"><value>Освещение</value></data>
+  <data name="Missing_Maturity" xml:space="preserve"><value>Срок созревания</value></data>
+  <data name="Missing_Bloom" xml:space="preserve"><value>Период цветения</value></data>
+  <data name="Missing_Height" xml:space="preserve"><value>Высота</value></data>
+  <data name="Missing_Category" xml:space="preserve"><value>Категория</value></data>
+  <data name="Missing_Lifecycle" xml:space="preserve"><value>Жизненный цикл</value></data>
+  <data name="Missing_Nutrient" xml:space="preserve"><value>Потребность в питании</value></data>
+  <data name="Missing_GermType" xml:space="preserve"><value>Тип прорастания</value></data>
   <data name="Filter_Close" xml:space="preserve"><value>Закрыть</value></data>
   <data name="Filter_Remove" xml:space="preserve"><value>Убрать фильтр</value></data>
   <data name="Use_Pot" xml:space="preserve"><value>В горшках</value></data>
@@ -359,8 +381,10 @@
   <data name="PlanConfirm_Delete" xml:space="preserve"><value>Удалить этот план?</value></data>
   <data name="Field_Height" xml:space="preserve"><value>Высота, см (мин / макс)</value></data>
   <data name="Field_VineLength" xml:space="preserve"><value>Самая длинная плеть (см)</value></data>
-  <data name="Field_HeightEvidence" xml:space="preserve"><value>Источник высоты</value></data>
-  <data name="HeightEvidence_Variety" xml:space="preserve"><value>Данные о сорте</value></data>
-  <data name="HeightEvidence_Similar" xml:space="preserve"><value>Похожий сорт</value></data>
-  <data name="HeightEvidence_Species" xml:space="preserve"><value>Значение для вида</value></data>
+  <data name="Col_HasCover" xml:space="preserve"><value>С укрытием (парник, колпак)</value></data>
+  <data name="Plan_IncludeCrop" xml:space="preserve"><value>Учитывать культуру</value></data>
+  <data name="Plan_IncludeAll" xml:space="preserve"><value>Учитывать все культуры</value></data>
+  <data name="Plan_CropFull" xml:space="preserve"><value>все сорта</value></data>
+  <data name="Plan_CropPartial" xml:space="preserve"><value>часть сортов</value></data>
+  <data name="Plan_CropsIncluded" xml:space="preserve"><value>Выбрано культур: {0} из {1}</value></data>
 </root>

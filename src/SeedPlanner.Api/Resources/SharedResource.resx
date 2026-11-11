@@ -277,6 +277,28 @@
   <data name="Filter_Button" xml:space="preserve"><value>Filter</value></data>
   <data name="Filter_Apply" xml:space="preserve"><value>Search</value></data>
   <data name="Filter_Clear" xml:space="preserve"><value>Clear all filters</value></data>
+  <data name="Filter_Any" xml:space="preserve"><value>all</value></data>
+  <data name="Filter_Active" xml:space="preserve"><value>{0} active</value></data>
+  <data name="Filter_PlantType" xml:space="preserve"><value>Plant type</value></data>
+  <data name="Filter_SubChosen" xml:space="preserve"><value>{0} of {1}</value></data>
+  <data name="Filter_Used" xml:space="preserve"><value>In use</value></data>
+  <data name="Filter_Unused" xml:space="preserve"><value>Not in use</value></data>
+  <data name="Filter_OnlyCovered" xml:space="preserve"><value>Only with cover</value></data>
+  <data name="Filter_Varieties" xml:space="preserve"><value>Varieties</value></data>
+  <data name="Filter_WithVarieties" xml:space="preserve"><value>With varieties</value></data>
+  <data name="Filter_WithoutVarieties" xml:space="preserve"><value>Without varieties</value></data>
+  <data name="Filter_Diameter" xml:space="preserve"><value>Diameter</value></data>
+  <data name="Missing_SeedType" xml:space="preserve"><value>Seed type</value></data>
+  <data name="Missing_SowingMethod" xml:space="preserve"><value>Sowing method</value></data>
+  <data name="Missing_Place" xml:space="preserve"><value>Growing place</value></data>
+  <data name="Missing_Exposure" xml:space="preserve"><value>Exposure</value></data>
+  <data name="Missing_Maturity" xml:space="preserve"><value>Days to maturity</value></data>
+  <data name="Missing_Bloom" xml:space="preserve"><value>Bloom window</value></data>
+  <data name="Missing_Height" xml:space="preserve"><value>Height</value></data>
+  <data name="Missing_Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Missing_Lifecycle" xml:space="preserve"><value>Lifecycle</value></data>
+  <data name="Missing_Nutrient" xml:space="preserve"><value>Nutrient demand</value></data>
+  <data name="Missing_GermType" xml:space="preserve"><value>Germination type</value></data>
   <data name="Filter_Close" xml:space="preserve"><value>Close</value></data>
   <data name="Filter_Remove" xml:space="preserve"><value>Remove filter</value></data>
   <data name="Use_Pot" xml:space="preserve"><value>In pots</value></data>
@@ -359,8 +381,10 @@
   <data name="PlanConfirm_Delete" xml:space="preserve"><value>Delete this plan?</value></data>
   <data name="Field_Height" xml:space="preserve"><value>Height in cm (min / max)</value></data>
   <data name="Field_VineLength" xml:space="preserve"><value>Longest vine (cm)</value></data>
-  <data name="Field_HeightEvidence" xml:space="preserve"><value>Height source</value></data>
-  <data name="HeightEvidence_Variety" xml:space="preserve"><value>This variety</value></data>
-  <data name="HeightEvidence_Similar" xml:space="preserve"><value>Similar variety</value></data>
-  <data name="HeightEvidence_Species" xml:space="preserve"><value>Plant type value</value></data>
+  <data name="Col_HasCover" xml:space="preserve"><value>With cover (cold frame, hood)</value></data>
+  <data name="Plan_IncludeCrop" xml:space="preserve"><value>Include crop</value></data>
+  <data name="Plan_IncludeAll" xml:space="preserve"><value>Include all crops</value></data>
+  <data name="Plan_CropFull" xml:space="preserve"><value>all varieties</value></data>
+  <data name="Plan_CropPartial" xml:space="preserve"><value>some varieties</value></data>
+  <data name="Plan_CropsIncluded" xml:space="preserve"><value>{0} of {1} crops included</value></data>
 </root>

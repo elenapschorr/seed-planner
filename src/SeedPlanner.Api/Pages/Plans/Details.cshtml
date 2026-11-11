@@ -31,6 +31,9 @@
 else
 {
     <form method="post" asp-page-handler="Save" asp-route-id="@Model.Plan.Id">
+        <div class="mb-2">
+            <span class="text-muted small" id="crop-count" data-template="@L["Plan_CropsIncluded"].Value">@L["Plan_CropsIncluded", Model.IncludedCrops, Model.Crops.Count]</span>
+        </div>
         <div class="table-responsive">
         <table class="table align-middle">
             <thead>
@@ -39,16 +42,22 @@ else
                     <th class="text-end">@L["Plan_Demand"]</th>
                     <th class="text-end">@L["Plan_Calculated"]</th>
                     <th>@L["Plan_OwnNumber"]</th>
-                    <th>@L["Plan_Include"]</th>
+                    <th>
+                        <input type="checkbox" class="form-check-input me-1" id="crop-all" aria-label="@L["Plan_IncludeAll"].Value" />
+                        @L["Plan_Include"]
+                    </th>
                 </tr>
             </thead>
             @foreach (var item in Model.Crops)
             {
-                <tbody>
+                var state = SeedPlanner.Api.Pages.Plans.DetailsModel.StateOf(item);
+                <tbody class="crop-@state" data-crop>
                     <tr class="table-light">
                         <td>
                             <input type="hidden" name="Items[@itemIndex].Id" value="@item.Id" />
                             <a asp-page="/PlantTypes/Details" asp-route-id="@item.PlantTypeId" class="text-decoration-none"><strong>@Model.CropName(item)</strong></a>
+                            <span class="badge crop-badge ms-2 @(state == "full" ? "text-bg-success" : state == "partial" ? "text-bg-warning" : "d-none")"
+                                  data-full="@L["Plan_CropFull"].Value" data-partial="@L["Plan_CropPartial"].Value">@(state == "full" ? L["Plan_CropFull"].Value : L["Plan_CropPartial"].Value)</span>
                         </td>
                         <td class="text-end">@Model.AmountText(item)</td>
                         <td class="text-end">@(item.CalculatedPlants is null ? "–" : item.CalculatedPlants.ToString())</td>
@@ -56,7 +65,9 @@ else
                             <input type="number" min="0" name="Items[@itemIndex].PlantsOverride" value="@item.PlantsOverride"
                                    class="form-control form-control-sm" style="width: 6rem;" placeholder="@item.CalculatedPlants" aria-label="@L["Plan_OwnNumber"].Value" />
                         </td>
-                        <td></td>
+                        <td>
+                            <input type="checkbox" class="form-check-input crop-include" checked="@(state == "full")" aria-label="@L["Plan_IncludeCrop"].Value" />
+                        </td>
                     </tr>
                     @if (item.NeedsNumber)
                     {
@@ -88,7 +99,7 @@ else
                                        class="form-control form-control-sm" style="width: 6rem;" aria-label="@L["Plan_OwnNumber"].Value" />
                             </td>
                             <td>
-                                <input type="checkbox" class="form-check-input" name="Lines[@lineIndex].Include" value="true" checked="@line.Include" aria-label="@L["Plan_Include"].Value" />
+                                <input type="checkbox" class="form-check-input line-include" name="Lines[@lineIndex].Include" value="true" checked="@line.Include" aria-label="@L["Plan_Include"].Value" />
                                 <input type="hidden" name="Lines[@lineIndex].Include" value="false" />
                             </td>
                         </tr>
@@ -134,3 +145,66 @@ else
       data-confirm="@confirmText" onsubmit="return confirm(this.dataset.confirm);">
     <button type="submit" class="btn btn-outline-danger">@L["Action_Delete"]</button>
 </form>
+
+@section Scripts {
+    <style>
+        tbody.crop-none { opacity: .55; }
+        tbody.crop-full > tr.table-light > td:first-child { box-shadow: inset 4px 0 0 var(--bs-success); }
+        tbody.crop-partial > tr.table-light > td:first-child { box-shadow: inset 4px 0 0 var(--bs-warning); }
+    </style>
+    <script>
+        // The choice is made per variety. A crop box sets all its varieties; the crop is marked as
+        // fully (all varieties) or partly (some varieties) included. The header box does the same for all crops.
+        // Nothing is saved before the Save button.
+        (function () {
+            var bodies = Array.prototype.slice.call(document.querySelectorAll('tbody[data-crop]'));
+            var master = document.getElementById('crop-all');
+            var counter = document.getElementById('crop-count');
+
+            function linesOf(body) {
+                return Array.prototype.slice.call(body.querySelectorAll('.line-include'));
+            }
+
+            function refresh() {
+                var cropsOn = 0, cropsFull = 0;
+                bodies.forEach(function (body) {
+                    var lines = linesOf(body);
+                    var on = lines.filter(function (l) { return l.checked; }).length;
+                    var state = on === 0 ? 'none' : (on === lines.length ? 'full' : 'partial');
+                    var box = body.querySelector('.crop-include');
+                    box.checked = state === 'full';
+                    box.indeterminate = state === 'partial';
+                    body.classList.remove('crop-full', 'crop-partial', 'crop-none');
+                    body.classList.add('crop-' + state);
+                    var badge = body.querySelector('.crop-badge');
+                    badge.classList.toggle('d-none', state === 'none');
+                    badge.classList.toggle('text-bg-success', state === 'full');
+                    badge.classList.toggle('text-bg-warning', state === 'partial');
+                    badge.textContent = state === 'full' ? badge.dataset.full : badge.dataset.partial;
+                    if (state !== 'none') cropsOn++;
+                    if (state === 'full') cropsFull++;
+                });
+                master.checked = bodies.length > 0 && cropsFull === bodies.length;
+                master.indeterminate = cropsOn > 0 && cropsFull < bodies.length;
+                if (counter && counter.dataset.template) {
+                    counter.textContent = counter.dataset.template.replace('{0}', cropsOn).replace('{1}', bodies.length);
+                }
+            }
+
+            master.addEventListener('change', function () {
+                bodies.forEach(function (body) {
+                    linesOf(body).forEach(function (l) { l.checked = master.checked; });
+                });
+                refresh();
+            });
+            bodies.forEach(function (body) {
+                body.querySelector('.crop-include').addEventListener('change', function (e) {
+                    linesOf(body).forEach(function (l) { l.checked = e.target.checked; });
+                    refresh();
+                });
+                linesOf(body).forEach(function (l) { l.addEventListener('change', refresh); });
+            });
+            refresh();
+        })();
+    </script>
+}

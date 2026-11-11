@@ -21,7 +21,8 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         double AreaSquareMeters,
         double? VolumeLiters,
         string Plantings,
-        string? Note);
+        string? Note,
+        bool HasCover);
 
     public List<Row> Rows { get; private set; } = new();
     public double TotalArea { get; private set; }
@@ -56,12 +57,16 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             string.Join(", ", b.Plantings
                 .Select(x => PlantName(x, language) + (x.PlantCount is null ? "" : $" ×{x.PlantCount}"))
                 .OrderBy(n => n, comparer)),
-            b.Note)).ToList();
+            b.Note, b.HasCover)).ToList();
 
         var facets = new List<Facet<Row>>
         {
             new("kind", "Filter_Group_Properties", L["Col_BedKind"].Value, r => FilterOptions.One(r.Kind), FilterOptions.Enum<BedKind>(L, "BedKind_")),
             new("shape", "Filter_Group_Properties", L["Col_Shape"].Value, r => FilterOptions.One(r.Shape), FilterOptions.Enum<BedShape>(L, "BedShape_")),
+            new("cover", "Filter_Group_Properties", L["Col_HasCover"].Value, r => r.HasCover ? new[] { "1" } : Array.Empty<string>(),
+                new List<(string Value, string Label)> { ("1", L["Filter_OnlyCovered"].Value) }),
+            new("inuse", "Filter_Group_Occupancy", L["Col_InUse"].Value, r => new[] { r.Plantings.Length > 0 ? "used" : "free" },
+                new List<(string Value, string Label)> { ("free", L["Filter_Unused"].Value), ("used", L["Filter_Used"].Value) }),
         };
 
         var filter = new ListFilter<Row>(Request, Q, Sort, Dir);

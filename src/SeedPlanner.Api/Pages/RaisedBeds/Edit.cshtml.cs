@@ -26,6 +26,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
         // Only for raised beds; a ground bed has no walls
         public decimal? HeightCm { get; set; }
+        public bool HasCover { get; set; }
 
         public string? Note { get; set; }
     }
@@ -92,6 +93,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         bed.WidthCm = Input.WidthCm!.Value;
         bed.LengthCm = Input.LengthCm!.Value;
         bed.HeightCm = Input.Kind == BedKind.Ground ? null : Input.HeightCm;
+        bed.HasCover = Input.HasCover;
         bed.Note = Clean(Input.Note);
         await db.SaveChangesAsync();
 
@@ -208,6 +210,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         WidthCm = bed.WidthCm,
         LengthCm = bed.LengthCm,
         HeightCm = bed.HeightCm,
+        HasCover = bed.HasCover,
         Note = bed.Note
     };
 

@@ -82,8 +82,9 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
             new("shape", "Filter_Group_Properties", L["Col_Shape"].Value, r => FilterOptions.One(r.Shape), FilterOptions.Enum<PotShape>(L, "PotShape_")),
             new("color", "Filter_Group_Properties", L["Col_Color"].Value, r => FilterOptions.One(r.Color), colors),
             new("saucer", "Filter_Group_Properties", L["Col_Saucer"].Value, r => FilterOptions.One(r.Saucer), saucers),
-            new("free", "Filter_Group_Occupancy", L["Col_Free"].Value, r => r.Free > 0 ? new[] { "1" } : Array.Empty<string>(),
-                new List<(string Value, string Label)> { ("1", L["Filter_OnlyFree"].Value) }),
+            new("free", "Filter_Group_Occupancy", L["Col_InUse"].Value,
+                r => new[] { r.Free > 0 ? "1" : null, r.Occupied > 0 ? "used" : null }.OfType<string>(),
+                new List<(string Value, string Label)> { ("1", L["Filter_OnlyFree"].Value), ("used", L["Filter_Used"].Value) }),
         };
 
         var filter = new ListFilter<Row>(Request, Q, Sort, Dir);

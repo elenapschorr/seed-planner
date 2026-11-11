@@ -130,6 +130,11 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         var facets = new List<Facet<Candidate>>
         {
             new("category", "Filter_Group_Plant", L["Filter_Category"].Value, c => One(c.P.PlantType.Category), EnumOptions<PlantCategory>("Category_")),
+            // plant types as sub-items of the categories
+            new("type", "Filter_Group_Plant", L["Filter_PlantType"].Value, c => new[] { c.P.PlantTypeId.ToString() },
+                types.Select(t => (Value: t.Id.ToString(), Label: typeNames[t.Id])).OrderBy(o => o.Label, comparer).ToList(),
+                ParentKey: "category",
+                ParentOf: v => types.FirstOrDefault(t => t.Id.ToString() == v)?.Category?.ToString()),
             new("lifecycle", "Filter_Group_Plant", L["Col_Lifecycle"].Value, c => One(c.P.PlantType.Lifecycle), EnumOptions<Lifecycle>("Lifecycle_")),
             new("nutrient", "Filter_Group_Plant", L["Col_NutrientDemand"].Value, c => One(c.P.PlantType.NutrientDemand), EnumOptions<NutrientDemand>("NutrientDemand_")),
             new("germType", "Filter_Group_Plant", L["Filter_GermType"].Value, c => One(c.P.PlantType.GerminationType), EnumOptions<GerminationType>("GerminationType_")),
@@ -171,21 +176,40 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
                 c =>
                 {
                     var p = c.P;
+                    var isSeed = p.Propagation == Propagation.Seed;
                     var list = new List<string>();
-                    if (p.GerminationTempMinC is null) list.Add("germTemp");
-                    if (p.GerminationDaysMin is null) list.Add("germDays");
+                    // variety
+                    if (isSeed && p.SeedType is null) list.Add("seedType");
+                    if (p.SowingMethod is null) list.Add("sowingMethod");
+                    if (p.GrowingPlace is null) list.Add("place");
+                    if (p.EffectiveExposure is null) list.Add("exposure");
+                    // germination only matters for seeds, not for young plants and cuttings
+                    if (isSeed && (p.GerminationTempMinC is null || p.GerminationTempMaxC is null)) list.Add("germTemp");
+                    if (isSeed && (p.GerminationDaysMin is null || p.GerminationDaysMax is null)) list.Add("germDays");
+                    if (p.MaturityDaysMin is null || p.MaturityDaysMax is null) list.Add("maturity");
                     if (!p.SeasonWindows.Any(w => w.Kind == WindowKind.Sowing)) list.Add("sowing");
                     // flowers have a bloom time instead of a harvest
+                    if (IsFlower(p) && !p.SeasonWindows.Any(w => w.Kind == WindowKind.Bloom)) list.Add("bloom");
                     if (!IsFlower(p) && !p.SeasonWindows.Any(w => w.Kind == WindowKind.Harvest)) list.Add("harvest");
                     // spacing is optional for pot culture, the pot size is required there
                     if (p.GrowingPlace != GrowingPlace.Container && p.RowSpacingCm is null && p.PlantSpacingCm is null) list.Add("spacing");
                     if (p.GrowingPlace == GrowingPlace.Container && (p.PotSizeMinLiters is null || p.PotSizeMaxLiters is null)) list.Add("potSize");
+                    if (p.HeightMinCm is null || p.HeightMaxCm is null) list.Add("height");
+                    // plant type
+                    if (p.PlantType.Category is null) list.Add("category");
+                    if (p.PlantType.Lifecycle is null) list.Add("lifecycle");
+                    if (p.PlantType.NutrientDemand is null) list.Add("nutrient");
+                    if (isSeed && p.PlantType.GerminationType is null) list.Add("germType");
                     return list;
                 },
                 new List<(string Value, string Label)>
                 {
-                    ("germTemp", L["Missing_GermTemp"].Value), ("germDays", L["Missing_GermDays"].Value), ("sowing", L["Missing_Sowing"].Value),
-                    ("harvest", L["Missing_Harvest"].Value), ("spacing", L["Missing_Spacing"].Value), ("potSize", L["Missing_PotSize"].Value)
+                    ("seedType", L["Missing_SeedType"].Value), ("sowingMethod", L["Missing_SowingMethod"].Value), ("place", L["Missing_Place"].Value),
+                    ("exposure", L["Missing_Exposure"].Value), ("germTemp", L["Missing_GermTemp"].Value), ("germDays", L["Missing_GermDays"].Value),
+                    ("maturity", L["Missing_Maturity"].Value), ("sowing", L["Missing_Sowing"].Value), ("bloom", L["Missing_Bloom"].Value),
+                    ("harvest", L["Missing_Harvest"].Value), ("spacing", L["Missing_Spacing"].Value), ("potSize", L["Missing_PotSize"].Value),
+                    ("height", L["Missing_Height"].Value), ("category", L["Missing_Category"].Value), ("lifecycle", L["Missing_Lifecycle"].Value),
+                    ("nutrient", L["Missing_Nutrient"].Value), ("germType", L["Missing_GermType"].Value)
                 }),
         };
 
