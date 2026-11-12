@@ -1,0 +1,425 @@
+@page "{id:int}"
+@model SeedPlanner.Api.Pages.Plans.DistributionModel
+@using SeedPlanner.Domain
+@{
+    ViewData["Title"] = L["Distribution_Title"].Value + " – " + Model.Plan.Name;
+    ViewData["Wide"] = true;
+    var result = Model.Result;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-1">
+    <h1 class="mb-0">@L["Distribution_Title"]</h1>
+    <a class="btn btn-outline-secondary" asp-page="Details" asp-route-id="@Model.Plan.Id">@Model.Plan.Name</a>
+</div>
+<p class="text-muted">@L["Distribution_Intro", Model.WantedPlants]</p>
+
+@if (Model.Saved)
+{
+    <div class="alert alert-success" role="status">@L["Distribution_Saved"]</div>
+}
+@if (Model.AppliedCount is { } applied)
+{
+    <div class="alert alert-success" role="status">@L["Distribution_Applied", applied]</div>
+}
+
+<form method="post" asp-page-handler="Save" asp-route-id="@Model.Plan.Id">
+    <details class="border rounded p-3 mb-3" open>
+        <summary class="fw-semibold">@L["Distribution_Settings"]</summary>
+        <div class="row g-4 mt-1">
+            <div class="col-md-4">
+                <div class="form-label">@L["Distribution_Shortage"]</div>
+                @foreach (var s in Enum.GetValues<ShortageStrategy>())
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="Shortage" id="shortage-@s" value="@s" checked="@(Model.Shortage == s)" />
+                        <label class="form-check-label" for="shortage-@s">@Model.StrategyText(s)</label>
+                    </div>
+                }
+            </div>
+            <div class="col-md-4">
+                <div class="form-label">@L["Distribution_NoCover"]</div>
+                @foreach (var s in Enum.GetValues<NoCoverStrategy>())
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="NoCover" id="nocover-@s" value="@s" checked="@(Model.NoCover == s)" />
+                        <label class="form-check-label" for="nocover-@s">@Model.NoCoverText(s)</label>
+                    </div>
+                }
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" name="AllowOthers" id="allow-others" value="true" checked="@Model.AllowOthers" />
+                    <label class="form-check-label" for="allow-others">@L["Distribution_AllowOthers"]</label>
+                    <input type="hidden" name="AllowOthers" value="false" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="max-bed">@L["Distribution_MaxBed"]</label>
+                <input class="form-control" id="max-bed" name="MaxBedArea" value="@Model.MaxBedArea" inputmode="decimal" autocomplete="off" />
+                <div class="form-text">@L["Distribution_MaxBedHelp"]</div>
+                <label class="form-label mt-3" for="spacing">@L["Distribution_Spacing"]</label>
+                <input class="form-control" id="spacing" name="SpacingPercent" type="number" min="50" max="100" step="5" value="@Model.SpacingPercent" />
+                <div class="form-text">@L["Distribution_SpacingHelp"]</div>
+                <label class="form-label mt-3" for="last-frost">@L["Distribution_LastFrost"]</label>
+                <select class="form-select" id="last-frost" name="LastFrostThird">
+                    @foreach (var (value, label) in Model.FrostOptions())
+                    {
+                        <option value="@value" selected="@(value == Model.LastFrostThird)">@label</option>
+                    }
+                </select>
+                <div class="form-text">@L["Distribution_LastFrostHelp"]</div>
+            </div>
+        </div>
+    </details>
+
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <details class="border rounded p-3 mb-3" open>
+                <summary class="fw-semibold">@L["Distribution_Pots"] <span class="text-muted fw-normal small" id="pot-count"></span></summary>
+                <div class="my-2" data-scope="pots">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-select="free">@L["Distribution_SelectFree"]</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-select="none">@L["Distribution_SelectNone"]</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="fold-groups">@L["Action_ToggleAll"]</button>
+                </div>
+                @if (Model.PotGroups.Count == 0)
+                {
+                    <p class="text-muted mb-0">@L["Distribution_NoPots"]</p>
+                }
+                @foreach (var group in Model.PotGroups)
+                {
+                    <details class="mb-2" data-scope="pots" open="@group.Pots.Any(p => p.Selected)">
+                        <summary class="fw-semibold">
+                            <input type="checkbox" class="form-check-input group-box" aria-label="@group.Name" />
+                            <span>@group.Name</span>
+                            @if (group.Liters is { } liters)
+                            {
+                                <span class="text-muted fw-normal">· @liters.ToString("0.#") l</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger fw-normal">· @L["Distribution_NoVolume"]</span>
+                            }
+                            <span class="text-muted fw-normal small group-count"></span>
+                        </summary>
+                        <div class="ms-4">
+                            @foreach (var pot in group.Pots)
+                            {
+                                <label class="d-block">
+                                    <input type="checkbox" class="form-check-input pot-box" name="PotIds" value="@pot.Id"
+                                           data-free="@(pot.Occupied.Length == 0 ? "1" : "0")" checked="@pot.Selected" />
+                                    @pot.Label
+                                    @if (pot.Occupied.Length > 0)
+                                    {
+                                        <span class="badge text-bg-secondary">@pot.Occupied</span>
+                                    }
+                                </label>
+                            }
+                        </div>
+                    </details>
+                }
+            </details>
+        </div>
+        <div class="col-lg-5">
+            <details class="border rounded p-3 mb-3" open>
+                <summary class="fw-semibold">@L["Distribution_Beds"] <span class="text-muted fw-normal small" id="bed-count"></span></summary>
+                <div class="my-2" data-scope="beds">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-select="free">@L["Distribution_SelectFree"]</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-select="none">@L["Distribution_SelectNone"]</button>
+                </div>
+                @if (Model.Beds.Count == 0)
+                {
+                    <p class="text-muted mb-0">@L["Distribution_NoBeds"]</p>
+                }
+                <div data-scope="beds">
+                    @foreach (var bed in Model.Beds)
+                    {
+                        <label class="d-block">
+                            <input type="checkbox" class="form-check-input bed-box" name="BedIds" value="@bed.Id"
+                                   data-free="@(bed.Occupied.Length == 0 ? "1" : "0")" checked="@bed.Selected" />
+                            @bed.Name <span class="text-muted">· @bed.Area.ToString("0.##") m²</span>
+                            @if (bed.HasCover)
+                            {
+                                <span class="badge text-bg-info">@L["Distribution_Covered"]</span>
+                            }
+                            @if (bed.Occupied.Length > 0)
+                            {
+                                <span class="badge text-bg-secondary">@bed.Occupied</span>
+                            }
+                        </label>
+                    }
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-dark mb-4">@L["Distribution_Calculate"]</button>
+</form>
+
+@if (result is null)
+{
+    <p class="text-muted">@L["Distribution_NothingChosen"]</p>
+}
+else
+{
+    <h2 class="h4">@L["Distribution_Result"]</h2>
+    <p>
+        @L["Distribution_PlacedOf", Model.PlacedPlants, Model.WantedPlants]
+        @if (result.NewPots.Count > 0)
+        {
+            <span class="ms-2">@L["Distribution_BuyPots"]: @(string.Join(", ", result.NewPots.Select(n => $"{n.Count} × {n.Liters:0.#} l")))</span>
+        }
+    </p>
+
+    @if (result.Reductions.Count > 0)
+    {
+        <div class="alert alert-warning">
+            <div class="fw-semibold">@L["Distribution_Reduced", (result.ScaleFactor * 100).ToString("0")]</div>
+            <ul class="mb-0">
+                @foreach (var r in result.Reductions)
+                {
+                    <li>@Model.PlantName(r.PlantId): @r.Wanted → @r.Placed</li>
+                }
+            </ul>
+        </div>
+    }
+
+    @if (result.Unplaced.Count > 0)
+    {
+        <div class="alert alert-danger">
+            <div class="fw-semibold">@L["Distribution_Unplaced"]</div>
+            <ul class="mb-0">
+                @foreach (var u in result.Unplaced)
+                {
+                    <li>@Model.PlantName(u.PlantId) ×@u.Count – @Model.Reason(u.Reason)</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>@L["Distribution_Container"]</th>
+                    <th class="text-end">@L["Distribution_Used"]</th>
+                    <th>@L["Distribution_Plants"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model.ContainersToShow)
+                {
+                    <tr>
+                        <td>
+                            @Model.Title(c)
+                            @if (c.IsNew)
+                            {
+                                <span class="badge text-bg-warning">@L["Distribution_New"]</span>
+                            }
+                            @if (c.NeedsCover)
+                            {
+                                <span class="badge text-bg-info">@L["Distribution_NeedsCover"]</span>
+                            }
+                            else if (c.HasCover)
+                            {
+                                <span class="badge text-bg-info">@L["Distribution_Covered"]</span>
+                            }
+                        </td>
+                        <td class="text-end text-nowrap">@Model.Capacity(c)</td>
+                        <td>
+                            @if (c.Placements.Count == 0)
+                            {
+                                <span class="text-muted">–</span>
+                            }
+                            else if (c.Placements.Count == 1)
+                            {
+                                <div>@Model.Placement(c.Placements[0])</div>
+                            }
+                            else
+                            {
+                                <details open>
+                                    <summary class="small text-muted">@L["Distribution_PlacementsSummary", c.Placements.Count, c.Placements.Sum(q => q.Count)]</summary>
+                                    @foreach (var p in c.Placements.OrderBy(q => q.Role))
+                                    {
+                                        <div>@Model.Placement(p)</div>
+                                    }
+                                </details>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    var clusters = Model.Clusters();
+    if (clusters.Count > 0)
+    {
+        <details class="border rounded p-3 mb-3" open>
+            <summary class="fw-semibold">@L["Stats_Title"]</summary>
+            <div class="table-responsive mt-2">
+                <table class="table table-sm align-middle mb-1">
+                    <thead>
+                        <tr>
+                            <th>@L["Stats_Cluster"]</th>
+                            <th class="text-end">@L["Stats_Total"]</th>
+                            @for (var b = 0; b < SeedPlanner.Domain.AllocationStats.BandCount; b++)
+                            {
+                                <th class="text-end">@L["Stats_Band" + b]</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in clusters)
+                        {
+                            <tr>
+                                <td>
+                                    @c.Label
+                                    @if (c.IsNew)
+                                    {
+                                        <span class="badge text-bg-warning">@L["Distribution_New"]</span>
+                                    }
+                                </td>
+                                <td class="text-end">@c.Total</td>
+                                @for (var b = 0; b < SeedPlanner.Domain.AllocationStats.BandCount; b++)
+                                {
+                                    <td class="text-end">@c.Bands[b]</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        @foreach (var kind in new[] { SeedPlanner.Domain.ContainerKind.Pot, SeedPlanner.Domain.ContainerKind.Bed })
+                        {
+                            var rows = clusters.Where(c => c.Kind == kind).ToList();
+                            if (rows.Count == 0) continue;
+                            <tr class="fw-semibold">
+                                <td>@(kind == SeedPlanner.Domain.ContainerKind.Pot ? L["Stats_Pots"] : L["Stats_Beds"])</td>
+                                <td class="text-end">@rows.Sum(c => c.Total)</td>
+                                @for (var b = 0; b < SeedPlanner.Domain.AllocationStats.BandCount; b++)
+                                {
+                                    var band = b;
+                                    <td class="text-end">@rows.Sum(c => c.Bands[band])</td>
+                                }
+                            </tr>
+                        }
+                    </tfoot>
+                </table>
+            </div>
+            <div class="form-text">@L["Stats_Legend"]</div>
+        </details>
+    }
+
+    if (clusters.Count > 0)
+    {
+        <details class="border rounded p-3 mb-3">
+            <summary class="fw-semibold">@L["Report_Title"]</summary>
+            <form method="get" action="@Url.Page("Distribution", new { id = Model.Plan.Id })" id="report-form" class="mt-2">
+                <input type="hidden" name="handler" value="Export" />
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="form-label">@L["Report_Format"]</div>
+                        @foreach (var (key, label) in new[] { ("csv", "Report_FormatCsv"), ("xlsx", "Report_FormatXlsx"), ("print", "Report_FormatPrint") })
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="format" id="format-@key" value="@key" checked="@(key == "csv")" />
+                                <label class="form-check-label" for="format-@key">@L[label]</label>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-label">@L["Report_Content"]</div>
+                        @foreach (var (key, label) in new[] { ("plants", "Report_SecPlants"), ("stats", "Report_SecStats"), ("unplaced", "Report_SecUnplaced"), ("shopping", "Report_SecShopping") })
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="sec" id="sec-@key" value="@key" checked />
+                                <label class="form-check-label" for="sec-@key">@L[label]</label>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-label">@L["Report_Columns"]</div>
+                        @foreach (var key in SeedPlanner.Api.Pages.Plans.DistributionModel.ReportColumns)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="col" id="col-@key" value="@key" checked />
+                                <label class="form-check-label" for="col-@key">@L["Report_Col_" + key]</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-outline-dark mt-3">@L["Report_Export"]</button>
+                <span class="text-muted small ms-2">@L["Report_ExportHelp"]</span>
+            </form>
+        </details>
+    }
+
+    <form method="post" asp-page-handler="Apply" asp-route-id="@Model.Plan.Id" id="apply-form" data-confirm="@L["Distribution_ConfirmApply"].Value">
+        <button type="submit" class="btn btn-outline-dark">@L["Distribution_Apply"]</button>
+        <span class="text-muted small ms-2">@L["Distribution_ApplyHelp"]</span>
+    </form>
+}
+
+@section Scripts {
+    <script>
+        // Select all / none / only free pots and beds, and a counter of what is chosen
+        (function () {
+            function boxes(scope) { return document.querySelectorAll(scope === "pots" ? ".pot-box" : ".bed-box"); }
+            function count() {
+                var pots = document.querySelectorAll(".pot-box:checked").length;
+                var beds = document.querySelectorAll(".bed-box:checked").length;
+                var p = document.getElementById("pot-count"), b = document.getElementById("bed-count");
+                if (p) p.textContent = pots > 0 ? "(" + pots + ")" : "";
+                if (b) b.textContent = beds > 0 ? "(" + beds + ")" : "";
+            }
+            document.querySelectorAll("button[data-select]").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    var scope = button.parentElement.dataset.scope;
+                    boxes(scope).forEach(function (box) {
+                        box.checked = button.dataset.select === "free" ? box.dataset.free === "1" : false;
+                    });
+                    document.querySelectorAll(".group-box").forEach(syncGroup);
+                    count();
+                });
+            });
+            function syncGroup(groupBox) {
+                var group = groupBox.closest("details[data-scope]");
+                var pots = group.querySelectorAll(".pot-box");
+                var n = 0; pots.forEach(function (p) { if (p.checked) n++; });
+                group.querySelector(".group-count").textContent = "(" + n + "/" + pots.length + ")";
+                groupBox.checked = pots.length > 0 && n === pots.length;
+                groupBox.indeterminate = n > 0 && n < pots.length;
+            }
+            document.querySelectorAll(".group-box").forEach(function (groupBox) {
+                syncGroup(groupBox);
+                groupBox.addEventListener("click", function () {
+                    groupBox.closest("details[data-scope]").querySelectorAll(".pot-box").forEach(function (p) { p.checked = groupBox.checked; });
+                    groupBox.indeterminate = false;
+                    syncGroup(groupBox);
+                    count();
+                });
+            });
+            document.querySelectorAll(".pot-box, .bed-box").forEach(function (box) {
+                box.addEventListener("change", function () {
+                    document.querySelectorAll(".group-box").forEach(syncGroup);
+                    count();
+                });
+            });
+            // One button for all pot groups: if any is open, close all; otherwise open all
+            var foldAll = document.getElementById("fold-groups");
+            if (foldAll) foldAll.addEventListener("click", function () {
+                var groups = document.querySelectorAll("details[data-scope='pots']");
+                var anyOpen = Array.prototype.some.call(groups, function (g) { return g.open; });
+                groups.forEach(function (g) { g.open = !anyOpen; });
+            });
+            // The print view opens in a new tab; files are downloaded
+            var report = document.getElementById("report-form");
+            if (report) report.addEventListener("submit", function () {
+                var chosen = report.querySelector("input[name='format']:checked");
+                report.target = chosen && chosen.value === "print" ? "_blank" : "";
+            });
+            var apply = document.getElementById("apply-form");
+            if (apply) apply.addEventListener("submit", function (e) {
+                if (!confirm(apply.dataset.confirm)) e.preventDefault();
+            });
+            count();
+        })();
+    </script>
+}

@@ -147,6 +147,10 @@ public class Planting : IOwnedByUser
 
     public int? RaisedBedId { get; set; }
     public RaisedBed? RaisedBed { get; set; }
+
+    /// <summary>The plan this planting came from (transfer of the distribution); empty for plantings made by hand.</summary>
+    public int? PlanId { get; set; }
+    public Plan? Plan { get; set; }
 }
 
 public class Saucer : IOwnedByUser

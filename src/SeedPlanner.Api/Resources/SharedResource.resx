@@ -387,4 +387,108 @@
   <data name="Plan_CropFull" xml:space="preserve"><value>all varieties</value></data>
   <data name="Plan_CropPartial" xml:space="preserve"><value>some varieties</value></data>
   <data name="Plan_CropsIncluded" xml:space="preserve"><value>{0} of {1} crops included</value></data>
+  <data name="Plan_Distribute" xml:space="preserve"><value>Distribute over pots and beds</value></data>
+  <data name="Distribution_Title" xml:space="preserve"><value>Distribution over pots and beds</value></data>
+  <data name="Distribution_Intro" xml:space="preserve"><value>Choose the pots and beds the {0} plants of the plan are spread over.</value></data>
+  <data name="Distribution_Saved" xml:space="preserve"><value>Saved and distributed again.</value></data>
+  <data name="Distribution_Applied" xml:space="preserve"><value>{0} plantings were transferred.</value></data>
+  <data name="Distribution_Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Distribution_Shortage" xml:space="preserve"><value>If the space is not enough</value></data>
+  <data name="Distribution_NoCover" xml:space="preserve"><value>If no bed with a cover is chosen (cold frame plants)</value></data>
+  <data name="Distribution_AllowOthers" xml:space="preserve"><value>Other plants may use free space in covered beds</value></data>
+  <data name="Distribution_MaxBed" xml:space="preserve"><value>Largest area of a new bed (m²)</value></data>
+  <data name="Distribution_MaxBedHelp" xml:space="preserve"><value>Applies to new beds. Empty = no limit.</value></data>
+  <data name="Distribution_Pots" xml:space="preserve"><value>Pots</value></data>
+  <data name="Distribution_Beds" xml:space="preserve"><value>Beds</value></data>
+  <data name="Distribution_SelectFree" xml:space="preserve"><value>All free ones</value></data>
+  <data name="Distribution_SelectNone" xml:space="preserve"><value>None</value></data>
+  <data name="Distribution_NoPots" xml:space="preserve"><value>There are no pots.</value></data>
+  <data name="Distribution_NoBeds" xml:space="preserve"><value>There are no beds.</value></data>
+  <data name="Distribution_NoVolume" xml:space="preserve"><value>size missing</value></data>
+  <data name="Distribution_Covered" xml:space="preserve"><value>covered</value></data>
+  <data name="Distribution_Calculate" xml:space="preserve"><value>Save and distribute</value></data>
+  <data name="Distribution_NothingChosen" xml:space="preserve"><value>Choose pots or beds to get the distribution.</value></data>
+  <data name="Distribution_Result" xml:space="preserve"><value>Result</value></data>
+  <data name="Distribution_PlacedOf" xml:space="preserve"><value>{0} of {1} plants placed.</value></data>
+  <data name="Distribution_BuyPots" xml:space="preserve"><value>Pots to get</value></data>
+  <data name="Distribution_Reduced" xml:space="preserve"><value>The number of plants was reduced to {0} %:</value></data>
+  <data name="Distribution_Unplaced" xml:space="preserve"><value>Not placed:</value></data>
+  <data name="Distribution_Container" xml:space="preserve"><value>Pot / bed</value></data>
+  <data name="Distribution_Used" xml:space="preserve"><value>Used</value></data>
+  <data name="Distribution_Plants" xml:space="preserve"><value>Plants</value></data>
+  <data name="Distribution_New" xml:space="preserve"><value>new</value></data>
+  <data name="Distribution_NeedsCover" xml:space="preserve"><value>needs a cover</value></data>
+  <data name="Distribution_NewPot" xml:space="preserve"><value>New pot</value></data>
+  <data name="Distribution_NewBed" xml:space="preserve"><value>New bed</value></data>
+  <data name="Distribution_Under" xml:space="preserve"><value>under-planting</value></data>
+  <data name="Distribution_ConfirmApply" xml:space="preserve"><value>Transfer the distribution as plantings into the existing pots and beds? What this plan transferred earlier is replaced. Beds that need a cover get one.</value></data>
+  <data name="Distribution_Apply" xml:space="preserve"><value>Transfer as plantings</value></data>
+  <data name="Distribution_ApplyHelp" xml:space="preserve"><value>New pots and beds have to be created first.</value></data>
+  <data name="Unplaced_MissingSpaceData" xml:space="preserve"><value>space needed unknown (pot size or spacing missing)</value></data>
+  <data name="Unplaced_NoSuitableContainer" xml:space="preserve"><value>no suitable pot or bed chosen</value></data>
+  <data name="Unplaced_TooBigForBed" xml:space="preserve"><value>needs more area than a new bed may have</value></data>
+  <data name="Shortage_ShrinkProportionally" xml:space="preserve"><value>Reduce the number of plants in proportion</value></data>
+  <data name="Shortage_BuyPots" xml:space="preserve"><value>Get additional pots (list from the distribution)</value></data>
+  <data name="Shortage_AddBeds" xml:space="preserve"><value>Create additional beds</value></data>
+  <data name="NoCover_RetrofitExistingBed" xml:space="preserve"><value>Retrofit an existing bed</value></data>
+  <data name="NoCover_NewCoveredBed" xml:space="preserve"><value>Create a new bed with a cover</value></data>
+  <data name="Unplaced_NotEnoughPots" xml:space="preserve"><value>pots are not enough – not placed (growing place pot, never put into a bed)</value></data>
+  <data name="Unplaced_MissingTimeData" xml:space="preserve"><value>times missing – not placed (add sowing, weeks indoors and harvest to the variety)</value></data>
+  <data name="Distribution_PlacementsSummary" xml:space="preserve"><value>{0} varieties, {1} plants</value></data>
+  <data name="Field_IndoorWeeks" xml:space="preserve"><value>Weeks indoors (min/max)</value></data>
+  <data name="Field_IndoorWeeksHelp" xml:space="preserve"><value>Weeks from sowing to planting out; only for plants started indoors.</value></data>
+  <data name="Field_FrostSensitive" xml:space="preserve"><value>Frost sensitive</value></data>
+  <data name="Field_FrostSensitiveHelp" xml:space="preserve"><value>Is planted out only after the last frost (set in the distribution of a plan).</value></data>
+  <data name="Missing_IndoorWeeks" xml:space="preserve"><value>Weeks indoors</value></data>
+  <data name="Distribution_LastFrost" xml:space="preserve"><value>Last frost</value></data>
+  <data name="Distribution_LastFrostHelp" xml:space="preserve"><value>Frost sensitive plants take their place in the bed no earlier than this.</value></data>
+  <data name="Action_ToggleAll" xml:space="preserve"><value>Expand / collapse all</value></data>
+  <data name="Stats_Title" xml:space="preserve"><value>Fill level of pots and beds</value></data>
+  <data name="Stats_Cluster" xml:space="preserve"><value>Pots / beds of the same size</value></data>
+  <data name="Stats_Total" xml:space="preserve"><value>Total</value></data>
+  <data name="Stats_Pots" xml:space="preserve"><value>Pots</value></data>
+  <data name="Stats_Beds" xml:space="preserve"><value>Beds</value></data>
+  <data name="Distribution_Bed" xml:space="preserve"><value>Bed</value></data>
+  <data name="Stats_Legend" xml:space="preserve"><value>Share of the capacity used at the busiest time of the year; empty = nothing placed.</value></data>
+  <data name="Stats_Band0" xml:space="preserve"><value>empty</value></data>
+  <data name="Stats_Band1" xml:space="preserve"><value>up to 25 %</value></data>
+  <data name="Stats_Band2" xml:space="preserve"><value>up to 50 %</value></data>
+  <data name="Stats_Band3" xml:space="preserve"><value>up to 75 %</value></data>
+  <data name="Stats_Band4" xml:space="preserve"><value>up to 100 %</value></data>
+  <data name="Report_Title" xml:space="preserve"><value>Export report</value></data>
+  <data name="Report_Format" xml:space="preserve"><value>Format</value></data>
+  <data name="Report_FormatCsv" xml:space="preserve"><value>CSV (opens in Excel)</value></data>
+  <data name="Report_FormatXlsx" xml:space="preserve"><value>Excel (.xlsx)</value></data>
+  <data name="Report_FormatPrint" xml:space="preserve"><value>Print view / PDF</value></data>
+  <data name="Report_Content" xml:space="preserve"><value>Content</value></data>
+  <data name="Report_SecPlants" xml:space="preserve"><value>Plants per pot and bed</value></data>
+  <data name="Report_SecStats" xml:space="preserve"><value>Fill level (statistics)</value></data>
+  <data name="Report_SecUnplaced" xml:space="preserve"><value>Not placed and reduced</value></data>
+  <data name="Report_SecShopping" xml:space="preserve"><value>Shopping list (new pots and beds, seed)</value></data>
+  <data name="Report_Columns" xml:space="preserve"><value>Columns of the plant list</value></data>
+  <data name="Report_Col_container" xml:space="preserve"><value>Pot / bed</value></data>
+  <data name="Report_Col_kind" xml:space="preserve"><value>Kind</value></data>
+  <data name="Report_Col_capacity" xml:space="preserve"><value>Fill level</value></data>
+  <data name="Report_Col_plantType" xml:space="preserve"><value>Plant type</value></data>
+  <data name="Report_Col_variety" xml:space="preserve"><value>Variety</value></data>
+  <data name="Report_Col_count" xml:space="preserve"><value>Count</value></data>
+  <data name="Report_Col_role" xml:space="preserve"><value>Role</value></data>
+  <data name="Report_Col_period" xml:space="preserve"><value>Period</value></data>
+  <data name="Report_Export" xml:space="preserve"><value>Export</value></data>
+  <data name="Report_ExportHelp" xml:space="preserve"><value>Files are downloaded; the print view opens in a new tab (save as PDF in the print dialog).</value></data>
+  <data name="Report_Main" xml:space="preserve"><value>Main plant</value></data>
+  <data name="Report_AllYear" xml:space="preserve"><value>all year</value></data>
+  <data name="Report_Pot" xml:space="preserve"><value>Pot</value></data>
+  <data name="Report_Reduced" xml:space="preserve"><value>Reduced varieties</value></data>
+  <data name="Report_Wanted" xml:space="preserve"><value>Wanted</value></data>
+  <data name="Report_Placed" xml:space="preserve"><value>Placed</value></data>
+  <data name="Report_Reason" xml:space="preserve"><value>Reason</value></data>
+  <data name="Report_NewContainers" xml:space="preserve"><value>New pots and beds</value></data>
+  <data name="Report_BuySeed" xml:space="preserve"><value>Seed to buy</value></data>
+  <data name="Report_Size" xml:space="preserve"><value>Size</value></data>
+  <data name="Report_Print" xml:space="preserve"><value>Print</value></data>
+  <data name="Report_Generated" xml:space="preserve"><value>Created {0}</value></data>
+  <data name="Report_FileName" xml:space="preserve"><value>distribution</value></data>
+  <data name="Distribution_Spacing" xml:space="preserve"><value>Spacing in % of the standard spacing</value></data>
+  <data name="Distribution_SpacingHelp" xml:space="preserve"><value>100 = as given for the variety, less = plant closer (at least 50). The area per plant shrinks accordingly; the bed width is checked with the closer row spacing.</value></data>
 </root>

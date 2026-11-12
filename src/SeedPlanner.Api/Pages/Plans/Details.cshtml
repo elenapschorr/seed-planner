@@ -9,7 +9,10 @@
 
 <div class="d-flex justify-content-between align-items-center mb-1">
     <h1 class="mb-0">@Model.Plan.Name</h1>
-    <a class="btn btn-outline-secondary" asp-page="Edit" asp-route-id="@Model.Plan.Id">@L["Plan_EditSettings"]</a>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" asp-page="Distribution" asp-route-id="@Model.Plan.Id">@L["Plan_Distribute"]</a>
+        <a class="btn btn-outline-secondary" asp-page="Edit" asp-route-id="@Model.Plan.Id">@L["Plan_EditSettings"]</a>
+    </div>
 </div>
 <p class="text-muted">
     @L["Plan_SummaryLine", Model.Plan.Year, Model.Plan.Persons, Model.LevelText]
@@ -33,6 +36,7 @@ else
     <form method="post" asp-page-handler="Save" asp-route-id="@Model.Plan.Id">
         <div class="mb-2">
             <span class="text-muted small" id="crop-count" data-template="@L["Plan_CropsIncluded"].Value">@L["Plan_CropsIncluded", Model.IncludedCrops, Model.Crops.Count]</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary ms-3" id="fold-all">@L["Action_ToggleAll"]</button>
         </div>
         <div class="table-responsive">
         <table class="table align-middle">
@@ -55,7 +59,9 @@ else
                     <tr class="table-light">
                         <td>
                             <input type="hidden" name="Items[@itemIndex].Id" value="@item.Id" />
+                            <button type="button" class="btn btn-link p-0 me-1 text-decoration-none crop-toggle" aria-expanded="true" data-id="@item.Id">▾</button>
                             <a asp-page="/PlantTypes/Details" asp-route-id="@item.PlantTypeId" class="text-decoration-none"><strong>@Model.CropName(item)</strong></a>
+                            <span class="text-muted small ms-1 d-none crop-lines-count">(@Model.LinesOf(item).Count())</span>
                             <span class="badge crop-badge ms-2 @(state == "full" ? "text-bg-success" : state == "partial" ? "text-bg-warning" : "d-none")"
                                   data-full="@L["Plan_CropFull"].Value" data-partial="@L["Plan_CropPartial"].Value">@(state == "full" ? L["Plan_CropFull"].Value : L["Plan_CropPartial"].Value)</span>
                         </td>
@@ -71,15 +77,15 @@ else
                     </tr>
                     @if (item.NeedsNumber)
                     {
-                        <tr><td colspan="5" class="text-danger small">@L["Plan_NoSpacing"]</td></tr>
+                        <tr class="crop-detail"><td colspan="5" class="text-danger small">@L["Plan_NoSpacing"]</td></tr>
                     }
                     else if (!item.Lines.Any(l => l.Include))
                     {
-                        <tr><td colspan="5" class="text-danger small">@L["Plan_NoVariety"]</td></tr>
+                        <tr class="crop-detail"><td colspan="5" class="text-danger small">@L["Plan_NoVariety"]</td></tr>
                     }
                     @foreach (var line in Model.LinesOf(item))
                     {
-                        <tr>
+                        <tr class="crop-detail">
                             <td class="ps-4">
                                 <input type="hidden" name="Lines[@lineIndex].Id" value="@line.Id" />
                                 <a asp-page="/Plants/Edit" asp-route-id="@line.PlantId" class="text-decoration-none">@Model.VarietyName(line)</a>
@@ -160,6 +166,38 @@ else
             var bodies = Array.prototype.slice.call(document.querySelectorAll('tbody[data-crop]'));
             var master = document.getElementById('crop-all');
             var counter = document.getElementById('crop-count');
+
+            // Fold the varieties of a crop; the state is kept for this session
+            var foldKey = 'plan-crops-v1:@Model.Plan.Id';
+            var folded = {};
+            try { folded = JSON.parse(sessionStorage.getItem(foldKey) || '{}'); } catch (e) { }
+            function setFold(body, closed) {
+                var button = body.querySelector('.crop-toggle');
+                body.querySelectorAll('.crop-detail').forEach(function (row) { row.hidden = closed; });
+                button.textContent = closed ? '▸' : '▾';
+                button.setAttribute('aria-expanded', closed ? 'false' : 'true');
+                body.querySelector('.crop-lines-count').classList.toggle('d-none', !closed);
+            }
+            // One button for all crops: if any is open, close all; otherwise open all
+            document.getElementById('fold-all').addEventListener('click', function () {
+                var closeAll = bodies.some(function (body) { return body.querySelector('.crop-toggle').getAttribute('aria-expanded') === 'true'; });
+                folded = {};
+                bodies.forEach(function (body) {
+                    setFold(body, closeAll);
+                    if (closeAll) folded[body.querySelector('.crop-toggle').dataset.id] = 1;
+                });
+                try { sessionStorage.setItem(foldKey, JSON.stringify(folded)); } catch (e) { }
+            });
+            bodies.forEach(function (body) {
+                var button = body.querySelector('.crop-toggle');
+                setFold(body, !!folded[button.dataset.id]);
+                button.addEventListener('click', function () {
+                    var closed = button.getAttribute('aria-expanded') === 'true';
+                    setFold(body, closed);
+                    if (closed) folded[button.dataset.id] = 1; else delete folded[button.dataset.id];
+                    try { sessionStorage.setItem(foldKey, JSON.stringify(folded)); } catch (e) { }
+                });
+            });
 
             function linesOf(body) {
                 return Array.prototype.slice.call(body.querySelectorAll('.line-include'));

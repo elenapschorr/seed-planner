@@ -235,7 +235,7 @@
   <data name="Error_WindowOrder" xml:space="preserve"><value>Innerhalb eines Monats darf das Ende nicht vor dem Anfang liegen.</value></data>
   <data name="Col_Sowing" xml:space="preserve"><value>Aussaatart</value></data>
   <data name="Col_GrowingPlace" xml:space="preserve"><value>Kulturort</value></data>
-  <data name="SowingMethod_StartIndoors" xml:space="preserve"><value>Voranzucht</value></data>
+  <data name="SowingMethod_StartIndoors" xml:space="preserve"><value>Vorkultur</value></data>
   <data name="SowingMethod_DirectSow" xml:space="preserve"><value>Direktsaat</value></data>
   <data name="GrowingPlace_Container" xml:space="preserve"><value>Topf</value></data>
   <data name="GrowingPlace_ColdFrame" xml:space="preserve"><value>Frühbeet</value></data>
@@ -387,4 +387,108 @@
   <data name="Plan_CropFull" xml:space="preserve"><value>alle Sorten</value></data>
   <data name="Plan_CropPartial" xml:space="preserve"><value>teilweise</value></data>
   <data name="Plan_CropsIncluded" xml:space="preserve"><value>{0} von {1} Arten ausgewählt</value></data>
+  <data name="Plan_Distribute" xml:space="preserve"><value>Auf Töpfe und Beete verteilen</value></data>
+  <data name="Distribution_Title" xml:space="preserve"><value>Verteilung auf Töpfe und Beete</value></data>
+  <data name="Distribution_Intro" xml:space="preserve"><value>Wähle die Töpfe und Beete, auf die die {0} Pflanzen des Plans verteilt werden sollen.</value></data>
+  <data name="Distribution_Saved" xml:space="preserve"><value>Gespeichert und neu verteilt.</value></data>
+  <data name="Distribution_Applied" xml:space="preserve"><value>{0} Bepflanzungen wurden übernommen.</value></data>
+  <data name="Distribution_Settings" xml:space="preserve"><value>Einstellungen</value></data>
+  <data name="Distribution_Shortage" xml:space="preserve"><value>Wenn der Platz nicht reicht</value></data>
+  <data name="Distribution_NoCover" xml:space="preserve"><value>Wenn kein Beet mit Abdeckung gewählt ist (Frühbeet-Pflanzen)</value></data>
+  <data name="Distribution_AllowOthers" xml:space="preserve"><value>Andere Pflanzen dürfen freie Fläche in abgedeckten Beeten nutzen</value></data>
+  <data name="Distribution_MaxBed" xml:space="preserve"><value>Größte Fläche eines neuen Beets (m²)</value></data>
+  <data name="Distribution_MaxBedHelp" xml:space="preserve"><value>Gilt für neue Beete. Leer = keine Begrenzung.</value></data>
+  <data name="Distribution_Pots" xml:space="preserve"><value>Töpfe</value></data>
+  <data name="Distribution_Beds" xml:space="preserve"><value>Beete</value></data>
+  <data name="Distribution_SelectFree" xml:space="preserve"><value>Alle freien</value></data>
+  <data name="Distribution_SelectNone" xml:space="preserve"><value>Keine</value></data>
+  <data name="Distribution_NoPots" xml:space="preserve"><value>Keine Töpfe vorhanden.</value></data>
+  <data name="Distribution_NoBeds" xml:space="preserve"><value>Keine Beete vorhanden.</value></data>
+  <data name="Distribution_NoVolume" xml:space="preserve"><value>Größe fehlt</value></data>
+  <data name="Distribution_Covered" xml:space="preserve"><value>mit Abdeckung</value></data>
+  <data name="Distribution_Calculate" xml:space="preserve"><value>Speichern und verteilen</value></data>
+  <data name="Distribution_NothingChosen" xml:space="preserve"><value>Wähle Töpfe oder Beete, dann wird die Verteilung berechnet.</value></data>
+  <data name="Distribution_Result" xml:space="preserve"><value>Ergebnis</value></data>
+  <data name="Distribution_PlacedOf" xml:space="preserve"><value>{0} von {1} Pflanzen untergebracht.</value></data>
+  <data name="Distribution_BuyPots" xml:space="preserve"><value>Töpfe zu besorgen</value></data>
+  <data name="Distribution_Reduced" xml:space="preserve"><value>Die Pflanzenzahl wurde auf {0} % gekürzt:</value></data>
+  <data name="Distribution_Unplaced" xml:space="preserve"><value>Nicht untergebracht:</value></data>
+  <data name="Distribution_Container" xml:space="preserve"><value>Topf / Beet</value></data>
+  <data name="Distribution_Used" xml:space="preserve"><value>Belegt</value></data>
+  <data name="Distribution_Plants" xml:space="preserve"><value>Pflanzen</value></data>
+  <data name="Distribution_New" xml:space="preserve"><value>neu</value></data>
+  <data name="Distribution_NeedsCover" xml:space="preserve"><value>braucht Abdeckung</value></data>
+  <data name="Distribution_NewPot" xml:space="preserve"><value>Neuer Topf</value></data>
+  <data name="Distribution_NewBed" xml:space="preserve"><value>Neues Beet</value></data>
+  <data name="Distribution_Under" xml:space="preserve"><value>Unterpflanzung</value></data>
+  <data name="Distribution_ConfirmApply" xml:space="preserve"><value>Die Verteilung als Bepflanzungen in die vorhandenen Töpfe und Beete übernehmen? Was dieser Plan früher übernommen hat, wird ersetzt. Beete, die eine Abdeckung brauchen, bekommen sie.</value></data>
+  <data name="Distribution_Apply" xml:space="preserve"><value>Als Bepflanzungen übernehmen</value></data>
+  <data name="Distribution_ApplyHelp" xml:space="preserve"><value>Neue Töpfe und Beete müssen erst angelegt werden.</value></data>
+  <data name="Unplaced_MissingSpaceData" xml:space="preserve"><value>Platzbedarf unbekannt (Topfgröße bzw. Abstände fehlen)</value></data>
+  <data name="Unplaced_NoSuitableContainer" xml:space="preserve"><value>kein passender Topf oder passendes Beet gewählt</value></data>
+  <data name="Unplaced_TooBigForBed" xml:space="preserve"><value>braucht mehr Fläche als ein neues Beet höchstens haben darf</value></data>
+  <data name="Shortage_ShrinkProportionally" xml:space="preserve"><value>Pflanzenzahl anteilig kürzen</value></data>
+  <data name="Shortage_BuyPots" xml:space="preserve"><value>Zusätzliche Töpfe besorgen (Liste aus der Verteilung)</value></data>
+  <data name="Shortage_AddBeds" xml:space="preserve"><value>Zusätzliche Beete anlegen</value></data>
+  <data name="NoCover_RetrofitExistingBed" xml:space="preserve"><value>Ein vorhandenes Beet nachrüsten</value></data>
+  <data name="NoCover_NewCoveredBed" xml:space="preserve"><value>Ein neues Beet mit Abdeckung anlegen</value></data>
+  <data name="Unplaced_NotEnoughPots" xml:space="preserve"><value>Töpfe reichen nicht – nicht verteilt (Kulturort Topf, wird nicht ins Beet gesetzt)</value></data>
+  <data name="Unplaced_MissingTimeData" xml:space="preserve"><value>Zeiten fehlen – nicht verteilt (Aussaat, Vorkultur-Wochen und Ernte bei der Sorte nachtragen)</value></data>
+  <data name="Distribution_PlacementsSummary" xml:space="preserve"><value>{0} Sorten, {1} Pflanzen</value></data>
+  <data name="Field_IndoorWeeks" xml:space="preserve"><value>Vorkultur in Wochen (min/max)</value></data>
+  <data name="Field_IndoorWeeksHelp" xml:space="preserve"><value>Wochen von der Aussaat bis zum Auspflanzen; nur bei Vorkultur.</value></data>
+  <data name="Field_FrostSensitive" xml:space="preserve"><value>Frostempfindlich</value></data>
+  <data name="Field_FrostSensitiveHelp" xml:space="preserve"><value>Wird erst nach dem letzten Frost ausgepflanzt (Einstellung in der Verteilung eines Plans).</value></data>
+  <data name="Missing_IndoorWeeks" xml:space="preserve"><value>Vorkultur-Wochen</value></data>
+  <data name="Distribution_LastFrost" xml:space="preserve"><value>Letzter Frost</value></data>
+  <data name="Distribution_LastFrostHelp" xml:space="preserve"><value>Frostempfindliche Sorten belegen ihren Platz im Beet frühestens ab diesem Zeitpunkt.</value></data>
+  <data name="Action_ToggleAll" xml:space="preserve"><value>Alle auf-/zuklappen</value></data>
+  <data name="Stats_Title" xml:space="preserve"><value>Auslastung der Töpfe und Beete</value></data>
+  <data name="Stats_Cluster" xml:space="preserve"><value>Töpfe / Beete gleicher Art und Größe</value></data>
+  <data name="Stats_Total" xml:space="preserve"><value>Gesamt</value></data>
+  <data name="Stats_Pots" xml:space="preserve"><value>Töpfe gesamt</value></data>
+  <data name="Stats_Beds" xml:space="preserve"><value>Beete gesamt</value></data>
+  <data name="Distribution_Bed" xml:space="preserve"><value>Beet</value></data>
+  <data name="Stats_Legend" xml:space="preserve"><value>Anteil der Kapazität, der zur stärksten Belegung im Jahr genutzt ist; leer = nichts platziert.</value></data>
+  <data name="Stats_Band0" xml:space="preserve"><value>leer</value></data>
+  <data name="Stats_Band1" xml:space="preserve"><value>bis 25 %</value></data>
+  <data name="Stats_Band2" xml:space="preserve"><value>bis 50 %</value></data>
+  <data name="Stats_Band3" xml:space="preserve"><value>bis 75 %</value></data>
+  <data name="Stats_Band4" xml:space="preserve"><value>bis 100 %</value></data>
+  <data name="Report_Title" xml:space="preserve"><value>Report exportieren</value></data>
+  <data name="Report_Format" xml:space="preserve"><value>Format</value></data>
+  <data name="Report_FormatCsv" xml:space="preserve"><value>CSV (öffnet sich in Excel)</value></data>
+  <data name="Report_FormatXlsx" xml:space="preserve"><value>Excel (.xlsx)</value></data>
+  <data name="Report_FormatPrint" xml:space="preserve"><value>Druckansicht / PDF</value></data>
+  <data name="Report_Content" xml:space="preserve"><value>Inhalt</value></data>
+  <data name="Report_SecPlants" xml:space="preserve"><value>Pflanzen je Topf und Beet</value></data>
+  <data name="Report_SecStats" xml:space="preserve"><value>Auslastung (Statistik)</value></data>
+  <data name="Report_SecUnplaced" xml:space="preserve"><value>Nicht untergebracht und gekürzt</value></data>
+  <data name="Report_SecShopping" xml:space="preserve"><value>Einkaufsliste (neue Töpfe und Beete, Saatgut)</value></data>
+  <data name="Report_Columns" xml:space="preserve"><value>Spalten der Pflanzenliste</value></data>
+  <data name="Report_Col_container" xml:space="preserve"><value>Topf / Beet</value></data>
+  <data name="Report_Col_kind" xml:space="preserve"><value>Art</value></data>
+  <data name="Report_Col_capacity" xml:space="preserve"><value>Auslastung</value></data>
+  <data name="Report_Col_plantType" xml:space="preserve"><value>Pflanzenart</value></data>
+  <data name="Report_Col_variety" xml:space="preserve"><value>Sorte</value></data>
+  <data name="Report_Col_count" xml:space="preserve"><value>Anzahl</value></data>
+  <data name="Report_Col_role" xml:space="preserve"><value>Rolle</value></data>
+  <data name="Report_Col_period" xml:space="preserve"><value>Zeitraum</value></data>
+  <data name="Report_Export" xml:space="preserve"><value>Exportieren</value></data>
+  <data name="Report_ExportHelp" xml:space="preserve"><value>Dateien werden heruntergeladen; die Druckansicht öffnet sich in einem neuen Tab (im Druckdialog als PDF speichern).</value></data>
+  <data name="Report_Main" xml:space="preserve"><value>Hauptpflanze</value></data>
+  <data name="Report_AllYear" xml:space="preserve"><value>ganzjährig</value></data>
+  <data name="Report_Pot" xml:space="preserve"><value>Topf</value></data>
+  <data name="Report_Reduced" xml:space="preserve"><value>Gekürzte Sorten</value></data>
+  <data name="Report_Wanted" xml:space="preserve"><value>Gewünscht</value></data>
+  <data name="Report_Placed" xml:space="preserve"><value>Platziert</value></data>
+  <data name="Report_Reason" xml:space="preserve"><value>Grund</value></data>
+  <data name="Report_NewContainers" xml:space="preserve"><value>Neue Töpfe und Beete</value></data>
+  <data name="Report_BuySeed" xml:space="preserve"><value>Saatgut kaufen</value></data>
+  <data name="Report_Size" xml:space="preserve"><value>Größe</value></data>
+  <data name="Report_Print" xml:space="preserve"><value>Drucken</value></data>
+  <data name="Report_Generated" xml:space="preserve"><value>Erstellt am {0}</value></data>
+  <data name="Report_FileName" xml:space="preserve"><value>verteilung</value></data>
+  <data name="Distribution_Spacing" xml:space="preserve"><value>Abstände in % der Standardabstände</value></data>
+  <data name="Distribution_SpacingHelp" xml:space="preserve"><value>100 = wie bei der Sorte angegeben, kleiner = enger setzen (mindestens 50). Die Fläche pro Pflanze schrumpft entsprechend, die Beetbreite wird mit dem engeren Reihenabstand geprüft.</value></data>
 </root>

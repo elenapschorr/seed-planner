@@ -7,8 +7,14 @@ public class PlanAllocatorTests
 {
     private static AllocPlant Plant(
         int id, int type, int count = 1, double? liters = null, double? height = null,
-        double? litersMax = null, double? area = null, PlantPlace place = PlantPlace.Pot, bool cold = false) =>
-        new(id, type, "P" + id, count, place, liters, litersMax, area, height, cold);
+        double? litersMax = null, double? area = null, PlantPlace place = PlantPlace.Pot, bool cold = false,
+        double? rowCm = null, ulong slots = OccupancyMask.AllYear) =>
+        new(id, type, "P" + id, count, place, liters, litersMax, area, height, cold, rowCm, slots);
+
+    // Thirds of months: Mar-May = 6..14, Jun-Aug = 15..23, Sep-Nov = 24..32
+    private static readonly ulong Spring = OccupancyMask.Range(6, 14);
+    private static readonly ulong Summer = OccupancyMask.Range(15, 23);
+    private static readonly ulong Autumn = OccupancyMask.Range(24, 32);
 
     private static AllocContainerInput Pot(int id, double liters) =>
         new(ContainerKind.Pot, id, "Pot" + id, liters);
@@ -21,8 +27,8 @@ public class PlanAllocatorTests
         PlanAllocator.Allocate(
             plants, containers, relations ?? Array.Empty<PlantTypeCompanion>(), strategy, maxBed, noCover, allowOthers);
 
-    private static AllocContainerInput Bed(int id, double squareMeters, bool cover = false) =>
-        new(ContainerKind.Bed, id, "Bed" + id, squareMeters, HasCover: cover);
+    private static AllocContainerInput Bed(int id, double squareMeters, bool cover = false, double? widthCm = null) =>
+        new(ContainerKind.Bed, id, "Bed" + id, squareMeters, HasCover: cover, WidthCm: widthCm);
 
     private static int Count(ContainerResult c, int plantId) =>
         c.Placements.Where(x => x.PlantId == plantId).Sum(x => x.Count);
@@ -367,5 +373,185 @@ public class PlanAllocatorTests
         Assert.All(r.Containers.Where(c => c.Placements.Any(x => x.PlantId == 1)), c => Assert.True(c.HasCover));
         Assert.Equal(3, r.Containers.Sum(c => Count(c, 1)));
         Assert.Equal(1, r.Containers.Where(c => !c.HasCover).Sum(c => Count(c, 2)));
+    }
+
+    // ---------------------------------------------------------------- bed width
+
+    [Fact]
+    public void A_plant_does_not_go_into_a_bed_narrower_than_its_row_spacing()
+    {
+        var r = Run(
+            [Plant(1, 1, area: 0.25, place: PlantPlace.Bed, rowCm: 50)],
+            [Bed(1, 2, widthCm: 40), Bed(2, 2, widthCm: 120)]);
+
+        Assert.Empty(Box(r, 1).Placements);
+        Assert.Equal(1, Count(Box(r, 2), 1));
+    }
+
+    [Fact]
+    public void A_plant_that_fits_no_bed_by_width_is_reported()
+    {
+        var r = Run(
+            [Plant(1, 1, area: 0.25, place: PlantPlace.Bed, rowCm: 50)],
+            [Bed(1, 2, widthCm: 40)]);
+
+        Assert.Equal(UnplacedReason.NoSuitableContainer, Assert.Single(r.Unplaced).Reason);
+    }
+
+    [Fact]
+    public void A_bed_without_width_has_no_limit()
+    {
+        var r = Run(
+            [Plant(1, 1, area: 0.25, place: PlantPlace.Bed, rowCm: 50)],
+            [Bed(1, 2)]);
+
+        Assert.Equal(1, Count(Box(r, 1), 1));
+    }
+
+    [Fact]
+    public void Retrofit_chooses_a_bed_wide_enough_for_the_cold_frame_plants()
+    {
+        var r = Run(
+            [Plant(1, 1, area: 0.25, place: PlantPlace.Bed, cold: true, rowCm: 50)],
+            [Bed(1, 1, widthCm: 40), Bed(2, 3, widthCm: 100)],
+            noCover: NoCoverStrategy.RetrofitExistingBed);
+
+        Assert.True(Box(r, 2).NeedsCover);
+        Assert.False(Box(r, 1).NeedsCover);
+        Assert.Equal(1, Count(Box(r, 2), 1));
+    }
+
+    // ---------------------------------------------------------------- growing place rules
+
+    [Fact]
+    public void A_pot_plant_is_never_put_into_a_bed_and_is_reported_when_the_pots_are_not_enough()
+    {
+        var r = Run(
+            [Plant(1, 1, liters: 10, area: 0.25, place: PlantPlace.Pot)],
+            [Bed(1, 5)],
+            ShortageStrategy.AddBeds, maxBed: 2);
+
+        Assert.Equal(UnplacedReason.NotEnoughPots, Assert.Single(r.Unplaced).Reason);
+        Assert.Empty(Box(r, 1).Placements);
+        Assert.Empty(r.NewBeds);
+    }
+
+    [Fact]
+    public void Open_ground_plants_go_into_beds_first_even_if_a_pot_is_free()
+    {
+        var r = Run(
+            [Plant(1, 1, liters: 5, area: 0.25, place: PlantPlace.BedThenPot)],
+            [Pot(1, 10), Bed(2, 2)]);
+
+        Assert.Equal(1, Count(Box(r, 2), 1));
+        Assert.Empty(r.Containers.Single(c => c.Kind == ContainerKind.Pot).Placements);
+    }
+
+    [Fact]
+    public void Open_ground_plants_use_free_pots_when_the_beds_are_full()
+    {
+        var r = Run(
+            [Plant(1, 1, count: 2, liters: 5, area: 1, place: PlantPlace.BedThenPot)],
+            [Pot(1, 10), Bed(1, 1)]);
+
+        Assert.Equal(1, Count(r.Containers.Single(c => c.Kind == ContainerKind.Bed), 1));
+        Assert.Equal(1, Count(r.Containers.Single(c => c.Kind == ContainerKind.Pot), 1));
+        Assert.Empty(r.Unplaced);
+    }
+
+    [Fact]
+    public void Pot_plants_get_the_pots_before_open_ground_plants_use_the_rest()
+    {
+        var r = Run(
+            [Plant(1, 1, liters: 5, place: PlantPlace.Pot), Plant(2, 2, liters: 5, area: 1, place: PlantPlace.BedThenPot)],
+            [Pot(1, 5)],
+            ShortageStrategy.AddBeds);
+
+        Assert.Equal(1, Count(r.Containers.Single(), 1));
+        Assert.Equal(2, Assert.Single(r.Unplaced).PlantId);
+    }
+
+    // ---------------------------------------------------------------- time
+
+    [Fact]
+    public void A_bed_is_used_twice_when_the_crops_do_not_overlap_in_time()
+    {
+        var r = Run(
+            [Plant(1, 1, area: 1, place: PlantPlace.Bed, slots: Spring), Plant(2, 2, area: 1, place: PlantPlace.Bed, slots: Autumn)],
+            [Bed(1, 1)]);
+
+        Assert.Empty(r.Unplaced);
+        Assert.Equal(1, Count(Box(r, 1), 1));
+        Assert.Equal(1, Count(Box(r, 1), 2));
+        Assert.Equal(1, Box(r, 1).Used, 3);
+    }
+
+    [Fact]
+    public void Crops_that_overlap_in_time_need_separate_space()
+    {
+        var r = Run(
+            [Plant(1, 1, area: 1, place: PlantPlace.Bed, slots: Spring), Plant(2, 2, area: 1, place: PlantPlace.Bed, slots: Spring | Summer)],
+            [Bed(1, 1)],
+            ShortageStrategy.AddBeds);
+
+        Assert.Single(r.Unplaced);
+    }
+
+    [Fact]
+    public void A_pot_takes_a_second_main_plant_after_the_first_is_harvested()
+    {
+        var r = Run(
+            [Plant(1, 1, liters: 5, slots: Spring), Plant(2, 2, liters: 5, slots: Autumn)],
+            [Pot(1, 10)]);
+
+        Assert.Empty(r.Unplaced);
+        Assert.Equal(2, Box(r, 1).Placements.Count(p => p.Role == PlantingRole.Main));
+    }
+
+    [Fact]
+    public void Under_planting_needs_a_main_plant_at_the_same_time()
+    {
+        var r = Run(
+            [Plant(1, 1, area: 0.5, height: 100, place: PlantPlace.Bed, slots: Spring),
+             Plant(2, 2, area: 0.1, height: 20, place: PlantPlace.Bed, slots: Autumn)],
+            [Bed(1, 1)]);
+
+        // Both fit as main plants (the bed is free in autumn), so neither is an under-planting
+        Assert.All(Box(r, 1).Placements, p => Assert.Equal(PlantingRole.Main, p.Role));
+    }
+
+    [Fact]
+    public void Bad_neighbours_only_matter_when_they_stand_together_in_time()
+    {
+        var bad = PlantTypeCompanion.Between(1, 2, CompanionRelation.Bad);
+        var r = Run(
+            [Plant(1, 1, area: 0.5, place: PlantPlace.Bed, slots: Spring), Plant(2, 2, area: 0.5, place: PlantPlace.Bed, slots: Autumn)],
+            [Bed(1, 2)],
+            relations: [bad]);
+
+        Assert.Equal(2, Box(r, 1).Placements.Count);
+    }
+
+    [Fact]
+    public void Plants_without_times_are_reported_and_not_placed()
+    {
+        var r = Run([Plant(1, 1, area: 1, place: PlantPlace.Bed, slots: 0)], [Bed(1, 5)]);
+
+        var u = Assert.Single(r.Unplaced);
+        Assert.Equal(UnplacedReason.MissingTimeData, u.Reason);
+        Assert.Empty(Box(r, 1).Placements);
+    }
+
+    [Fact]
+    public void Added_beds_are_reused_over_the_year()
+    {
+        var r = Run(
+            [Plant(1, 1, count: 2, area: 1, place: PlantPlace.Bed, slots: Spring), Plant(2, 2, count: 2, area: 1, place: PlantPlace.Bed, slots: Autumn)],
+            [],
+            ShortageStrategy.AddBeds, maxBed: 2);
+
+        Assert.Empty(r.Unplaced);
+        var bed = Assert.Single(r.Containers);
+        Assert.Equal(4, bed.Placements.Sum(p => p.Count));
     }
 }

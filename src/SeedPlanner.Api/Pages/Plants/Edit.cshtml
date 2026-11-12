@@ -12,7 +12,8 @@
     // Sections start open when they hold data, when the variety is new, or when there is a validation error
     var invalid = !ViewData.ModelState.IsValid;
     var openSowing = Model.Id is null || invalid || Any(m.Sowing) || m.GerminationDaysMin is not null || m.GerminationDaysMax is not null
-                     || m.GerminationTempMinC is not null || m.GerminationTempMaxC is not null;
+                     || m.GerminationTempMinC is not null || m.GerminationTempMaxC is not null
+                     || m.IndoorWeeksMin is not null || m.IndoorWeeksMax is not null || m.FrostSensitive;
     // For pot culture the spacings are optional: hidden until the user switches them on (or they hold values)
     var hideSpacing = m.GrowingPlace == SeedPlanner.Domain.GrowingPlace.Container && m.RowSpacingCm is null && m.PlantSpacingCm is null;
     var openBloom = Model.Id is null || invalid || Any(m.Bloom);
@@ -109,6 +110,22 @@
                         <input asp-for="Input.GerminationTempMaxC" class="form-control" />
                     </div>
                     <span asp-validation-for="Input.GerminationTempMinC" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">@L["Field_IndoorWeeks"]</label>
+                    <div class="input-group">
+                        <input asp-for="Input.IndoorWeeksMin" class="form-control" />
+                        <input asp-for="Input.IndoorWeeksMax" class="form-control" />
+                    </div>
+                    <span asp-validation-for="Input.IndoorWeeksMin" class="text-danger"></span>
+                    <div class="form-text">@L["Field_IndoorWeeksHelp"]</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check mt-md-4">
+                        <input asp-for="Input.FrostSensitive" class="form-check-input" />
+                        <label asp-for="Input.FrostSensitive" class="form-check-label">@L["Field_FrostSensitive"]</label>
+                    </div>
+                    <div class="form-text">@L["Field_FrostSensitiveHelp"]</div>
                 </div>
                 <partial name="_WindowSection" model="@(new SeedPlanner.Api.Pages.Plants.EditModel.WindowSectionModel("window-sowing", "Input.Sowing", L["Window_Sowing"].Value, Model.Input.Sowing, Model.MonthOptions, Model.PartOptions))" />
             </div>

@@ -34,6 +34,9 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         public int? GerminationTempMinC { get; set; }
         public int? GerminationTempMaxC { get; set; }
         public int? MaturityDaysMin { get; set; }
+        public int? IndoorWeeksMin { get; set; }
+        public int? IndoorWeeksMax { get; set; }
+        public bool FrostSensitive { get; set; }
         public int? MaturityDaysMax { get; set; }
         public int? RowSpacingCm { get; set; }
         public int? PlantSpacingCm { get; set; }
@@ -272,6 +275,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         CheckMinMax(nameof(Input.GerminationDaysMin), Input.GerminationDaysMin, Input.GerminationDaysMax);
         CheckMinMax(nameof(Input.GerminationTempMinC), Input.GerminationTempMinC, Input.GerminationTempMaxC);
         CheckMinMax(nameof(Input.MaturityDaysMin), Input.MaturityDaysMin, Input.MaturityDaysMax);
+        CheckMinMax(nameof(Input.IndoorWeeksMin), Input.IndoorWeeksMin, Input.IndoorWeeksMax);
         CheckMinMax(nameof(Input.PotSizeMinLiters), Input.PotSizeMinLiters, Input.PotSizeMaxLiters);
         CheckMinMax(nameof(Input.HeightMinCm), Input.HeightMinCm, Input.HeightMaxCm);
 
@@ -335,6 +339,9 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         plant.GerminationTempMinC = Input.GerminationTempMinC;
         plant.GerminationTempMaxC = Input.GerminationTempMaxC;
         plant.MaturityDaysMin = Input.MaturityDaysMin;
+        plant.IndoorWeeksMin = Input.IndoorWeeksMin;
+        plant.IndoorWeeksMax = Input.IndoorWeeksMax;
+        plant.FrostSensitive = Input.FrostSensitive;
         plant.MaturityDaysMax = Input.MaturityDaysMax;
         plant.RowSpacingCm = Input.RowSpacingCm;
         plant.PlantSpacingCm = Input.PlantSpacingCm;
@@ -404,6 +411,9 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             GerminationTempMinC = plant.GerminationTempMinC,
             GerminationTempMaxC = plant.GerminationTempMaxC,
             MaturityDaysMin = plant.MaturityDaysMin,
+            IndoorWeeksMin = plant.IndoorWeeksMin,
+            IndoorWeeksMax = plant.IndoorWeeksMax,
+            FrostSensitive = plant.FrostSensitive,
             MaturityDaysMax = plant.MaturityDaysMax,
             RowSpacingCm = plant.RowSpacingCm,
             PlantSpacingCm = plant.PlantSpacingCm,

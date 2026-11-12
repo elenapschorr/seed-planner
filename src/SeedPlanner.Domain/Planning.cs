@@ -57,10 +57,54 @@ public class Plan : IOwnedByUser
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    // ---- settings of the distribution over pots and beds
+    /// <summary>What happens when the chosen pots and beds are not enough.</summary>
+    public ShortageStrategy Shortage { get; set; } = ShortageStrategy.ShrinkProportionally;
+
+    /// <summary>What happens when plants for the cold frame are planned but no chosen bed has a cover.</summary>
+    public NoCoverStrategy NoCover { get; set; } = NoCoverStrategy.NewCoveredBed;
+
+    /// <summary>Largest area of a new bed in m²; 0 = no limit.</summary>
+    public double MaxBedAreaSquareMeters { get; set; }
+
+    /// <summary>Distances between the plants in percent of the spacing of the variety: 100 = as given, less = closer.</summary>
+    public int SpacingPercent { get; set; } = 100;
+
+    /// <summary>Last frost as a third of the year (0 = early January ... 35 = late December); default mid-May.</summary>
+    public int LastFrostThird { get; set; } = PlantOccupancy.DefaultLastFrostThird;
+
+    /// <summary>Other plants may use free space in covered beds (after the cold frame plants).</summary>
+    public bool AllowOthersInCoveredBeds { get; set; }
+
+    /// <summary>The pots and beds the user chose for this plan.</summary>
+    public List<PlanContainer> Containers { get; set; } = new();
+
+    // ---- result of the distribution (calculated again when the inputs change)
+    /// <summary>The distribution as JSON (an <see cref="AllocationResult"/>).</summary>
+    public string? AllocationJson { get; set; }
+
+    /// <summary>Fingerprint of everything the distribution was calculated from.</summary>
+    public string? AllocationHash { get; set; }
+    public DateTime? AllocatedAt { get; set; }
+
     // ---- result
     public List<PlanItem> Items { get; set; } = new();
 
     public IEnumerable<PlanLine> ShoppingList => Items.SelectMany(i => i.Lines).Where(l => l.ToBuy);
+}
+
+/// <summary>A pot or a bed the user chose for a plan: exactly one of the two.</summary>
+public class PlanContainer
+{
+    public int Id { get; set; }
+    public int PlanId { get; set; }
+    public Plan? Plan { get; set; }
+
+    public int? PotId { get; set; }
+    public Pot? Pot { get; set; }
+
+    public int? RaisedBedId { get; set; }
+    public RaisedBed? RaisedBed { get; set; }
 }
 
 /// <summary>The result for one crop: how much is needed, how many plants that makes, and the varieties they are spread over.</summary>

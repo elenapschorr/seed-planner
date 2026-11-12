@@ -22,6 +22,7 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
     public DbSet<Plan> Plans => Set<Plan>();
     public DbSet<PlanItem> PlanItems => Set<PlanItem>();
     public DbSet<PlanLine> PlanLines => Set<PlanLine>();
+    public DbSet<PlanContainer> PlanContainers => Set<PlanContainer>();
 
     // Used by the query filters. EF evaluates it for each context instance (= each request).
     // Nobody signed in gives null, and then the filters match no rows at all.
@@ -138,6 +139,8 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.HasOne<IdentityUser>().WithMany().HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => x.PotId);
             e.HasIndex(x => x.RaisedBedId);
+            // Deleting a plan keeps what was planted; the planting is then just not linked to a plan any more
+            e.HasOne(x => x.Plan).WithMany().HasForeignKey(x => x.PlanId).OnDelete(DeleteBehavior.SetNull);
             e.ToTable(t =>
             {
                 t.HasCheckConstraint("ck_plantings_count", "plant_count IS NULL OR plant_count >= 1");
@@ -196,16 +199,37 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
         {
             e.Property(p => p.Name).HasMaxLength(100);
             e.Property(p => p.Level).HasConversion<string>();
+            e.Property(p => p.Shortage).HasConversion<string>().HasDefaultValue(ShortageStrategy.ShrinkProportionally);
+            e.Property(p => p.NoCover).HasConversion<string>().HasDefaultValue(NoCoverStrategy.NewCoveredBed);
+            e.Property(p => p.AllocationHash).HasMaxLength(64);
+            e.Property(p => p.SpacingPercent).HasDefaultValue(100);
+            e.Property(p => p.LastFrostThird).HasDefaultValue(PlantOccupancy.DefaultLastFrostThird);
             e.HasIndex(p => new { p.OwnerId, p.Year, p.Name }).IsUnique();
+            e.HasMany(p => p.Containers).WithOne(c => c.Plan).HasForeignKey(c => c.PlanId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<IdentityUser>().WithMany().HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
             e.HasMany(p => p.Items).WithOne(i => i.Plan).HasForeignKey(i => i.PlanId).OnDelete(DeleteBehavior.Cascade);
             e.ToTable(t =>
             {
                 t.HasCheckConstraint("ck_plans_persons", "persons >= 1");
                 t.HasCheckConstraint("ck_plans_custom_percent", "custom_percent BETWEEN 0 AND 100");
+                t.HasCheckConstraint("ck_plans_max_bed_area", "max_bed_area_square_meters >= 0");
+                t.HasCheckConstraint("ck_plans_spacing_percent", "spacing_percent BETWEEN 50 AND 100");
+                t.HasCheckConstraint("ck_plans_last_frost_third", "last_frost_third BETWEEN 0 AND 35");
             });
             e.Ignore(p => p.ShoppingList);
             e.HasQueryFilter(p => p.OwnerId == CurrentUserId);
+        });
+
+        modelBuilder.Entity<PlanContainer>(e =>
+        {
+            // A pot or a bed that is deleted drops out of the plans
+            e.HasOne(c => c.Pot).WithMany().HasForeignKey(c => c.PotId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(c => c.RaisedBed).WithMany().HasForeignKey(c => c.RaisedBedId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(c => new { c.PlanId, c.PotId }).IsUnique();
+            e.HasIndex(c => new { c.PlanId, c.RaisedBedId }).IsUnique();
+            e.ToTable(t => t.HasCheckConstraint("ck_plan_containers_one",
+                "(pot_id IS NOT NULL AND raised_bed_id IS NULL) OR (pot_id IS NULL AND raised_bed_id IS NOT NULL)"));
+            e.HasQueryFilter(c => c.Plan!.OwnerId == CurrentUserId);
         });
 
         modelBuilder.Entity<PlanItem>(e =>

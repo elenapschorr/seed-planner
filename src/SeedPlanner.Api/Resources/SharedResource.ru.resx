@@ -387,4 +387,108 @@
   <data name="Plan_CropFull" xml:space="preserve"><value>все сорта</value></data>
   <data name="Plan_CropPartial" xml:space="preserve"><value>часть сортов</value></data>
   <data name="Plan_CropsIncluded" xml:space="preserve"><value>Выбрано культур: {0} из {1}</value></data>
+  <data name="Plan_Distribute" xml:space="preserve"><value>Распределить по горшкам и грядкам</value></data>
+  <data name="Distribution_Title" xml:space="preserve"><value>Распределение по горшкам и грядкам</value></data>
+  <data name="Distribution_Intro" xml:space="preserve"><value>Выберите горшки и грядки, по которым распределятся {0} растений плана.</value></data>
+  <data name="Distribution_Saved" xml:space="preserve"><value>Сохранено и распределено заново.</value></data>
+  <data name="Distribution_Applied" xml:space="preserve"><value>Перенесено посадок: {0}.</value></data>
+  <data name="Distribution_Settings" xml:space="preserve"><value>Настройки</value></data>
+  <data name="Distribution_Shortage" xml:space="preserve"><value>Если места не хватает</value></data>
+  <data name="Distribution_NoCover" xml:space="preserve"><value>Если не выбрана грядка с укрытием (растения для парника)</value></data>
+  <data name="Distribution_AllowOthers" xml:space="preserve"><value>Другие растения могут занимать свободное место в грядках с укрытием</value></data>
+  <data name="Distribution_MaxBed" xml:space="preserve"><value>Максимальная площадь новой грядки (м²)</value></data>
+  <data name="Distribution_MaxBedHelp" xml:space="preserve"><value>Для новых грядок. Пусто = без ограничения.</value></data>
+  <data name="Distribution_Pots" xml:space="preserve"><value>Горшки</value></data>
+  <data name="Distribution_Beds" xml:space="preserve"><value>Грядки</value></data>
+  <data name="Distribution_SelectFree" xml:space="preserve"><value>Все свободные</value></data>
+  <data name="Distribution_SelectNone" xml:space="preserve"><value>Никакие</value></data>
+  <data name="Distribution_NoPots" xml:space="preserve"><value>Горшков нет.</value></data>
+  <data name="Distribution_NoBeds" xml:space="preserve"><value>Грядок нет.</value></data>
+  <data name="Distribution_NoVolume" xml:space="preserve"><value>нет размера</value></data>
+  <data name="Distribution_Covered" xml:space="preserve"><value>с укрытием</value></data>
+  <data name="Distribution_Calculate" xml:space="preserve"><value>Сохранить и распределить</value></data>
+  <data name="Distribution_NothingChosen" xml:space="preserve"><value>Выберите горшки или грядки, чтобы получить распределение.</value></data>
+  <data name="Distribution_Result" xml:space="preserve"><value>Результат</value></data>
+  <data name="Distribution_PlacedOf" xml:space="preserve"><value>Размещено растений: {0} из {1}.</value></data>
+  <data name="Distribution_BuyPots" xml:space="preserve"><value>Нужно достать горшки</value></data>
+  <data name="Distribution_Reduced" xml:space="preserve"><value>Число растений сокращено до {0} %:</value></data>
+  <data name="Distribution_Unplaced" xml:space="preserve"><value>Не размещено:</value></data>
+  <data name="Distribution_Container" xml:space="preserve"><value>Горшок / грядка</value></data>
+  <data name="Distribution_Used" xml:space="preserve"><value>Занято</value></data>
+  <data name="Distribution_Plants" xml:space="preserve"><value>Растения</value></data>
+  <data name="Distribution_New" xml:space="preserve"><value>новый</value></data>
+  <data name="Distribution_NeedsCover" xml:space="preserve"><value>нужно укрытие</value></data>
+  <data name="Distribution_NewPot" xml:space="preserve"><value>Новый горшок</value></data>
+  <data name="Distribution_NewBed" xml:space="preserve"><value>Новая грядка</value></data>
+  <data name="Distribution_Under" xml:space="preserve"><value>подсадка</value></data>
+  <data name="Distribution_ConfirmApply" xml:space="preserve"><value>Перенести распределение как посадки в существующие горшки и грядки? Ранее перенесённое этим планом будет заменено. Грядки, которым нужно укрытие, получат его.</value></data>
+  <data name="Distribution_Apply" xml:space="preserve"><value>Перенести как посадки</value></data>
+  <data name="Distribution_ApplyHelp" xml:space="preserve"><value>Новые горшки и грядки сначала нужно создать.</value></data>
+  <data name="Unplaced_MissingSpaceData" xml:space="preserve"><value>потребность в месте неизвестна (нет размера горшка или расстояний)</value></data>
+  <data name="Unplaced_NoSuitableContainer" xml:space="preserve"><value>не выбран подходящий горшок или грядка</value></data>
+  <data name="Unplaced_TooBigForBed" xml:space="preserve"><value>нужно больше площади, чем допускается для новой грядки</value></data>
+  <data name="Shortage_ShrinkProportionally" xml:space="preserve"><value>Пропорционально сократить число растений</value></data>
+  <data name="Shortage_BuyPots" xml:space="preserve"><value>Достать дополнительные горшки (список из распределения)</value></data>
+  <data name="Shortage_AddBeds" xml:space="preserve"><value>Создать дополнительные грядки</value></data>
+  <data name="NoCover_RetrofitExistingBed" xml:space="preserve"><value>Дооборудовать существующую грядку</value></data>
+  <data name="NoCover_NewCoveredBed" xml:space="preserve"><value>Создать новую грядку с укрытием</value></data>
+  <data name="Unplaced_NotEnoughPots" xml:space="preserve"><value>горшков не хватает – не размещено (место выращивания горшок, в грядку не сажается)</value></data>
+  <data name="Unplaced_MissingTimeData" xml:space="preserve"><value>нет сроков – не размещено (укажите посев, недели рассады и сбор у сорта)</value></data>
+  <data name="Distribution_PlacementsSummary" xml:space="preserve"><value>сортов: {0}, растений: {1}</value></data>
+  <data name="Field_IndoorWeeks" xml:space="preserve"><value>Недель рассады (мин/макс)</value></data>
+  <data name="Field_IndoorWeeksHelp" xml:space="preserve"><value>Недель от посева до высадки; только при предварительном выращивании.</value></data>
+  <data name="Field_FrostSensitive" xml:space="preserve"><value>Боится заморозков</value></data>
+  <data name="Field_FrostSensitiveHelp" xml:space="preserve"><value>Высаживается только после последних заморозков (настройка в распределении плана).</value></data>
+  <data name="Missing_IndoorWeeks" xml:space="preserve"><value>Недели рассады</value></data>
+  <data name="Distribution_LastFrost" xml:space="preserve"><value>Последний заморозок</value></data>
+  <data name="Distribution_LastFrostHelp" xml:space="preserve"><value>Теплолюбивые сорта занимают место в грядке не раньше этого срока.</value></data>
+  <data name="Action_ToggleAll" xml:space="preserve"><value>Свернуть / развернуть все</value></data>
+  <data name="Stats_Title" xml:space="preserve"><value>Заполненность горшков и грядок</value></data>
+  <data name="Stats_Cluster" xml:space="preserve"><value>Горшки / грядки одного вида и размера</value></data>
+  <data name="Stats_Total" xml:space="preserve"><value>Всего</value></data>
+  <data name="Stats_Pots" xml:space="preserve"><value>Горшки всего</value></data>
+  <data name="Stats_Beds" xml:space="preserve"><value>Грядки всего</value></data>
+  <data name="Distribution_Bed" xml:space="preserve"><value>Грядка</value></data>
+  <data name="Stats_Legend" xml:space="preserve"><value>Доля объёма, занятая в самый загруженный период года; пусто = ничего не размещено.</value></data>
+  <data name="Stats_Band0" xml:space="preserve"><value>пусто</value></data>
+  <data name="Stats_Band1" xml:space="preserve"><value>до 25 %</value></data>
+  <data name="Stats_Band2" xml:space="preserve"><value>до 50 %</value></data>
+  <data name="Stats_Band3" xml:space="preserve"><value>до 75 %</value></data>
+  <data name="Stats_Band4" xml:space="preserve"><value>до 100 %</value></data>
+  <data name="Report_Title" xml:space="preserve"><value>Экспорт отчёта</value></data>
+  <data name="Report_Format" xml:space="preserve"><value>Формат</value></data>
+  <data name="Report_FormatCsv" xml:space="preserve"><value>CSV (открывается в Excel)</value></data>
+  <data name="Report_FormatXlsx" xml:space="preserve"><value>Excel (.xlsx)</value></data>
+  <data name="Report_FormatPrint" xml:space="preserve"><value>Версия для печати / PDF</value></data>
+  <data name="Report_Content" xml:space="preserve"><value>Содержание</value></data>
+  <data name="Report_SecPlants" xml:space="preserve"><value>Растения по горшкам и грядкам</value></data>
+  <data name="Report_SecStats" xml:space="preserve"><value>Заполненность (статистика)</value></data>
+  <data name="Report_SecUnplaced" xml:space="preserve"><value>Не размещено и сокращено</value></data>
+  <data name="Report_SecShopping" xml:space="preserve"><value>Список покупок (новые горшки и грядки, семена)</value></data>
+  <data name="Report_Columns" xml:space="preserve"><value>Столбцы списка растений</value></data>
+  <data name="Report_Col_container" xml:space="preserve"><value>Горшок / грядка</value></data>
+  <data name="Report_Col_kind" xml:space="preserve"><value>Вид</value></data>
+  <data name="Report_Col_capacity" xml:space="preserve"><value>Заполненность</value></data>
+  <data name="Report_Col_plantType" xml:space="preserve"><value>Вид растения</value></data>
+  <data name="Report_Col_variety" xml:space="preserve"><value>Сорт</value></data>
+  <data name="Report_Col_count" xml:space="preserve"><value>Количество</value></data>
+  <data name="Report_Col_role" xml:space="preserve"><value>Роль</value></data>
+  <data name="Report_Col_period" xml:space="preserve"><value>Период</value></data>
+  <data name="Report_Export" xml:space="preserve"><value>Экспортировать</value></data>
+  <data name="Report_ExportHelp" xml:space="preserve"><value>Файлы скачиваются; версия для печати открывается в новой вкладке (в окне печати можно сохранить как PDF).</value></data>
+  <data name="Report_Main" xml:space="preserve"><value>Основное растение</value></data>
+  <data name="Report_AllYear" xml:space="preserve"><value>круглый год</value></data>
+  <data name="Report_Pot" xml:space="preserve"><value>Горшок</value></data>
+  <data name="Report_Reduced" xml:space="preserve"><value>Сокращённые сорта</value></data>
+  <data name="Report_Wanted" xml:space="preserve"><value>Нужно</value></data>
+  <data name="Report_Placed" xml:space="preserve"><value>Размещено</value></data>
+  <data name="Report_Reason" xml:space="preserve"><value>Причина</value></data>
+  <data name="Report_NewContainers" xml:space="preserve"><value>Новые горшки и грядки</value></data>
+  <data name="Report_BuySeed" xml:space="preserve"><value>Семена к покупке</value></data>
+  <data name="Report_Size" xml:space="preserve"><value>Размер</value></data>
+  <data name="Report_Print" xml:space="preserve"><value>Печать</value></data>
+  <data name="Report_Generated" xml:space="preserve"><value>Создано {0}</value></data>
+  <data name="Report_FileName" xml:space="preserve"><value>raspredelenie</value></data>
+  <data name="Distribution_Spacing" xml:space="preserve"><value>Расстояния в % от стандартных</value></data>
+  <data name="Distribution_SpacingHelp" xml:space="preserve"><value>100 = как указано для сорта, меньше = садить гуще (не менее 50). Площадь на растение уменьшается соответственно, ширина грядки проверяется с более тесным междурядьем.</value></data>
 </root>

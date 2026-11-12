@@ -188,6 +188,8 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
                     if (isSeed && (p.GerminationDaysMin is null || p.GerminationDaysMax is null)) list.Add("germDays");
                     if (p.MaturityDaysMin is null || p.MaturityDaysMax is null) list.Add("maturity");
                     if (!p.SeasonWindows.Any(w => w.Kind == WindowKind.Sowing)) list.Add("sowing");
+                    // plants started indoors need the weeks indoors (planting out) for the distribution
+                    if (p.SowingMethod == SowingMethod.StartIndoors && (p.IndoorWeeksMin is null || p.IndoorWeeksMax is null)) list.Add("indoorWeeks");
                     // flowers have a bloom time instead of a harvest
                     if (IsFlower(p) && !p.SeasonWindows.Any(w => w.Kind == WindowKind.Bloom)) list.Add("bloom");
                     if (!IsFlower(p) && !p.SeasonWindows.Any(w => w.Kind == WindowKind.Harvest)) list.Add("harvest");
@@ -206,7 +208,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
                 {
                     ("seedType", L["Missing_SeedType"].Value), ("sowingMethod", L["Missing_SowingMethod"].Value), ("place", L["Missing_Place"].Value),
                     ("exposure", L["Missing_Exposure"].Value), ("germTemp", L["Missing_GermTemp"].Value), ("germDays", L["Missing_GermDays"].Value),
-                    ("maturity", L["Missing_Maturity"].Value), ("sowing", L["Missing_Sowing"].Value), ("bloom", L["Missing_Bloom"].Value),
+                    ("maturity", L["Missing_Maturity"].Value), ("sowing", L["Missing_Sowing"].Value), ("indoorWeeks", L["Missing_IndoorWeeks"].Value), ("bloom", L["Missing_Bloom"].Value),
                     ("harvest", L["Missing_Harvest"].Value), ("spacing", L["Missing_Spacing"].Value), ("potSize", L["Missing_PotSize"].Value),
                     ("height", L["Missing_Height"].Value), ("category", L["Missing_Category"].Value), ("lifecycle", L["Missing_Lifecycle"].Value),
                     ("nutrient", L["Missing_Nutrient"].Value), ("germType", L["Missing_GermType"].Value)

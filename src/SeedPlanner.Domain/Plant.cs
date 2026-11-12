@@ -29,6 +29,13 @@ public class Plant
     public int? MaturityDaysMin { get; set; }
     public int? MaturityDaysMax { get; set; }
 
+    /// <summary>Weeks from sowing to planting out (only for plants started indoors).</summary>
+    public int? IndoorWeeksMin { get; set; }
+    public int? IndoorWeeksMax { get; set; }
+
+    /// <summary>Is planted out only after the last frost (see the plan setting "last frost").</summary>
+    public bool FrostSensitive { get; set; }
+
     public int? RowSpacingCm { get; set; }
     public int? PlantSpacingCm { get; set; }
     public int? PotSizeMinLiters { get; set; }
