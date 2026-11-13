@@ -32,6 +32,10 @@
         <input asp-for="Input.SetSize" class="form-control" inputmode="numeric" />
         <span asp-validation-for="Input.SetSize" class="text-danger"></span>
     </div>
+    <div class="col-md-4">
+        <label asp-for="Input.Color" class="form-label">@L["Col_Color"]</label>
+        <input asp-for="Input.Color" class="form-control" maxlength="50" />
+    </div>
 
     <div class="col-md-4">
         <label asp-for="Input.TopCm" class="form-label">@L["Field_TopCm"]</label>
@@ -49,10 +53,6 @@
         <span asp-validation-for="Input.HeightCm" class="text-danger"></span>
     </div>
 
-    <div class="col-md-3">
-        <label asp-for="Input.Color" class="form-label">@L["Col_Color"]</label>
-        <input asp-for="Input.Color" class="form-control" maxlength="50" />
-    </div>
     <div class="col-md-3">
         <label asp-for="Input.Code" class="form-label">@L["Col_Code"]</label>
         <input asp-for="Input.Code" class="form-control" maxlength="50" />
