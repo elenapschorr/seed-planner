@@ -73,4 +73,27 @@ public class PlantOccupancyTests
     {
         Assert.Equal(OccupancyMask.AllYear, PlantOccupancy.Slots(new Plant { Name = "P" }, Lifecycle.Perennial));
     }
+
+    [Fact]
+    public void Biennials_with_times_are_grown_like_annual_crops()
+    {
+        var p = Make(SowingMethod.DirectSow, 4, 5, 7, 9);
+
+        Assert.Equal(OccupancyMask.Range(9, 26), PlantOccupancy.Slots(p, Lifecycle.Biennial));
+    }
+
+    [Fact]
+    public void Biennials_without_times_are_not_distributed()
+    {
+        Assert.Equal(0UL, PlantOccupancy.Slots(new Plant { Name = "P" }, Lifecycle.Biennial));
+    }
+
+    [Fact]
+    public void Frost_sensitive_plants_sown_in_winter_still_wait_for_the_last_frost()
+    {
+        // Sowing from December (third 33) + 10 weeks indoors wraps into February; frost sensitive: not before third 13
+        var p = Make(SowingMethod.StartIndoors, 12, 2, 8, 10, weeks: 10, frost: true);
+
+        Assert.Equal(OccupancyMask.Range(13, 29), PlantOccupancy.Slots(p, Lifecycle.Annual));
+    }
 }

@@ -33,31 +33,33 @@ public static class PlanAllocation
     public static async Task<Prepared> PrepareAsync(SeedPlannerDbContext db, Plan plan)
     {
         var plants = plan.Items
-            .SelectMany(i => i.Lines.Select(l => (Line: l, Life: i.PlantType?.Lifecycle)))
+            .SelectMany(i => i.Lines.Select(l => (Line: l, Life: i.PlantType?.Lifecycle, Type: i.PlantType)))
             .Where(x => x.Line.Plants > 0 && x.Line.Plant is not null)
-            .Select(x => ToPlant(x.Line.Plant!, x.Line.Plants, plan.SpacingPercent, x.Life, plan.LastFrostThird))
+            .Select(x => ToPlant(x.Line.Plant!, x.Line.Plants, plan.SpacingPercent, x.Life, plan.LastFrostThird, x.Type))
             .OrderBy(p => p.PlantId)
             .ToList();
 
         var containers = new List<AllocContainerInput>();
+        var categories = await db.PlantTypes.AsNoTracking().ToDictionaryAsync(t => t.Id, t => t.Category);
 
-        // What this plan planted earlier does not count as occupied: the plan can be transferred again
+        // What this plan planted earlier does not count as occupied: the plan can be transferred again.
+        // Plantings of plans of other years do not count either; plantings made by hand always do.
         var potIds = plan.Containers.Where(c => c.PotId is not null).Select(c => c.PotId!.Value).ToList();
         var pots = await db.Pots
             .Include(p => p.PotGroup).ThenInclude(g => g!.Pots)
-            .Include(p => p.Plantings.Where(x => x.PlanId != plan.Id)).ThenInclude(x => x.Plant)
+            .Include(p => p.Plantings.Where(x => x.PlanId != plan.Id && (x.PlanId == null || x.Plan!.Year == plan.Year))).ThenInclude(x => x.Plant)
             .Where(p => potIds.Contains(p.Id))
             .ToListAsync();
         foreach (var pot in pots.OrderBy(p => p.Id))
-            containers.Add(ToPotInput(pot));
+            containers.Add(ToPotInput(pot, categories));
 
         var bedIds = plan.Containers.Where(c => c.RaisedBedId is not null).Select(c => c.RaisedBedId!.Value).ToList();
         var beds = await db.RaisedBeds
-            .Include(b => b.Plantings.Where(x => x.PlanId != plan.Id)).ThenInclude(x => x.Plant)
+            .Include(b => b.Plantings.Where(x => x.PlanId != plan.Id && (x.PlanId == null || x.Plan!.Year == plan.Year))).ThenInclude(x => x.Plant)
             .Where(b => bedIds.Contains(b.Id))
             .ToListAsync();
         foreach (var bed in beds.OrderBy(b => b.Id))
-            containers.Add(ToBedInput(bed));
+            containers.Add(ToBedInput(bed, categories));
 
         var companions = await db.PlantTypeCompanions.AsNoTracking().OrderBy(c => c.Id).ToListAsync();
 
@@ -151,7 +153,7 @@ public static class PlanAllocation
     // ---------------------------------------------------------------- input
 
     // spacingPercent: the user may plant closer than the spacing of the variety; the area per plant shrinks with the square
-    private static AllocPlant ToPlant(Plant p, int count, int spacingPercent, Lifecycle? life, int lastFrostThird)
+    private static AllocPlant ToPlant(Plant p, int count, int spacingPercent, Lifecycle? life, int lastFrostThird, PlantType? type)
     {
         var factor = Math.Clamp(spacingPercent, 50, 100) / 100.0;
         var place = p.GrowingPlace switch
@@ -169,7 +171,8 @@ public static class PlanAllocation
             HeightOf(p),
             ColdFrame: p.GrowingPlace == GrowingPlace.ColdFrame,
             RowSpacingCm: row,
-            Slots: PlantOccupancy.Slots(p, life, lastFrostThird));
+            Slots: PlantOccupancy.Slots(p, life, lastFrostThird),
+            PhMin: type?.PhMin, PhMax: type?.PhMax, SoilType: type?.SoilType, Category: type?.Category);
     }
 
     /// <summary>"Mar–May" for display; empty if the plant takes the place all year.</summary>
@@ -185,7 +188,7 @@ public static class PlanAllocation
     private static double? HeightOf(Plant p) => p.HeightMaxCm ?? p.HeightMinCm;
 
     // Pot: litres of the group; plantings already in it use litres of their pot size
-    private static AllocContainerInput ToPotInput(Pot pot)
+    private static AllocContainerInput ToPotInput(Pot pot, IReadOnlyDictionary<int, PlantCategory?> categories)
     {
         var group = pot.PotGroup!;
         var number = group.Pots.OrderBy(p => p.Id).ToList().FindIndex(p => p.Id == pot.Id) + 1;
@@ -195,11 +198,13 @@ public static class PlanAllocation
             Used: pot.Plantings.Sum(x => (double?)(x.Plant?.PotSizeMinLiters) ?? 0),
             HasMain: pot.Plantings.Count > 0,
             MaxHeightCm: LowestHeight(pot.Plantings),
-            ExistingTypeIds: pot.Plantings.Select(x => x.PlantTypeId).Distinct().ToList());
+            ExistingTypeIds: pot.Plantings.Select(x => x.PlantTypeId).Distinct().ToList(),
+            SoilPh: group.SoilPh, SoilType: group.SoilType,
+            HasTree: HasTree(pot.Plantings, categories), HasVegetable: HasVegetable(pot.Plantings, categories));
     }
 
     // Bed: area; plantings already in it use area by number of plants and spacing
-    private static AllocContainerInput ToBedInput(RaisedBed bed) =>
+    private static AllocContainerInput ToBedInput(RaisedBed bed, IReadOnlyDictionary<int, PlantCategory?> categories) =>
         new(ContainerKind.Bed, bed.Id, bed.Name, bed.AreaSquareMeters,
             Used: bed.Plantings.Sum(x => (x.PlantCount ?? 1) *
                 (x.Plant is null ? 0 : AllocPlant.AreaFromSpacing(x.Plant.RowSpacingCm, x.Plant.PlantSpacingCm) ?? 0)),
@@ -207,7 +212,16 @@ public static class PlanAllocation
             MaxHeightCm: LowestHeight(bed.Plantings),
             ExistingTypeIds: bed.Plantings.Select(x => x.PlantTypeId).Distinct().ToList(),
             HasCover: bed.HasCover,
-            WidthCm: (double)Math.Min(bed.WidthCm, bed.LengthCm));
+            WidthCm: (double)Math.Min(bed.WidthCm, bed.LengthCm),
+            SoilPh: bed.SoilPh, SoilType: bed.SoilType,
+            HasTree: HasTree(bed.Plantings, categories), HasVegetable: HasVegetable(bed.Plantings, categories));
+
+    private static bool HasTree(IEnumerable<Planting> plantings, IReadOnlyDictionary<int, PlantCategory?> categories) =>
+        plantings.Any(x => categories.GetValueOrDefault(x.PlantTypeId) == PlantCategory.FruitTree);
+
+    private static bool HasVegetable(IEnumerable<Planting> plantings, IReadOnlyDictionary<int, PlantCategory?> categories) =>
+        plantings.Any(x => categories.GetValueOrDefault(x.PlantTypeId) is { } c
+            && c is not (PlantCategory.Herb or PlantCategory.Flower or PlantCategory.FruitTree));
 
     // Under-planting has to be lower than every plant that is already there
     private static double? LowestHeight(IEnumerable<Planting> plantings)

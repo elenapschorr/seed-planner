@@ -15,5 +15,12 @@ public class PlantType
     public DemandUnit? DemandUnit { get; set; }
     public List<Plant> Plants { get; } = [];
     public Exposure? Exposure { get; set; }
+
+    /// <summary>Preferred soil pH range (e.g. 6.0 to 7.0).</summary>
+    public decimal? PhMin { get; set; }
+    public decimal? PhMax { get; set; }
+
+    /// <summary>The soil the plant type likes best.</summary>
+    public SoilType? SoilType { get; set; }
     public List<PlantTypeTranslation> Translations { get; set; } = new();
 }

@@ -62,6 +62,17 @@
         <select asp-for="Input.SaucerId" asp-items="Model.SaucerOptions" class="form-select"></select>
     </div>
     <div class="col-md-3">
+        <label asp-for="Input.SoilPh" class="form-label">@L["Soil_Ph"]</label>
+        <input asp-for="Input.SoilPh" class="form-control" inputmode="decimal" />
+        <span asp-validation-for="Input.SoilPh" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Input.SoilType" class="form-label">@L["Soil_Type"]</label>
+        <select asp-for="Input.SoilType" asp-items="Model.SoilOptions" class="form-select"></select>
+    </div>
+    <div class="col-12 form-text mt-0">@L["Soil_Help"]</div>
+
+    <div class="col-md-3">
         <label asp-for="Input.Note" class="form-label">@L["Col_Note"]</label>
         <input asp-for="Input.Note" class="form-control" maxlength="200" />
     </div>

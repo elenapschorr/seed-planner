@@ -33,6 +33,10 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         public string? Code { get; set; }
         public string? Note { get; set; }
 
+        [System.ComponentModel.DataAnnotations.Range(0, 14)]
+        public decimal? SoilPh { get; set; }
+        public SoilType? SoilType { get; set; }
+
         public int? SaucerId { get; set; }
     }
 
@@ -48,6 +52,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
     public List<SelectListItem> KindOptions { get; private set; } = new();
     public List<SelectListItem> ShapeOptions { get; private set; } = new();
+    public List<SelectListItem> SoilOptions { get; private set; } = new();
     public List<SelectListItem> SaucerOptions { get; private set; } = new();
     public List<SelectListItem> PlantOptions { get; private set; } = new();
 
@@ -273,6 +278,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         group.Color = Clean(Input.Color);
         group.Code = Clean(Input.Code);
         group.Note = Clean(Input.Note);
+        group.SoilPh = Input.SoilPh;
+        group.SoilType = Input.SoilType;
         group.SaucerId = Input.SaucerId;
     }
 
@@ -310,6 +317,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         Color = group.Color,
         Code = group.Code,
         Note = group.Note,
+        SoilPh = group.SoilPh,
+        SoilType = group.SoilType,
         SaucerId = group.SaucerId
     };
 
@@ -323,6 +332,9 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             .Select(v => new SelectListItem(L["PotKind_" + v].Value, v.ToString())).ToList();
         ShapeOptions = Enum.GetValues<PotShape>()
             .Select(v => new SelectListItem(L["PotShape_" + v].Value, v.ToString())).ToList();
+        SoilOptions = Enum.GetValues<SoilType>()
+            .Select(v => new SelectListItem(L["SoilType_" + v].Value, v.ToString())).ToList();
+        SoilOptions.Insert(0, new SelectListItem("–", ""));
 
         var saucers = await db.Saucers.AsNoTracking().OrderBy(s => s.DiameterCm).ThenBy(s => s.Color).ToListAsync();
         SaucerOptions = saucers

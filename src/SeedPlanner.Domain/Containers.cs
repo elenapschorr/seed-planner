@@ -60,6 +60,10 @@ public class PotGroup : IOwnedByUser
 
     public string? Color { get; set; }
 
+    /// <summary>Soil pH and kind of soil in the pots of this group (empty = unknown, no restriction).</summary>
+    public decimal? SoilPh { get; set; }
+    public SoilType? SoilType { get; set; }
+
     /// <summary>Number printed on the pot (manufacturer's size).</summary>
     public string? Code { get; set; }
 
@@ -181,6 +185,10 @@ public class RaisedBed : IOwnedByUser
 
     /// <summary>The bed has a cover (cold frame, hood). Plants for the cold frame only go into such beds.</summary>
     public bool HasCover { get; set; }
+
+    /// <summary>Soil pH and kind of soil in the bed (empty = unknown, no restriction).</summary>
+    public decimal? SoilPh { get; set; }
+    public SoilType? SoilType { get; set; }
     public string? Note { get; set; }
 
     public List<Planting> Plantings { get; set; } = new();

@@ -66,8 +66,10 @@
         <label asp-for="Input.PlantSpacingCm" class="form-label">@L["Field_PlantSpacing"]</label>
         <input asp-for="Input.PlantSpacingCm" class="form-control" />
     </div>
-    <div class="col-md-4 d-flex align-items-end" id="spacing-toggle" hidden>
-        <button type="button" class="btn btn-link btn-sm p-0 mb-2">@L["Action_ShowSpacing"]</button>
+    <div class="col-md-4" id="spacing-toggle" hidden>
+        <div class="d-flex align-items-end h-100">
+            <button type="button" class="btn btn-link btn-sm p-0 mb-2">@L["Action_ShowSpacing"]</button>
+        </div>
     </div>
     <div class="col-md-4">
         <label class="form-label">@L["Field_PotSize"]@(Model.Input.GrowingPlace == SeedPlanner.Domain.GrowingPlace.Container ? " *" : "")</label>

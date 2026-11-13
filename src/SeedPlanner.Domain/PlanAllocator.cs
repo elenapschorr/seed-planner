@@ -35,7 +35,10 @@ public enum UnplacedReason
     NotEnoughPots,
 
     /// <summary>The times (sowing or planting out, harvest) of the variety are missing, so it cannot be put anywhere.</summary>
-    MissingTimeData
+    MissingTimeData,
+
+    /// <summary>Containers would fit, but their soil pH is outside the range of the variety.</summary>
+    SoilMismatch
 }
 
 /// <summary>
@@ -63,8 +66,17 @@ public enum NoCoverStrategy
 public record AllocPlant(
     int PlantId, int PlantTypeId, string Name, int Count, PlantPlace Place,
     double? PotLitersMin, double? PotLitersMax, double? AreaM2, double? HeightCm,
-    bool ColdFrame = false, double? RowSpacingCm = null, ulong Slots = OccupancyMask.AllYear)
+    bool ColdFrame = false, double? RowSpacingCm = null, ulong Slots = OccupancyMask.AllYear,
+    decimal? PhMin = null, decimal? PhMax = null, SoilType? SoilType = null, PlantCategory? Category = null)
 {
+    /// <summary>A tree (fruit tree). Vegetables and berries are never planted together with a tree.</summary>
+    public bool IsTree => Category == PlantCategory.FruitTree;
+
+    /// <summary>A vegetable or berry: everything except herbs, flowers and trees (unknown category does not count).
+    /// Only herbs and flowers may stand under a tree.</summary>
+    public bool IsVegetable => Category is not null
+        and not (PlantCategory.Herb or PlantCategory.Flower or PlantCategory.FruitTree);
+
     /// <summary>
     /// How "large" a plant is, for the order of placing: litres of pot, otherwise 100 x square meters.
     /// A rough measure that only has to put the big plants before the small ones.
@@ -90,7 +102,8 @@ public record AllocPlant(
 public record AllocContainerInput(
     ContainerKind Kind, int Id, string Name, double Capacity,
     double Used = 0, bool HasMain = false, double? MaxHeightCm = null,
-    IReadOnlyCollection<int>? ExistingTypeIds = null, bool HasCover = false, double? WidthCm = null);
+    IReadOnlyCollection<int>? ExistingTypeIds = null, bool HasCover = false, double? WidthCm = null,
+    decimal? SoilPh = null, SoilType? SoilType = null, bool HasTree = false, bool HasVegetable = false);
 
 /// <summary><see cref="Slots"/>: the time the plants take the place (thirds of months), all year if not limited.</summary>
 public record PlacementResult(int PlantId, int PlantTypeId, PlantingRole Role, int Count, ulong Slots = OccupancyMask.AllYear);
@@ -172,7 +185,15 @@ public static class PlanAllocator
             }
             var probe = Execute(new[] { p with { Count = 1 } }, containers, rel, opt);
             if (probe.Left.Count == 0) usable.Add(p);
-            else unplaced.Add(new UnplacedResult(p.PlantId, p.Count, ReasonFor(p, strategy, maxBedAreaM2)));
+            else
+            {
+                var reason = ReasonFor(p, strategy, maxBedAreaM2);
+                // Would it fit if the soil pH did not count? Then the pH is the reason.
+                if (reason is UnplacedReason.NoSuitableContainer or UnplacedReason.NotEnoughPots && (p.PhMin is not null || p.PhMax is not null) &&
+                    Execute(new[] { p with { Count = 1, PhMin = null, PhMax = null } }, containers, rel, opt).Left.Count == 0)
+                    reason = UnplacedReason.SoilMismatch;
+                unplaced.Add(new UnplacedResult(p.PlantId, p.Count, reason));
+            }
         }
 
         var counts = usable.Select(p => p.Count).ToArray();
@@ -264,6 +285,12 @@ public static class PlanAllocator
         public int ColdCount;
         public double? MaxHeightCm;
         public double? WidthCm;
+        public decimal? SoilPh;
+        public SoilType? SoilType;
+
+        /// <summary>A tree stands here / a vegetable stands here: the two never share a container.</summary>
+        public bool HasTree;
+        public bool HasVegetable;
         public HashSet<int> TypeIds = new();
         public List<(AllocPlant Plant, PlantingRole Role)> Placements = new();
         public double Free => Capacity - Used;
@@ -322,6 +349,10 @@ public static class PlanAllocator
         HasCover = i.HasCover,
         MaxHeightCm = i.MaxHeightCm,
         WidthCm = i.WidthCm,
+        SoilPh = i.SoilPh,
+        SoilType = i.SoilType,
+        HasTree = i.HasTree,
+        HasVegetable = i.HasVegetable,
         TypeIds = new HashSet<int>(i.ExistingTypeIds ?? Array.Empty<int>())
     };
 
@@ -404,9 +435,28 @@ public static class PlanAllocator
     {
         // A bed has to be at least as wide as the distance between the rows
         if (b.Kind == ContainerKind.Bed && b.WidthCm is { } width && p.RowSpacingCm is { } row && row > width + Eps) return false;
+        // The soil pH has to be inside the range the plant likes (with a small tolerance); unknown values do not restrict
+        if (!PhOk(p, b)) return false;
+        // No vegetables under trees, and no trees among vegetables
+        if ((p.IsVegetable && b.HasTree) || (p.IsTree && b.HasVegetable)) return false;
         if (p.ColdFrame) return b.Kind == ContainerKind.Bed && b.HasCover;
         return Allowed(p, b.Kind, potFallback) && (!b.HasCover || rel.AllowOthersInCovered);
     }
+
+    /// <summary>How far the soil pH of a container may be outside the range of the plant.</summary>
+    public const decimal PhTolerance = 0.5m;
+
+    private static bool PhOk(AllocPlant p, Box b)
+    {
+        if (b.SoilPh is not { } ph) return true;
+        if (p.PhMin is { } min && ph < min - PhTolerance) return false;
+        if (p.PhMax is { } max && ph > max + PhTolerance) return false;
+        return true;
+    }
+
+    // 0 = the soil is what the plant likes (or unknown), 1 = another kind of soil. Only used to choose between containers.
+    private static int SoilRank(AllocPlant p, Box b) =>
+        p.SoilType is { } want && b.SoilType is { } have && want != have ? 1 : 0;
 
     private static double? Need(AllocPlant p, ContainerKind kind) =>
         kind == ContainerKind.Pot ? p.PotLitersMin : p.AreaM2;
@@ -424,6 +474,8 @@ public static class PlanAllocator
             if ((p.Slots & (1UL << s)) != 0) c.UsedAt[s] += need;
         c.TypeIds.Add(p.PlantTypeId);
         c.TypeTimes.Add((p.PlantTypeId, p.Slots));
+        if (p.IsTree) c.HasTree = true;
+        if (p.IsVegetable) c.HasVegetable = true;
         c.Placements.Add((p, role));
         if (p.ColdFrame) c.ColdCount++;
         if (role != PlantingRole.Main) return;
@@ -458,7 +510,8 @@ public static class PlanAllocator
             var pot = boxes
                 .Where(b => b.Kind == ContainerKind.Pot && Fits(p, b, rel, potFallback)
                     && !OccupancyMask.Overlaps(b.MainMask, p.Slots) && b.FreeFor(p.Slots) + Eps >= liters && NeighboursOk(b, p, rel))
-                .OrderBy(b => b.Capacity)
+                .OrderBy(b => SoilRank(p, b))
+                .ThenBy(b => b.Capacity)
                 .ThenBy(b => b.Id ?? int.MaxValue)
                 .FirstOrDefault();
             if (pot is not null)
@@ -475,6 +528,7 @@ public static class PlanAllocator
             var bed = boxes
                 .Where(b => b.Kind == ContainerKind.Bed && Fits(p, b, rel, potFallback) && b.FreeFor(p.Slots) + Eps >= area && NeighboursOk(b, p, rel))
                 .OrderBy(b => p.ColdFrame ? (b.ColdCount > 0 ? 0 : 1) : (b.HasCover ? 1 : 0))
+                .ThenBy(b => SoilRank(p, b))
                 .ThenBy(b => p.ColdFrame ? 0 : (HasGood(b, p, rel) ? 0 : 1))
                 .ThenBy(b => p.ColdFrame ? -b.FreeFor(p.Slots) : b.FreeFor(p.Slots))
                 .ThenBy(b => b.Id ?? int.MaxValue)

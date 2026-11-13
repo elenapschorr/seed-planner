@@ -45,6 +45,19 @@
         <label asp-for="Input.Exposure" class="form-label">@L["Col_Exposure"]</label>
         <select asp-for="Input.Exposure" asp-items="Model.ExposureOptions" class="form-select"></select>
     </div>
+    <div class="col-md-4">
+        <label asp-for="Input.SoilType" class="form-label">@L["Soil_Recommended"]</label>
+        <select asp-for="Input.SoilType" asp-items="Model.SoilOptions" class="form-select"></select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">@L["Soil_PhRange"]</label>
+        <div class="input-group">
+            <input asp-for="Input.PhMin" class="form-control" inputmode="decimal" />
+            <input asp-for="Input.PhMax" class="form-control" inputmode="decimal" />
+        </div>
+        <span asp-validation-for="Input.PhMin" class="text-danger"></span>
+        <span asp-validation-for="Input.PhMax" class="text-danger"></span>
+    </div>
 
     <div class="col-md-4">
         <label class="form-label">@L["Field_GrowthDays"]</label>

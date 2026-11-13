@@ -434,6 +434,7 @@
   <data name="NoCover_NewCoveredBed" xml:space="preserve"><value>Ein neues Beet mit Abdeckung anlegen</value></data>
   <data name="Unplaced_NotEnoughPots" xml:space="preserve"><value>Töpfe reichen nicht – nicht verteilt (Kulturort Topf, wird nicht ins Beet gesetzt)</value></data>
   <data name="Unplaced_MissingTimeData" xml:space="preserve"><value>Zeiten fehlen – nicht verteilt (Aussaat, Vorkultur-Wochen und Ernte bei der Sorte nachtragen)</value></data>
+  <data name="Unplaced_SoilMismatch" xml:space="preserve"><value>Boden-pH passt nicht – nicht verteilt (pH der gewählten Töpfe/Beete liegt außerhalb des Bereichs der Pflanzenart)</value></data>
   <data name="Distribution_PlacementsSummary" xml:space="preserve"><value>{0} Sorten, {1} Pflanzen</value></data>
   <data name="Field_IndoorWeeks" xml:space="preserve"><value>Vorkultur in Wochen (min/max)</value></data>
   <data name="Field_IndoorWeeksHelp" xml:space="preserve"><value>Wochen von der Aussaat bis zum Auspflanzen; nur bei Vorkultur.</value></data>
@@ -445,6 +446,8 @@
   <data name="Action_ToggleAll" xml:space="preserve"><value>Alle auf-/zuklappen</value></data>
   <data name="Stats_Title" xml:space="preserve"><value>Auslastung der Töpfe und Beete</value></data>
   <data name="Stats_Cluster" xml:space="preserve"><value>Töpfe / Beete gleicher Art und Größe</value></data>
+  <data name="Stats_ClusterPots" xml:space="preserve"><value>Töpfe gleicher Art und Größe</value></data>
+  <data name="Stats_ClusterBeds" xml:space="preserve"><value>Beete gleicher Art und Größe</value></data>
   <data name="Stats_Total" xml:space="preserve"><value>Gesamt</value></data>
   <data name="Stats_Pots" xml:space="preserve"><value>Töpfe gesamt</value></data>
   <data name="Stats_Beds" xml:space="preserve"><value>Beete gesamt</value></data>
@@ -491,4 +494,14 @@
   <data name="Report_FileName" xml:space="preserve"><value>verteilung</value></data>
   <data name="Distribution_Spacing" xml:space="preserve"><value>Abstände in % der Standardabstände</value></data>
   <data name="Distribution_SpacingHelp" xml:space="preserve"><value>100 = wie bei der Sorte angegeben, kleiner = enger setzen (mindestens 50). Die Fläche pro Pflanze schrumpft entsprechend, die Beetbreite wird mit dem engeren Reihenabstand geprüft.</value></data>
+  <data name="Soil_Ph" xml:space="preserve"><value>Boden-pH</value></data>
+  <data name="Soil_PhRange" xml:space="preserve"><value>Boden-pH (min / max)</value></data>
+  <data name="Soil_Type" xml:space="preserve"><value>Bodenart</value></data>
+  <data name="Soil_Recommended" xml:space="preserve"><value>Empfohlener Boden</value></data>
+  <data name="SoilType_Sandy" xml:space="preserve"><value>Sandig</value></data>
+  <data name="SoilType_Loamy" xml:space="preserve"><value>Lehmig</value></data>
+  <data name="SoilType_Clay" xml:space="preserve"><value>Tonig</value></data>
+  <data name="SoilType_Humus" xml:space="preserve"><value>Humos, nährstoffreich</value></data>
+  <data name="SoilType_PottingSoil" xml:space="preserve"><value>Blumen-/Gemüseerde</value></data>
+  <data name="Soil_Help" xml:space="preserve"><value>Pflanzen kommen nur in Töpfe und Beete, deren pH-Wert zur Pflanzenart passt (±0,5). Ohne Angabe gibt es keine Einschränkung; die Bodenart ist nur eine Präferenz.</value></data>
 </root>

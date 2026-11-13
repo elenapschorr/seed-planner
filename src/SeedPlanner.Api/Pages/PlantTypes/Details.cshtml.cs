@@ -22,6 +22,9 @@ public class DetailsModel(
     public PlantCategory? Category { get; private set; }
     public NutrientDemand? NutrientDemand { get; private set; }
     public Exposure? Exposure { get; private set; }
+    public SoilType? SoilType { get; private set; }
+    public decimal? PhMin { get; private set; }
+    public decimal? PhMax { get; private set; }
     public Lifecycle? Lifecycle { get; private set; }
     public GerminationType? GerminationType { get; private set; }
     public int? GrowthDaysMin { get; private set; }
@@ -80,6 +83,9 @@ public class DetailsModel(
                 t.Category,
                 t.NutrientDemand,
                 t.Exposure,
+                t.SoilType,
+                t.PhMin,
+                t.PhMax,
                 t.Lifecycle,
                 t.GerminationType,
                 t.GrowthDaysMin,
@@ -100,6 +106,9 @@ public class DetailsModel(
         Category = type.Category;
         NutrientDemand = type.NutrientDemand;
         Exposure = type.Exposure;
+        SoilType = type.SoilType;
+        PhMin = type.PhMin;
+        PhMax = type.PhMax;
         Lifecycle = type.Lifecycle;
         GerminationType = type.GerminationType;
         GrowthDaysMin = type.GrowthDaysMin;

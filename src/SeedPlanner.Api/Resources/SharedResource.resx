@@ -434,6 +434,7 @@
   <data name="NoCover_NewCoveredBed" xml:space="preserve"><value>Create a new bed with a cover</value></data>
   <data name="Unplaced_NotEnoughPots" xml:space="preserve"><value>pots are not enough – not placed (growing place pot, never put into a bed)</value></data>
   <data name="Unplaced_MissingTimeData" xml:space="preserve"><value>times missing – not placed (add sowing, weeks indoors and harvest to the variety)</value></data>
+  <data name="Unplaced_SoilMismatch" xml:space="preserve"><value>soil pH does not match – not placed (pH of the chosen pots/beds is outside the range of the plant type)</value></data>
   <data name="Distribution_PlacementsSummary" xml:space="preserve"><value>{0} varieties, {1} plants</value></data>
   <data name="Field_IndoorWeeks" xml:space="preserve"><value>Weeks indoors (min/max)</value></data>
   <data name="Field_IndoorWeeksHelp" xml:space="preserve"><value>Weeks from sowing to planting out; only for plants started indoors.</value></data>
@@ -445,6 +446,8 @@
   <data name="Action_ToggleAll" xml:space="preserve"><value>Expand / collapse all</value></data>
   <data name="Stats_Title" xml:space="preserve"><value>Fill level of pots and beds</value></data>
   <data name="Stats_Cluster" xml:space="preserve"><value>Pots / beds of the same size</value></data>
+  <data name="Stats_ClusterPots" xml:space="preserve"><value>Pots of the same size</value></data>
+  <data name="Stats_ClusterBeds" xml:space="preserve"><value>Beds of the same size</value></data>
   <data name="Stats_Total" xml:space="preserve"><value>Total</value></data>
   <data name="Stats_Pots" xml:space="preserve"><value>Pots</value></data>
   <data name="Stats_Beds" xml:space="preserve"><value>Beds</value></data>
@@ -491,4 +494,14 @@
   <data name="Report_FileName" xml:space="preserve"><value>distribution</value></data>
   <data name="Distribution_Spacing" xml:space="preserve"><value>Spacing in % of the standard spacing</value></data>
   <data name="Distribution_SpacingHelp" xml:space="preserve"><value>100 = as given for the variety, less = plant closer (at least 50). The area per plant shrinks accordingly; the bed width is checked with the closer row spacing.</value></data>
+  <data name="Soil_Ph" xml:space="preserve"><value>Soil pH</value></data>
+  <data name="Soil_PhRange" xml:space="preserve"><value>Soil pH (min / max)</value></data>
+  <data name="Soil_Type" xml:space="preserve"><value>Soil type</value></data>
+  <data name="Soil_Recommended" xml:space="preserve"><value>Recommended soil</value></data>
+  <data name="SoilType_Sandy" xml:space="preserve"><value>Sandy</value></data>
+  <data name="SoilType_Loamy" xml:space="preserve"><value>Loamy</value></data>
+  <data name="SoilType_Clay" xml:space="preserve"><value>Clay</value></data>
+  <data name="SoilType_Humus" xml:space="preserve"><value>Humus-rich, nutrient-rich</value></data>
+  <data name="SoilType_PottingSoil" xml:space="preserve"><value>Potting soil</value></data>
+  <data name="Soil_Help" xml:space="preserve"><value>Plants only go into pots and beds whose pH suits the plant type (±0.5). Without a value there is no restriction; the soil type is only a preference.</value></data>
 </root>

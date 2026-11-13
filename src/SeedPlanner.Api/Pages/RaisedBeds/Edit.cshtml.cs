@@ -28,6 +28,10 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         public decimal? HeightCm { get; set; }
         public bool HasCover { get; set; }
 
+        [System.ComponentModel.DataAnnotations.Range(0, 14)]
+        public decimal? SoilPh { get; set; }
+        public SoilType? SoilType { get; set; }
+
         public string? Note { get; set; }
     }
 
@@ -40,6 +44,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
     public List<SelectListItem> KindOptions { get; private set; } = new();
     public List<SelectListItem> ShapeOptions { get; private set; } = new();
+    public List<SelectListItem> SoilOptions { get; private set; } = new();
     public List<SelectListItem> PlantOptions { get; private set; } = new();
 
     public List<PlantingRow> Plantings { get; private set; } = new();
@@ -94,6 +99,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         bed.LengthCm = Input.LengthCm!.Value;
         bed.HeightCm = Input.Kind == BedKind.Ground ? null : Input.HeightCm;
         bed.HasCover = Input.HasCover;
+        bed.SoilPh = Input.SoilPh;
+        bed.SoilType = Input.SoilType;
         bed.Note = Clean(Input.Note);
         await db.SaveChangesAsync();
 
@@ -211,6 +218,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         LengthCm = bed.LengthCm,
         HeightCm = bed.HeightCm,
         HasCover = bed.HasCover,
+        SoilPh = bed.SoilPh,
+        SoilType = bed.SoilType,
         Note = bed.Note
     };
 
@@ -220,6 +229,9 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             .Select(v => new SelectListItem(L["BedKind_" + v].Value, v.ToString())).ToList();
         ShapeOptions = Enum.GetValues<BedShape>()
             .Select(v => new SelectListItem(L["BedShape_" + v].Value, v.ToString())).ToList();
+        SoilOptions = Enum.GetValues<SoilType>()
+            .Select(v => new SelectListItem(L["SoilType_" + v].Value, v.ToString())).ToList();
+        SoilOptions.Insert(0, new SelectListItem("–", ""));
 
         if (id is null) return;
 

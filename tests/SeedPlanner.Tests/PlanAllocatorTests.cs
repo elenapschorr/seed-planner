@@ -554,4 +554,89 @@ public class PlanAllocatorTests
         var bed = Assert.Single(r.Containers);
         Assert.Equal(4, bed.Placements.Sum(p => p.Count));
     }
+
+    // ---------------------------------------------------------------- soil
+
+    private static AllocPlant Acid(int id, int type, decimal min, decimal max) =>
+        Plant(id, type, liters: 5) with { PhMin = min, PhMax = max };
+
+    private static AllocContainerInput PotWithSoil(int id, double liters, decimal? ph, SoilType? soil = null) =>
+        new(ContainerKind.Pot, id, "Pot" + id, liters, SoilPh: ph, SoilType: soil);
+
+    [Fact]
+    public void A_plant_does_not_go_into_a_pot_with_a_soil_ph_outside_its_range()
+    {
+        var r = Run([Acid(1, 1, 4.5m, 5.5m)], [PotWithSoil(1, 10, 7.0m), PotWithSoil(2, 20, 5.0m)]);
+
+        Assert.Empty(Box(r, 1).Placements);
+        Assert.Single(Box(r, 2).Placements);
+    }
+
+    [Fact]
+    public void Soil_ph_slightly_outside_the_range_is_tolerated_and_unknown_ph_does_not_restrict()
+    {
+        var r = Run([Acid(1, 1, 6.0m, 7.0m), Acid(2, 2, 6.0m, 7.0m)], [PotWithSoil(1, 10, 5.6m), PotWithSoil(2, 10, null)]);
+
+        Assert.Single(Box(r, 1).Placements);
+        Assert.Single(Box(r, 2).Placements);
+    }
+
+    [Fact]
+    public void The_kind_of_soil_decides_between_pots_but_never_excludes_one()
+    {
+        var plant = Plant(1, 1, liters: 5) with { SoilType = SoilType.Loamy };
+        var r = Run([plant], [PotWithSoil(1, 10, null, SoilType.Sandy), PotWithSoil(2, 20, null, SoilType.Loamy)]);
+        Assert.Single(Box(r, 2).Placements);
+
+        var only = Run([plant], [PotWithSoil(1, 10, null, SoilType.Sandy)]);
+        Assert.Single(Box(only, 1).Placements);
+    }
+
+    [Fact]
+    public void A_ph_mismatch_is_reported_as_the_reason_when_nothing_else_is_wrong()
+    {
+        var r = Run([Acid(1, 1, 4.5m, 5.5m)], [PotWithSoil(1, 10, 7.5m)]);
+
+        Assert.Equal(UnplacedReason.SoilMismatch, r.Unplaced.Single().Reason);
+    }
+
+    // ---------------------------------------------------------------- trees and vegetables
+
+    [Fact]
+    public void Vegetables_are_not_planted_under_an_existing_tree()
+    {
+        var bean = Plant(1, 1, area: 0.1, place: PlantPlace.Bed) with { Category = PlantCategory.Legume };
+        var bed = new AllocContainerInput(ContainerKind.Bed, 1, "Bed1", 5, HasMain: true, HasTree: true);
+        var other = Bed(2, 5);
+
+        var r = Run([bean], [bed, other]);
+
+        Assert.Empty(Box(r, 1).Placements);
+        Assert.Single(Box(r, 2).Placements);
+    }
+
+    [Fact]
+    public void Herbs_may_stand_under_a_tree_and_a_tree_does_not_join_vegetables()
+    {
+        var herb = Plant(1, 1, area: 0.1, place: PlantPlace.Bed) with { Category = PlantCategory.Herb };
+        var tree = Plant(2, 2, area: 1, place: PlantPlace.Bed) with { Category = PlantCategory.FruitTree };
+        var withTree = new AllocContainerInput(ContainerKind.Bed, 1, "Bed1", 5, HasMain: true, HasTree: true);
+        var withVeg = new AllocContainerInput(ContainerKind.Bed, 2, "Bed2", 5, HasMain: true, HasVegetable: true);
+
+        var r = Run([herb, tree], [withTree, withVeg]);
+
+        Assert.Equal(1, Count(Box(r, 1), 1));
+        Assert.Empty(Box(r, 2).Placements.Where(p => p.PlantId == 2));
+    }
+
+    [Fact]
+    public void Berries_are_not_planted_under_an_existing_tree()
+    {
+        var berry = Plant(1, 1, area: 0.1, place: PlantPlace.Bed) with { Category = PlantCategory.Berry };
+        var bed = new AllocContainerInput(ContainerKind.Bed, 1, "Bed1", 5, HasMain: true, HasTree: true);
+
+        var r = Run([berry], [bed]);
+
+        Assert.Empty(Box(r, 1).Placements);
+    }
 }

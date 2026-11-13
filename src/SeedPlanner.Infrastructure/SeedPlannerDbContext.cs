@@ -51,6 +51,9 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(t => t.GerminationType).HasConversion<string>();
             e.Property(t => t.DemandUnit).HasConversion<string>();
             e.Property(t => t.Exposure).HasConversion<string>();
+            e.Property(t => t.SoilType).HasConversion<string>();
+            e.Property(t => t.PhMin).HasPrecision(3, 1);
+            e.Property(t => t.PhMax).HasPrecision(3, 1);
         });
 
         modelBuilder.Entity<PlantTypeTranslation>()
@@ -102,6 +105,8 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(p => p.Name).HasMaxLength(100);
             e.Property(p => p.Kind).HasConversion<string>();
             e.Property(p => p.Shape).HasConversion<string>();
+            e.Property(p => p.SoilType).HasConversion<string>();
+            e.Property(p => p.SoilPh).HasPrecision(3, 1);
             e.Property(p => p.TopCm).HasPrecision(6, 1);
             e.Property(p => p.BottomCm).HasPrecision(6, 1);
             e.Property(p => p.HeightCm).HasPrecision(6, 1);
@@ -168,6 +173,8 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(b => b.Kind).HasConversion<string>().HasDefaultValue(BedKind.Raised);
             e.Property(b => b.Shape).HasConversion<string>();
             e.Property(b => b.Name).HasMaxLength(100);
+            e.Property(b => b.SoilType).HasConversion<string>();
+            e.Property(b => b.SoilPh).HasPrecision(3, 1);
             e.Property(b => b.WidthCm).HasPrecision(6, 1);
             e.Property(b => b.LengthCm).HasPrecision(6, 1);
             e.Property(b => b.HeightCm).HasPrecision(6, 1);

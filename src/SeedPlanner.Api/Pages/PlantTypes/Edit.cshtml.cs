@@ -31,6 +31,12 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         public NutrientDemand? NutrientDemand { get; set; }
         public GerminationType? GerminationType { get; set; }
         public Exposure? Exposure { get; set; }
+        public SoilType? SoilType { get; set; }
+
+        [Range(0, 14)]
+        public decimal? PhMin { get; set; }
+        [Range(0, 14)]
+        public decimal? PhMax { get; set; }
 
         public int? GrowthDaysMin { get; set; }
         public int? GrowthDaysMax { get; set; }
@@ -62,6 +68,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
     public List<SelectListItem> NutrientOptions { get; private set; } = new();
     public List<SelectListItem> GerminationOptions { get; private set; } = new();
     public List<SelectListItem> ExposureOptions { get; private set; } = new();
+    public List<SelectListItem> SoilOptions { get; private set; } = new();
     public List<SelectListItem> UnitOptions { get; private set; } = new();
 
     public async Task<IActionResult> OnGetAsync(int? id)
@@ -140,6 +147,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             ModelState.AddModelError("Input.NameEn", L["PlantTypeError_NameExists"]);
         }
 
+        CheckMinMax(nameof(Input.PhMin), Input.PhMin, Input.PhMax);
         CheckMinMax(nameof(Input.GrowthDaysMin), Input.GrowthDaysMin, Input.GrowthDaysMax);
         CheckMinMax(nameof(Input.DemandPerPersonMin), Input.DemandPerPersonMin, Input.DemandPerPersonMax);
 
@@ -167,6 +175,9 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         type.NutrientDemand = Input.NutrientDemand;
         type.GerminationType = Input.GerminationType;
         type.Exposure = Input.Exposure;
+        type.SoilType = Input.SoilType;
+        type.PhMin = Input.PhMin;
+        type.PhMax = Input.PhMax;
         type.GrowthDaysMin = Input.GrowthDaysMin;
         type.GrowthDaysMax = Input.GrowthDaysMax;
         // Flowers are not harvested, so they have no demand per person
@@ -208,6 +219,9 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             NutrientDemand = type.NutrientDemand,
             GerminationType = type.GerminationType,
             Exposure = type.Exposure,
+            SoilType = type.SoilType,
+            PhMin = type.PhMin,
+            PhMax = type.PhMax,
             GrowthDaysMin = type.GrowthDaysMin,
             GrowthDaysMax = type.GrowthDaysMax,
             DemandPerPersonMin = type.DemandPerPersonMin,
@@ -225,6 +239,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         NutrientOptions = EnumOptions<NutrientDemand>("NutrientDemand_");
         GerminationOptions = EnumOptions<GerminationType>("GerminationType_");
         ExposureOptions = EnumOptions<Exposure>("Exposure_");
+        SoilOptions = EnumOptions<SoilType>("SoilType_");
         UnitOptions = EnumOptions<DemandUnit>("DemandUnit_");
     }
 

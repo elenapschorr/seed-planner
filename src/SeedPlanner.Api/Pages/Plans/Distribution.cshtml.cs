@@ -160,21 +160,22 @@ public class DistributionModel(SeedPlannerDbContext db, IStringLocalizer<SharedR
         if (Has("stats"))
         {
             var clusters = Clusters();
-            var rows = new List<string[]>();
             string[] RowOf(string label, int total, Func<int, int> band) =>
                 new[] { label, total.ToString(culture) }
                     .Concat(Enumerable.Range(0, AllocationStats.BandCount).Select(b => band(b).ToString(culture))).ToArray();
-            foreach (var c in clusters)
-                rows.Add(RowOf(c.IsNew ? $"{c.Label} ({L["Distribution_New"].Value})" : c.Label, c.Total, b => c.Bands[b]));
             foreach (var kind in new[] { ContainerKind.Pot, ContainerKind.Bed })
             {
                 var part = clusters.Where(c => c.Kind == kind).ToList();
-                if (part.Count > 0)
-                    rows.Add(RowOf(kind == ContainerKind.Pot ? L["Stats_Pots"].Value : L["Stats_Beds"].Value, part.Sum(c => c.Total), b => part.Sum(c => c.Bands[b])));
+                if (part.Count == 0) continue;
+                var rows = new List<string[]>();
+                foreach (var c in part)
+                    rows.Add(RowOf(c.IsNew ? $"{c.Label} ({L["Distribution_New"].Value})" : c.Label, c.Total, b => c.Bands[b]));
+                rows.Add(RowOf(kind == ContainerKind.Pot ? L["Stats_Pots"].Value : L["Stats_Beds"].Value, part.Sum(c => c.Total), b => part.Sum(c => c.Bands[b])));
+                var heads = new[] { (kind == ContainerKind.Pot ? L["Stats_ClusterPots"] : L["Stats_ClusterBeds"]).Value, L["Stats_Total"].Value }
+                    .Concat(Enumerable.Range(0, AllocationStats.BandCount).Select(b => L["Stats_Band" + b].Value)).ToArray();
+                var title = $"{L["Report_SecStats"].Value} – {(kind == ContainerKind.Pot ? L["Stats_ClusterPots"] : L["Stats_ClusterBeds"]).Value}";
+                tables.Add(new ReportTable(title, heads, rows));
             }
-            var heads = new[] { L["Stats_Cluster"].Value, L["Stats_Total"].Value }
-                .Concat(Enumerable.Range(0, AllocationStats.BandCount).Select(b => L["Stats_Band" + b].Value)).ToArray();
-            tables.Add(new ReportTable(L["Report_SecStats"].Value, heads, rows));
         }
 
         // ---- not placed and reduced
@@ -347,7 +348,7 @@ public class DistributionModel(SeedPlannerDbContext db, IStringLocalizer<SharedR
     public IEnumerable<ContainerResult> ContainersToShow => (Result?.Containers ?? Array.Empty<ContainerResult>())
         .OrderBy(c => c.IsNew)
         .ThenBy(c => c.Kind)
-        .ThenBy(c => c.Name, StringComparer.Create(CultureInfo.CurrentCulture, ignoreCase: true));
+        .ThenBy(c => c.Name, NaturalComparer.Instance);
 
     // New pots and beds are numbered: "New bed 1", "New bed 2", ...
     public string Title(ContainerResult c)

@@ -254,42 +254,42 @@ else
     {
         <details class="border rounded p-3 mb-3" open>
             <summary class="fw-semibold">@L["Stats_Title"]</summary>
-            <div class="table-responsive mt-2">
-                <table class="table table-sm align-middle mb-1">
-                    <thead>
-                        <tr>
-                            <th>@L["Stats_Cluster"]</th>
-                            <th class="text-end">@L["Stats_Total"]</th>
-                            @for (var b = 0; b < SeedPlanner.Domain.AllocationStats.BandCount; b++)
-                            {
-                                <th class="text-end">@L["Stats_Band" + b]</th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var c in clusters)
-                        {
+            @foreach (var kind in new[] { SeedPlanner.Domain.ContainerKind.Pot, SeedPlanner.Domain.ContainerKind.Bed })
+            {
+                var rows = clusters.Where(c => c.Kind == kind).ToList();
+                if (rows.Count == 0) continue;
+                <div class="table-responsive mt-2">
+                    <table class="table table-sm align-middle mb-1">
+                        <thead>
                             <tr>
-                                <td>
-                                    @c.Label
-                                    @if (c.IsNew)
-                                    {
-                                        <span class="badge text-bg-warning">@L["Distribution_New"]</span>
-                                    }
-                                </td>
-                                <td class="text-end">@c.Total</td>
+                                <th>@(kind == SeedPlanner.Domain.ContainerKind.Pot ? L["Stats_ClusterPots"] : L["Stats_ClusterBeds"])</th>
+                                <th class="text-end">@L["Stats_Total"]</th>
                                 @for (var b = 0; b < SeedPlanner.Domain.AllocationStats.BandCount; b++)
                                 {
-                                    <td class="text-end">@c.Bands[b]</td>
+                                    <th class="text-end">@L["Stats_Band" + b]</th>
                                 }
                             </tr>
-                        }
-                    </tbody>
-                    <tfoot>
-                        @foreach (var kind in new[] { SeedPlanner.Domain.ContainerKind.Pot, SeedPlanner.Domain.ContainerKind.Bed })
-                        {
-                            var rows = clusters.Where(c => c.Kind == kind).ToList();
-                            if (rows.Count == 0) continue;
+                        </thead>
+                        <tbody>
+                            @foreach (var c in rows)
+                            {
+                                <tr>
+                                    <td>
+                                        @c.Label
+                                        @if (c.IsNew)
+                                        {
+                                            <span class="badge text-bg-warning">@L["Distribution_New"]</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">@c.Total</td>
+                                    @for (var b = 0; b < SeedPlanner.Domain.AllocationStats.BandCount; b++)
+                                    {
+                                        <td class="text-end">@c.Bands[b]</td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
                             <tr class="fw-semibold">
                                 <td>@(kind == SeedPlanner.Domain.ContainerKind.Pot ? L["Stats_Pots"] : L["Stats_Beds"])</td>
                                 <td class="text-end">@rows.Sum(c => c.Total)</td>
@@ -299,10 +299,10 @@ else
                                     <td class="text-end">@rows.Sum(c => c.Bands[band])</td>
                                 }
                             </tr>
-                        }
-                    </tfoot>
-                </table>
-            </div>
+                        </tfoot>
+                    </table>
+                </div>
+            }
             <div class="form-text">@L["Stats_Legend"]</div>
         </details>
     }

@@ -434,6 +434,7 @@
   <data name="NoCover_NewCoveredBed" xml:space="preserve"><value>Создать новую грядку с укрытием</value></data>
   <data name="Unplaced_NotEnoughPots" xml:space="preserve"><value>горшков не хватает – не размещено (место выращивания горшок, в грядку не сажается)</value></data>
   <data name="Unplaced_MissingTimeData" xml:space="preserve"><value>нет сроков – не размещено (укажите посев, недели рассады и сбор у сорта)</value></data>
+  <data name="Unplaced_SoilMismatch" xml:space="preserve"><value>не подходит pH почвы – не размещено (pH выбранных горшков/грядок вне диапазона для культуры)</value></data>
   <data name="Distribution_PlacementsSummary" xml:space="preserve"><value>сортов: {0}, растений: {1}</value></data>
   <data name="Field_IndoorWeeks" xml:space="preserve"><value>Недель рассады (мин/макс)</value></data>
   <data name="Field_IndoorWeeksHelp" xml:space="preserve"><value>Недель от посева до высадки; только при предварительном выращивании.</value></data>
@@ -445,6 +446,8 @@
   <data name="Action_ToggleAll" xml:space="preserve"><value>Свернуть / развернуть все</value></data>
   <data name="Stats_Title" xml:space="preserve"><value>Заполненность горшков и грядок</value></data>
   <data name="Stats_Cluster" xml:space="preserve"><value>Горшки / грядки одного вида и размера</value></data>
+  <data name="Stats_ClusterPots" xml:space="preserve"><value>Горшки одного вида и размера</value></data>
+  <data name="Stats_ClusterBeds" xml:space="preserve"><value>Грядки одного вида и размера</value></data>
   <data name="Stats_Total" xml:space="preserve"><value>Всего</value></data>
   <data name="Stats_Pots" xml:space="preserve"><value>Горшки всего</value></data>
   <data name="Stats_Beds" xml:space="preserve"><value>Грядки всего</value></data>
@@ -491,4 +494,14 @@
   <data name="Report_FileName" xml:space="preserve"><value>raspredelenie</value></data>
   <data name="Distribution_Spacing" xml:space="preserve"><value>Расстояния в % от стандартных</value></data>
   <data name="Distribution_SpacingHelp" xml:space="preserve"><value>100 = как указано для сорта, меньше = садить гуще (не менее 50). Площадь на растение уменьшается соответственно, ширина грядки проверяется с более тесным междурядьем.</value></data>
+  <data name="Soil_Ph" xml:space="preserve"><value>pH почвы</value></data>
+  <data name="Soil_PhRange" xml:space="preserve"><value>pH почвы (мин / макс)</value></data>
+  <data name="Soil_Type" xml:space="preserve"><value>Тип почвы</value></data>
+  <data name="Soil_Recommended" xml:space="preserve"><value>Рекомендуемая почва</value></data>
+  <data name="SoilType_Sandy" xml:space="preserve"><value>Песчаная</value></data>
+  <data name="SoilType_Loamy" xml:space="preserve"><value>Суглинистая</value></data>
+  <data name="SoilType_Clay" xml:space="preserve"><value>Глинистая</value></data>
+  <data name="SoilType_Humus" xml:space="preserve"><value>Гумусная, питательная</value></data>
+  <data name="SoilType_PottingSoil" xml:space="preserve"><value>Грунт для овощей/цветов</value></data>
+  <data name="Soil_Help" xml:space="preserve"><value>Растения попадают только в горшки и грядки, pH которых подходит культуре (±0,5). Без значения ограничений нет; тип почвы – лишь предпочтение.</value></data>
 </root>

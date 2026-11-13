@@ -698,6 +698,20 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("nutrient_demand");
 
+                    b.Property<decimal?>("PhMax")
+                        .HasPrecision(3, 1)
+                        .HasColumnType("numeric(3,1)")
+                        .HasColumnName("ph_max");
+
+                    b.Property<decimal?>("PhMin")
+                        .HasPrecision(3, 1)
+                        .HasColumnType("numeric(3,1)")
+                        .HasColumnName("ph_min");
+
+                    b.Property<string>("SoilType")
+                        .HasColumnType("text")
+                        .HasColumnName("soil_type");
+
                     b.HasKey("Id")
                         .HasName("pk_plant_types");
 
@@ -946,6 +960,15 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("shape");
 
+                    b.Property<decimal?>("SoilPh")
+                        .HasPrecision(3, 1)
+                        .HasColumnType("numeric(3,1)")
+                        .HasColumnName("soil_ph");
+
+                    b.Property<string>("SoilType")
+                        .HasColumnType("text")
+                        .HasColumnName("soil_type");
+
                     b.Property<decimal?>("TopCm")
                         .HasPrecision(6, 1)
                         .HasColumnType("numeric(6,1)")
@@ -1019,6 +1042,15 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("shape");
+
+                    b.Property<decimal?>("SoilPh")
+                        .HasPrecision(3, 1)
+                        .HasColumnType("numeric(3,1)")
+                        .HasColumnName("soil_ph");
+
+                    b.Property<string>("SoilType")
+                        .HasColumnType("text")
+                        .HasColumnName("soil_type");
 
                     b.Property<decimal>("WidthCm")
                         .HasPrecision(6, 1)

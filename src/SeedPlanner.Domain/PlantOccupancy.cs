@@ -7,14 +7,14 @@ public static class PlantOccupancy
     public const int DefaultLastFrostThird = 13;
 
     /// <summary>
-    /// Perennials and biennials take the place all year. Everything else (annual, unknown) from the start to the end of
-    /// the harvest (flowers: of the flowering time). Start: direct sowing = the sowing window; started indoors = sowing
+    /// Perennials take the place all year. Everything else (annual, biennial grown as an annual crop, unknown) from the
+    /// start to the end of the harvest (flowers: of the flowering time). Start: direct sowing = the sowing window; started indoors = sowing
     /// plus the weeks indoors, and for frost sensitive plants not before the last frost. Without the needed times the
     /// result is 0: the variety is not distributed until they are added.
     /// </summary>
     public static ulong Slots(Plant p, Lifecycle? life, int lastFrostThird = DefaultLastFrostThird)
     {
-        if (life is Lifecycle.Perennial or Lifecycle.Biennial) return OccupancyMask.AllYear;
+        if (life is Lifecycle.Perennial) return OccupancyMask.AllYear;
 
         var sowings = p.SeasonWindows.Where(w => w.Kind == WindowKind.Sowing).ToList();
         var ends = p.SeasonWindows.Where(w => w.Kind == WindowKind.Harvest).ToList();
@@ -28,6 +28,8 @@ public static class PlantOccupancy
             if (weeks is null) return 0;
             // A third of a month is about ten days
             start += (int)Math.Round(weeks.Value * 7 / 10.0);
+            // Sowing in December plus the weeks indoors ends up in the next year: wrap before comparing with the frost date
+            start %= OccupancyMask.Count;
             if (p.FrostSensitive) start = Math.Max(start, lastFrostThird);
         }
         start %= OccupancyMask.Count;
