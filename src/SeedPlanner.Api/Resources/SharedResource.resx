@@ -152,7 +152,7 @@
   <data name="Col_SoilVolume" xml:space="preserve"><value>Soil (l)</value></data>
   <data name="PotKind_Pot" xml:space="preserve"><value>Pot</value></data>
   <data name="PotKind_Bowl" xml:space="preserve"><value>Bowl</value></data>
-  <data name="PotShape_Round" xml:space="preserve"><value>Round (tapered)</value></data>
+  <data name="PotShape_Round" xml:space="preserve"><value>Round</value></data>
   <data name="PotShape_Rectangular" xml:space="preserve"><value>Rectangular</value></data>
   <data name="BedShape_Oval" xml:space="preserve"><value>Oval</value></data>
   <data name="BedShape_Rectangular" xml:space="preserve"><value>Rectangular</value></data>
@@ -504,4 +504,20 @@
   <data name="SoilType_Humus" xml:space="preserve"><value>Humus-rich, nutrient-rich</value></data>
   <data name="SoilType_PottingSoil" xml:space="preserve"><value>Potting soil</value></data>
   <data name="Soil_Help" xml:space="preserve"><value>Plants only go into pots and beds whose pH suits the plant type (±0.5). Without a value there is no restriction; the soil type is only a preference.</value></data>
+  <data name="Priority_Inherited" xml:space="preserve"><value>inherited from the plant type</value></data>
+  <data name="Priority_AsType" xml:space="preserve"><value>– (as plant type)</value></data>
+  <data name="Field_Priority" xml:space="preserve"><value>Placement (order)</value></data>
+  <data name="Field_PriorityHelp" xml:space="preserve"><value>Where the plant type goes in the distribution: the allowed kinds of container, first choice first. Only beds or only pots/bags/bowls: the plants have to be put there (new ones are added if there is no room). Empty: by the growing place of the variety, otherwise into a bed.</value></data>
+  <data name="Priority_Choice" xml:space="preserve"><value>choice</value></data>
+  <data name="PlaceOrder_Duplicate" xml:space="preserve"><value>Each kind of container can be chosen only once.</value></data>
+  <data name="ContainerCategory_Bed" xml:space="preserve"><value>Bed</value></data>
+  <data name="ContainerCategory_Pot" xml:space="preserve"><value>Pot</value></data>
+  <data name="ContainerCategory_Bowl" xml:space="preserve"><value>Bowl</value></data>
+  <data name="ContainerCategory_GrowBag" xml:space="preserve"><value>Grow bag</value></data>
+  <data name="PotKind_GrowBag" xml:space="preserve"><value>Grow bag</value></data>
+  <data name="Nav_Calendar" xml:space="preserve"><value>Calendar</value></data>
+  <data name="Calendar_Title" xml:space="preserve"><value>Calendar of sowing, bloom and harvest</value></data>
+  <data name="Calendar_Intro" xml:space="preserve"><value>All varieties through the year, in thirds of a month. Open a plant type to see its varieties.</value></data>
+  <data name="Calendar_HarvestCount" xml:space="preserve"><value>Plant types with harvest</value></data>
+  <data name="Calendar_OnlyInStock" xml:space="preserve"><value>Only varieties in stock</value></data>
 </root>

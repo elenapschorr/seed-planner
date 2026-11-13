@@ -67,8 +67,13 @@ public record AllocPlant(
     int PlantId, int PlantTypeId, string Name, int Count, PlantPlace Place,
     double? PotLitersMin, double? PotLitersMax, double? AreaM2, double? HeightCm,
     bool ColdFrame = false, double? RowSpacingCm = null, ulong Slots = OccupancyMask.AllYear,
-    decimal? PhMin = null, decimal? PhMax = null, SoilType? SoilType = null, PlantCategory? Category = null)
+    decimal? PhMin = null, decimal? PhMax = null, SoilType? SoilType = null, PlantCategory? Category = null,
+    bool Required = false, IReadOnlyList<ContainerCategory>? Order = null)
 {
+    // Order: the kinds of container the user allows, first choice first (null = every kind).
+    // Required: the user allowed only one kind of container (bed or pot) for the plant. It is never reduced and never
+    // left out for lack of room: new pots or beds are added for it, whatever the strategy is.
+
     /// <summary>A tree (fruit tree). Vegetables and berries are never planted together with a tree.</summary>
     public bool IsTree => Category == PlantCategory.FruitTree;
 
@@ -103,7 +108,8 @@ public record AllocContainerInput(
     ContainerKind Kind, int Id, string Name, double Capacity,
     double Used = 0, bool HasMain = false, double? MaxHeightCm = null,
     IReadOnlyCollection<int>? ExistingTypeIds = null, bool HasCover = false, double? WidthCm = null,
-    decimal? SoilPh = null, SoilType? SoilType = null, bool HasTree = false, bool HasVegetable = false);
+    decimal? SoilPh = null, SoilType? SoilType = null, bool HasTree = false, bool HasVegetable = false,
+    ContainerCategory? Category = null);
 
 /// <summary><see cref="Slots"/>: the time the plants take the place (thirds of months), all year if not limited.</summary>
 public record PlacementResult(int PlantId, int PlantTypeId, PlantingRole Role, int Count, ulong Slots = OccupancyMask.AllYear);
@@ -288,6 +294,9 @@ public static class PlanAllocator
         public decimal? SoilPh;
         public SoilType? SoilType;
 
+        /// <summary>Bed, pot, bowl or grow bag.</summary>
+        public ContainerCategory Category;
+
         /// <summary>A tree stands here / a vegetable stands here: the two never share a container.</summary>
         public bool HasTree;
         public bool HasVegetable;
@@ -351,6 +360,7 @@ public static class PlanAllocator
         WidthCm = i.WidthCm,
         SoilPh = i.SoilPh,
         SoilType = i.SoilType,
+        Category = i.Category ?? (i.Kind == ContainerKind.Bed ? ContainerCategory.Bed : ContainerCategory.Pot),
         HasTree = i.HasTree,
         HasVegetable = i.HasVegetable,
         TypeIds = new HashSet<int>(i.ExistingTypeIds ?? Array.Empty<int>())
@@ -368,6 +378,9 @@ public static class PlanAllocator
         if (opt.Strategy == ShortageStrategy.BuyPots) left = BuyPots(left, boxes, rel);
         else if (opt.Strategy == ShortageStrategy.AddBeds) left = AddBeds(left, boxes, rel, opt.MaxBed);
 
+        // Plants that must go into one kind of container get new ones, also if the strategy would not add any
+        left = AddForRequired(left, boxes, rel, opt);
+
         // A bed that was meant to get a cover but holds no cold frame plant after all stays as it was
         if (retrofit is not null && retrofit.ColdCount == 0)
         {
@@ -376,6 +389,25 @@ public static class PlanAllocator
         }
         boxes.RemoveAll(b => b.IsNew && b.Kind == ContainerKind.Bed && b.Placements.Count == 0);
         return (boxes, left);
+    }
+
+    private static List<AllocPlant> AddForRequired(List<AllocPlant> left, List<Box> boxes, Rules rel, Opt opt)
+    {
+        if (!left.Any(p => p.Required)) return left;
+
+        if (opt.Strategy != ShortageStrategy.BuyPots)
+        {
+            var pots = left.Where(p => p.Required && p.Place == PlantPlace.Pot).ToList();
+            if (pots.Count > 0)
+                left = left.Where(p => !(p.Required && p.Place == PlantPlace.Pot)).Concat(BuyPots(pots, boxes, rel)).ToList();
+        }
+        if (opt.Strategy != ShortageStrategy.AddBeds)
+        {
+            var beds = left.Where(p => p.Required && p.Place == PlantPlace.Bed).ToList();
+            if (beds.Count > 0)
+                left = left.Where(p => !(p.Required && p.Place == PlantPlace.Bed)).Concat(AddBeds(beds, boxes, rel, opt.MaxBed)).ToList();
+        }
+        return left;
     }
 
     // Cold frame plants are planned but no chosen bed has a cover: retrofit one bed or add new covered beds.
@@ -408,7 +440,7 @@ public static class PlanAllocator
         var count = opt.MaxBed > 0 ? (int)Math.Ceiling(total / opt.MaxBed - Eps) : 1;
         var capacity = opt.MaxBed > 0 ? opt.MaxBed : total;
         for (var n = 0; n < Math.Max(1, count); n++)
-            boxes.Add(new Box { Kind = ContainerKind.Bed, IsNew = true, HasCover = true, Capacity = capacity });
+            boxes.Add(new Box { Kind = ContainerKind.Bed, IsNew = true, Category = ContainerCategory.Bed, HasCover = true, Capacity = capacity });
         return null;
     }
 
@@ -437,6 +469,8 @@ public static class PlanAllocator
         if (b.Kind == ContainerKind.Bed && b.WidthCm is { } width && p.RowSpacingCm is { } row && row > width + Eps) return false;
         // The soil pH has to be inside the range the plant likes (with a small tolerance); unknown values do not restrict
         if (!PhOk(p, b)) return false;
+        // Only the kinds of container the user allowed for the plant
+        if (p.Order is { Count: > 0 } order && !order.Contains(b.Category)) return false;
         // No vegetables under trees, and no trees among vegetables
         if ((p.IsVegetable && b.HasTree) || (p.IsTree && b.HasVegetable)) return false;
         if (p.ColdFrame) return b.Kind == ContainerKind.Bed && b.HasCover;
@@ -453,6 +487,10 @@ public static class PlanAllocator
         if (p.PhMax is { } max && ph > max + PhTolerance) return false;
         return true;
     }
+
+    // The place of the container kind in the user's order of choice (0 = first choice)
+    private static int OrderRank(AllocPlant p, Box b) =>
+        p.Order is { Count: > 0 } order ? Math.Max(0, order.ToList().IndexOf(b.Category)) : 0;
 
     // 0 = the soil is what the plant likes (or unknown), 1 = another kind of soil. Only used to choose between containers.
     private static int SoilRank(AllocPlant p, Box b) =>
@@ -510,7 +548,8 @@ public static class PlanAllocator
             var pot = boxes
                 .Where(b => b.Kind == ContainerKind.Pot && Fits(p, b, rel, potFallback)
                     && !OccupancyMask.Overlaps(b.MainMask, p.Slots) && b.FreeFor(p.Slots) + Eps >= liters && NeighboursOk(b, p, rel))
-                .OrderBy(b => SoilRank(p, b))
+                .OrderBy(b => OrderRank(p, b))
+                .ThenBy(b => SoilRank(p, b))
                 .ThenBy(b => b.Capacity)
                 .ThenBy(b => b.Id ?? int.MaxValue)
                 .FirstOrDefault();
@@ -625,6 +664,8 @@ public static class PlanAllocator
             {
                 Kind = ContainerKind.Pot,
                 IsNew = true,
+                // New pots are of the first kind of pot the user allowed for the plant
+                Category = seed.Order?.FirstOrDefault(c => c != ContainerCategory.Bed, ContainerCategory.Pot) ?? ContainerCategory.Pot,
                 Capacity = Math.Max(seed.PotLitersMax ?? 0, seed.PotLitersMin!.Value)
             };
             boxes.Add(pot);
@@ -641,7 +682,7 @@ public static class PlanAllocator
         var tryCover = left.Any(p => p.ColdFrame);
         while (left.Count > 0 && maxBed > 0)
         {
-            var bed = new Box { Kind = ContainerKind.Bed, IsNew = true, HasCover = tryCover, Capacity = maxBed };
+            var bed = new Box { Kind = ContainerKind.Bed, IsNew = true, Category = ContainerCategory.Bed, HasCover = tryCover, Capacity = maxBed };
             boxes.Add(bed);
             var next = PlaceAll(left, boxes, rel);
             if (next.Count == left.Count)
@@ -665,7 +706,7 @@ public static class PlanAllocator
         if (!potPossible && !bedPossible) return UnplacedReason.MissingSpaceData;
         // A pot plant is never put into a bed: the pots are not enough
         if (p.Place == PlantPlace.Pot) return UnplacedReason.NotEnoughPots;
-        if ((strategy == ShortageStrategy.AddBeds || p.ColdFrame) && !potPossible && p.AreaM2 > maxBed) return UnplacedReason.TooBigForBed;
+        if ((strategy == ShortageStrategy.AddBeds || p.ColdFrame || p.Required) && !potPossible && p.AreaM2 > maxBed) return UnplacedReason.TooBigForBed;
         return UnplacedReason.NoSuitableContainer;
     }
 }

@@ -16,6 +16,13 @@ public class PlantType
     public List<Plant> Plants { get; } = [];
     public Exposure? Exposure { get; set; }
 
+    /// <summary>
+    /// Where plants of this type go in the distribution: the allowed kinds of container, first choice first
+    /// (see <see cref="Domain.PlaceOrders"/>). Empty = decided by the growing place of the variety (not set: into a bed).
+    /// A variety can override it.
+    /// </summary>
+    public string? PlaceOrder { get; set; }
+
     /// <summary>Preferred soil pH range (e.g. 6.0 to 7.0).</summary>
     public decimal? PhMin { get; set; }
     public decimal? PhMax { get; set; }

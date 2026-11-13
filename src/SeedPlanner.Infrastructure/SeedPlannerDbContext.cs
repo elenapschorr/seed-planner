@@ -52,6 +52,7 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(t => t.DemandUnit).HasConversion<string>();
             e.Property(t => t.Exposure).HasConversion<string>();
             e.Property(t => t.SoilType).HasConversion<string>();
+            e.Property(t => t.PlaceOrder).HasMaxLength(60);
             e.Property(t => t.PhMin).HasPrecision(3, 1);
             e.Property(t => t.PhMax).HasPrecision(3, 1);
         });
@@ -85,6 +86,7 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(p => p.StockStatus).HasConversion<string>();
             e.Property(p => p.SowingMethod).HasConversion<string>();
             e.Property(p => p.GrowingPlace).HasConversion<string>();
+            e.Property(p => p.PlaceOrder).HasMaxLength(60);
             e.Property(p => p.Exposure).HasConversion<string>();
             e.HasMany(p => p.SeasonWindows).WithOne(w => w.Plant).HasForeignKey(w => w.PlantId);
             e.HasOne<IdentityUser>().WithMany().HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);

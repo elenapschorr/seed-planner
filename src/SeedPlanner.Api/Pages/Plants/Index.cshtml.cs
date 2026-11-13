@@ -23,6 +23,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
         GrowingPlace? GrowingPlace,
         NutrientDemand? NutrientDemand,
         Exposure? Exposure,
+        bool ExposureInherited,
         int PotCount,
         bool ShouldBuy)
     {
@@ -106,6 +107,7 @@ public class IndexModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource
                 p.Propagation, p.PlantType.Lifecycle, p.SeedType, p.StockStatus,
                 p.SowingMethod, p.GrowingPlace, p.PlantType.NutrientDemand,
                 p.EffectiveExposure,   // own value of the plant, otherwise the default of its plant type
+                p.Exposure is null && p.PlantType.Exposure is not null,
                 potsPerPlant.GetValueOrDefault(p.Id),
                 p.ShouldBuy)           // rule lives in the domain class
         }).ToList();

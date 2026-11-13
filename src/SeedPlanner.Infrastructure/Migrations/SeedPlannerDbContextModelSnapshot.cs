@@ -587,6 +587,11 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("owner_id");
 
+                    b.Property<string>("PlaceOrder")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("place_order");
+
                     b.Property<int?>("PlantSpacingCm")
                         .HasColumnType("integer")
                         .HasColumnName("plant_spacing_cm");
@@ -707,6 +712,11 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasPrecision(3, 1)
                         .HasColumnType("numeric(3,1)")
                         .HasColumnName("ph_min");
+
+                    b.Property<string>("PlaceOrder")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("place_order");
 
                     b.Property<string>("SoilType")
                         .HasColumnType("text")

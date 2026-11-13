@@ -9,7 +9,8 @@ public interface IOwnedByUser
 public enum PotKind
 {
     Pot,
-    Bowl
+    Bowl,
+    GrowBag
 }
 
 /// <summary>Round pots are conical (wider at the top); rectangular pots are assumed to have a square cross section.</summary>

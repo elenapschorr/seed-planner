@@ -152,7 +152,7 @@
   <data name="Col_SoilVolume" xml:space="preserve"><value>Erde (l)</value></data>
   <data name="PotKind_Pot" xml:space="preserve"><value>Topf</value></data>
   <data name="PotKind_Bowl" xml:space="preserve"><value>Schale</value></data>
-  <data name="PotShape_Round" xml:space="preserve"><value>rund (konisch)</value></data>
+  <data name="PotShape_Round" xml:space="preserve"><value>rund</value></data>
   <data name="PotShape_Rectangular" xml:space="preserve"><value>eckig</value></data>
   <data name="BedShape_Oval" xml:space="preserve"><value>oval</value></data>
   <data name="BedShape_Rectangular" xml:space="preserve"><value>eckig</value></data>
@@ -504,4 +504,20 @@
   <data name="SoilType_Humus" xml:space="preserve"><value>Humos, nährstoffreich</value></data>
   <data name="SoilType_PottingSoil" xml:space="preserve"><value>Blumen-/Gemüseerde</value></data>
   <data name="Soil_Help" xml:space="preserve"><value>Pflanzen kommen nur in Töpfe und Beete, deren pH-Wert zur Pflanzenart passt (±0,5). Ohne Angabe gibt es keine Einschränkung; die Bodenart ist nur eine Präferenz.</value></data>
+  <data name="Priority_Inherited" xml:space="preserve"><value>geerbt von der Pflanzenart</value></data>
+  <data name="Priority_AsType" xml:space="preserve"><value>– (wie Pflanzenart)</value></data>
+  <data name="Field_Priority" xml:space="preserve"><value>Verteilung auf (Reihenfolge)</value></data>
+  <data name="Field_PriorityHelp" xml:space="preserve"><value>Wohin die Art in der Verteilung kommt: erlaubte Behälterarten, erste Wahl zuerst. Nur Beete oder nur Töpfe/Säcke/Schalen: die Pflanzen müssen dort untergebracht werden (bei Platzmangel kommen neue dazu). Leer: nach Kulturort der Sorte, sonst in ein Beet.</value></data>
+  <data name="Priority_Choice" xml:space="preserve"><value>Wahl</value></data>
+  <data name="PlaceOrder_Duplicate" xml:space="preserve"><value>Jede Behälterart darf nur einmal gewählt werden.</value></data>
+  <data name="ContainerCategory_Bed" xml:space="preserve"><value>Beet</value></data>
+  <data name="ContainerCategory_Pot" xml:space="preserve"><value>Topf</value></data>
+  <data name="ContainerCategory_Bowl" xml:space="preserve"><value>Schale</value></data>
+  <data name="ContainerCategory_GrowBag" xml:space="preserve"><value>Pflanzsack</value></data>
+  <data name="PotKind_GrowBag" xml:space="preserve"><value>Pflanzsack</value></data>
+  <data name="Nav_Calendar" xml:space="preserve"><value>Kalender</value></data>
+  <data name="Calendar_Title" xml:space="preserve"><value>Kalender für Aussaat, Blüte und Ernte</value></data>
+  <data name="Calendar_Intro" xml:space="preserve"><value>Alle Sorten im Jahresverlauf, in Monatsdritteln. Eine Pflanzenart aufklappen, um ihre Sorten zu sehen.</value></data>
+  <data name="Calendar_HarvestCount" xml:space="preserve"><value>Pflanzenarten mit Ernte</value></data>
+  <data name="Calendar_OnlyInStock" xml:space="preserve"><value>Nur vorhandene Sorten</value></data>
 </root>

@@ -160,9 +160,27 @@ public static class PlanAllocation
         {
             GrowingPlace.Container => PlantPlace.Pot,
             GrowingPlace.ColdFrame => PlantPlace.Bed,
-            GrowingPlace.Open => PlantPlace.BedThenPot,
-            _ => PlantPlace.Either
+            _ => PlantPlace.Bed // not set: into a bed
         };
+        // The user's choice (variety first, then plant type) decides where the variety goes, unless it is a cold frame plant:
+        // the allowed kinds of container, first choice first. If all allowed kinds are beds or all are pots, the plant has
+        // to be put there (new containers are added when there is no room).
+        var order = PlaceOrders.Parse(p.PlaceOrder ?? type?.PlaceOrder);
+        var onlyOne = false;
+        if (p.GrowingPlace != GrowingPlace.ColdFrame && order.Count > 0)
+        {
+            var hasBed = order.Contains(ContainerCategory.Bed);
+            var hasPot = order.Any(c => c != ContainerCategory.Bed);
+            place = (hasBed, hasPot, order[0] == ContainerCategory.Bed) switch
+            {
+                (true, false, _) => PlantPlace.Bed,
+                (false, _, _) => PlantPlace.Pot,
+                (true, true, true) => PlantPlace.BedThenPot, // beds first, pots as the second choice
+                _ => PlantPlace.Either                       // pots first, then beds
+            };
+            onlyOne = !(hasBed && hasPot);
+        }
+        else order.Clear();
         double? row = (p.RowSpacingCm ?? p.PlantSpacingCm) * factor;
         return new AllocPlant(
             p.Id, p.PlantTypeId, p.Name, count, place,
@@ -172,7 +190,8 @@ public static class PlanAllocation
             ColdFrame: p.GrowingPlace == GrowingPlace.ColdFrame,
             RowSpacingCm: row,
             Slots: PlantOccupancy.Slots(p, life, lastFrostThird),
-            PhMin: type?.PhMin, PhMax: type?.PhMax, SoilType: type?.SoilType, Category: type?.Category);
+            PhMin: type?.PhMin, PhMax: type?.PhMax, SoilType: type?.SoilType, Category: type?.Category,
+            Required: onlyOne, Order: order.Count > 0 ? order : null);
     }
 
     /// <summary>"Mar–May" for display; empty if the plant takes the place all year.</summary>
@@ -200,7 +219,8 @@ public static class PlanAllocation
             MaxHeightCm: LowestHeight(pot.Plantings),
             ExistingTypeIds: pot.Plantings.Select(x => x.PlantTypeId).Distinct().ToList(),
             SoilPh: group.SoilPh, SoilType: group.SoilType,
-            HasTree: HasTree(pot.Plantings, categories), HasVegetable: HasVegetable(pot.Plantings, categories));
+            HasTree: HasTree(pot.Plantings, categories), HasVegetable: HasVegetable(pot.Plantings, categories),
+            Category: PlaceOrders.CategoryOf(group.Kind));
     }
 
     // Bed: area; plantings already in it use area by number of plants and spacing
@@ -214,7 +234,8 @@ public static class PlanAllocation
             HasCover: bed.HasCover,
             WidthCm: (double)Math.Min(bed.WidthCm, bed.LengthCm),
             SoilPh: bed.SoilPh, SoilType: bed.SoilType,
-            HasTree: HasTree(bed.Plantings, categories), HasVegetable: HasVegetable(bed.Plantings, categories));
+            HasTree: HasTree(bed.Plantings, categories), HasVegetable: HasVegetable(bed.Plantings, categories),
+            Category: ContainerCategory.Bed);
 
     private static bool HasTree(IEnumerable<Planting> plantings, IReadOnlyDictionary<int, PlantCategory?> categories) =>
         plantings.Any(x => categories.GetValueOrDefault(x.PlantTypeId) == PlantCategory.FruitTree);

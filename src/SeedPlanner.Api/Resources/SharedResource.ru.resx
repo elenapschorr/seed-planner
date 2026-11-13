@@ -152,7 +152,7 @@
   <data name="Col_SoilVolume" xml:space="preserve"><value>Почва (л)</value></data>
   <data name="PotKind_Pot" xml:space="preserve"><value>Горшок</value></data>
   <data name="PotKind_Bowl" xml:space="preserve"><value>Чаша</value></data>
-  <data name="PotShape_Round" xml:space="preserve"><value>Круглый (конический)</value></data>
+  <data name="PotShape_Round" xml:space="preserve"><value>Круглый</value></data>
   <data name="PotShape_Rectangular" xml:space="preserve"><value>Прямоугольный</value></data>
   <data name="BedShape_Oval" xml:space="preserve"><value>Овальная</value></data>
   <data name="BedShape_Rectangular" xml:space="preserve"><value>Прямоугольная</value></data>
@@ -504,4 +504,20 @@
   <data name="SoilType_Humus" xml:space="preserve"><value>Гумусная, питательная</value></data>
   <data name="SoilType_PottingSoil" xml:space="preserve"><value>Грунт для овощей/цветов</value></data>
   <data name="Soil_Help" xml:space="preserve"><value>Растения попадают только в горшки и грядки, pH которых подходит культуре (±0,5). Без значения ограничений нет; тип почвы – лишь предпочтение.</value></data>
+  <data name="Priority_Inherited" xml:space="preserve"><value>унаследовано от культуры</value></data>
+  <data name="Priority_AsType" xml:space="preserve"><value>– (как у культуры)</value></data>
+  <data name="Field_Priority" xml:space="preserve"><value>Размещение (порядок)</value></data>
+  <data name="Field_PriorityHelp" xml:space="preserve"><value>Куда попадает культура при распределении: допустимые виды ёмкостей, первый выбор первым. Только грядки или только горшки/мешки/чаши: растения обязательно размещаются там (при нехватке места добавляются новые). Пусто: по месту выращивания сорта, иначе в грядку.</value></data>
+  <data name="Priority_Choice" xml:space="preserve"><value>выбор</value></data>
+  <data name="PlaceOrder_Duplicate" xml:space="preserve"><value>Каждый вид ёмкости можно выбрать только один раз.</value></data>
+  <data name="ContainerCategory_Bed" xml:space="preserve"><value>Грядка</value></data>
+  <data name="ContainerCategory_Pot" xml:space="preserve"><value>Горшок</value></data>
+  <data name="ContainerCategory_Bowl" xml:space="preserve"><value>Чаша</value></data>
+  <data name="ContainerCategory_GrowBag" xml:space="preserve"><value>Мешок для выращивания</value></data>
+  <data name="PotKind_GrowBag" xml:space="preserve"><value>Мешок для выращивания</value></data>
+  <data name="Nav_Calendar" xml:space="preserve"><value>Календарь</value></data>
+  <data name="Calendar_Title" xml:space="preserve"><value>Календарь посева, цветения и сбора урожая</value></data>
+  <data name="Calendar_Intro" xml:space="preserve"><value>Все сорта в течение года, по третям месяца. Раскройте культуру, чтобы увидеть её сорта.</value></data>
+  <data name="Calendar_HarvestCount" xml:space="preserve"><value>Культуры со сбором урожая</value></data>
+  <data name="Calendar_OnlyInStock" xml:space="preserve"><value>Только имеющиеся сорта</value></data>
 </root>

@@ -16,6 +16,9 @@ public class Plant
     public StockStatus StockStatus { get; set; }
     public SowingMethod? SowingMethod { get; set; }
     public GrowingPlace? GrowingPlace { get; set; }
+
+    /// <summary>Overrides the placement of the plant type (see <see cref="Domain.PlaceOrders"/>). Empty = as the plant type.</summary>
+    public string? PlaceOrder { get; set; }
     public Exposure? Exposure { get; set; }
     public Exposure? EffectiveExposure => Exposure ?? PlantType?.Exposure;
 

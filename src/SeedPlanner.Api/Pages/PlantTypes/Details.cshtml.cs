@@ -23,6 +23,7 @@ public class DetailsModel(
     public NutrientDemand? NutrientDemand { get; private set; }
     public Exposure? Exposure { get; private set; }
     public SoilType? SoilType { get; private set; }
+    public string? PlaceOrder { get; private set; }
     public decimal? PhMin { get; private set; }
     public decimal? PhMax { get; private set; }
     public Lifecycle? Lifecycle { get; private set; }
@@ -84,6 +85,7 @@ public class DetailsModel(
                 t.NutrientDemand,
                 t.Exposure,
                 t.SoilType,
+                t.PlaceOrder,
                 t.PhMin,
                 t.PhMax,
                 t.Lifecycle,
@@ -107,6 +109,7 @@ public class DetailsModel(
         NutrientDemand = type.NutrientDemand;
         Exposure = type.Exposure;
         SoilType = type.SoilType;
+        PlaceOrder = type.PlaceOrder;
         PhMin = type.PhMin;
         PhMax = type.PhMax;
         Lifecycle = type.Lifecycle;

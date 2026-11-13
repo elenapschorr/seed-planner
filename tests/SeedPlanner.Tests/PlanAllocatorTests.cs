@@ -639,4 +639,81 @@ public class PlanAllocatorTests
 
         Assert.Empty(Box(r, 1).Placements);
     }
+
+    // ---------------------------------------------------------------- required container kind
+
+    [Fact]
+    public void A_plant_that_must_go_into_pots_gets_new_pots_even_with_the_shrink_strategy()
+    {
+        var plant = Plant(1, 1, count: 3, liters: 5) with { Required = true };
+
+        var r = Run([plant], []);
+
+        Assert.Empty(r.Reductions);
+        Assert.Empty(r.Unplaced);
+        Assert.Equal(3, r.Containers.Count(c => c.IsNew && c.Kind == ContainerKind.Pot));
+    }
+
+    [Fact]
+    public void A_plant_that_must_go_into_beds_gets_new_beds_and_is_not_reduced()
+    {
+        var plant = Plant(1, 1, count: 10, area: 0.5, place: PlantPlace.Bed) with { Required = true };
+
+        var r = Run([plant], [Bed(1, 1)], maxBed: 2);
+
+        Assert.Empty(r.Reductions);
+        Assert.Empty(r.Unplaced);
+        Assert.Equal(10, r.Containers.Sum(c => Count(c, 1)));
+        Assert.Contains(r.Containers, c => c.IsNew && c.Kind == ContainerKind.Bed);
+    }
+
+    [Fact]
+    public void A_plant_without_a_set_place_that_does_not_fit_is_still_reduced()
+    {
+        var plant = Plant(1, 1, count: 3, area: 0.5, place: PlantPlace.Bed);
+
+        var r = Run([plant], [Bed(1, 1)]);
+
+        Assert.Single(r.Reductions);
+    }
+
+    // ---------------------------------------------------------------- order of the kinds of container
+
+    private static AllocContainerInput Sack(int id, double liters) =>
+        new(ContainerKind.Pot, id, "Sack" + id, liters, Category: ContainerCategory.GrowBag);
+
+    [Fact]
+    public void The_first_choice_kind_of_container_is_used_first()
+    {
+        var plant = Plant(1, 1, liters: 5, place: PlantPlace.Either)
+            with { Order = [ContainerCategory.GrowBag, ContainerCategory.Pot] };
+
+        var r = Run([plant], [Pot(1, 5), Sack(2, 20)]);
+
+        Assert.Empty(Box(r, 1).Placements);
+        Assert.Single(Box(r, 2).Placements);
+    }
+
+    [Fact]
+    public void A_kind_of_container_that_is_not_in_the_order_is_never_used()
+    {
+        var plant = Plant(1, 1, liters: 5, place: PlantPlace.Pot) with { Order = [ContainerCategory.Pot] };
+
+        var r = Run([plant], [Sack(1, 20), Pot(2, 10)]);
+
+        Assert.Empty(Box(r, 1).Placements);
+        Assert.Single(Box(r, 2).Placements);
+    }
+
+    [Fact]
+    public void New_pots_for_a_required_plant_are_of_the_allowed_kind()
+    {
+        var plant = Plant(1, 1, count: 2, liters: 5, place: PlantPlace.Pot)
+            with { Required = true, Order = [ContainerCategory.GrowBag] };
+
+        var r = Run([plant], []);
+
+        Assert.Equal(2, r.Containers.Count(c => c.IsNew && c.Kind == ContainerKind.Pot));
+        Assert.Empty(r.Unplaced);
+    }
 }

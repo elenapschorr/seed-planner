@@ -27,6 +27,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         public StockStatus StockStatus { get; set; } = StockStatus.InStock;
         public SowingMethod? SowingMethod { get; set; }
         public GrowingPlace? GrowingPlace { get; set; }
+        public List<string?> PlaceChoices { get; set; } = new();
         public Exposure? Exposure { get; set; }
 
         public int? GerminationDaysMin { get; set; }
@@ -82,6 +83,23 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
     // Plant types of the category flower: their "harvest" window is the flowering time, the page labels it accordingly
     public List<int> FlowerTypeIds { get; private set; } = new();
+
+    // Placement priorities of every plant type (bed, pot); a variety without its own numbers inherits them
+    public Dictionary<int, List<string>> TypeOrders { get; private set; } = new();
+
+    // Exposure of every plant type; a variety without its own value inherits it
+    public Dictionary<int, string> TypeExposures { get; private set; } = new();
+    private Dictionary<int, Exposure?> typeStoredExposures = new();
+    public PlaceOrderField PlaceField => new()
+    {
+        Name = "Input.PlaceChoices",
+        Values = Input.PlaceChoices,
+        FirstEmptyText = L["Priority_AsType"].Value,
+        Label = L["Field_Priority"].Value,
+        Help = "",
+        ChoiceText = L["Priority_Choice"].Value,
+        Options = PlaceOrderField.CategoryOptions(L)
+    };
     public List<SelectListItem> PropagationOptions { get; private set; } = new();
     public List<SelectListItem> SeedTypeOptions { get; private set; } = new();
     public List<SelectListItem> StockOptions { get; private set; } = new();
@@ -121,6 +139,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
     {
         Id = id;
         await ValidateAsync(id);
+        await LoadOptionsAsync();
         if (!ModelState.IsValid)
         {
             await LoadOptionsAsync();
@@ -260,6 +279,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
     private async Task ValidateAsync(int? id)
     {
+        if (PlaceOrderField.FromValues(Input.PlaceChoices) is null)
+            ModelState.AddModelError("Input.PlaceChoices", L["PlaceOrder_Duplicate"]);
         var name = Input.Name?.Trim() ?? "";
         if (Input.PlantTypeId is not null && name.Length > 0)
         {
@@ -333,7 +354,13 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         plant.StockStatus = Input.StockStatus;
         plant.SowingMethod = Input.SowingMethod;
         plant.GrowingPlace = Input.GrowingPlace;
-        plant.Exposure = Input.Exposure;
+        // The fields show the inherited order of the plant type; what equals it is stored as "not set" (= inherit)
+        var ownOrder = PlaceOrders.Format(PlaceOrderField.FromValues(Input.PlaceChoices) ?? new());
+        typeStoredOrders.TryGetValue(plant.PlantTypeId, out var typeOrder);
+        plant.PlaceOrder = ownOrder == PlaceOrders.Format(PlaceOrders.Parse(typeOrder)) ? null : ownOrder;
+        // The field shows the exposure of the plant type; what equals it is stored as "not set" (= inherit)
+        typeStoredExposures.TryGetValue(plant.PlantTypeId, out var typeExposure);
+        plant.Exposure = Input.Exposure == typeExposure ? null : Input.Exposure;
         plant.GerminationDaysMin = Input.GerminationDaysMin;
         plant.GerminationDaysMax = Input.GerminationDaysMax;
         plant.GerminationTempMinC = Input.GerminationTempMinC;
@@ -405,6 +432,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             StockStatus = plant.StockStatus,
             SowingMethod = plant.SowingMethod,
             GrowingPlace = plant.GrowingPlace,
+            PlaceChoices = PlaceOrderField.ToValues(plant.PlaceOrder),
             Exposure = plant.Exposure,
             GerminationDaysMin = plant.GerminationDaysMin,
             GerminationDaysMax = plant.GerminationDaysMax,
@@ -430,6 +458,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
     // ---------------------------------------------------------------- dropdown lists
 
+    private Dictionary<int, string?> typeStoredOrders = new();
+
     private async Task LoadOptionsAsync()
     {
         var language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
@@ -447,6 +477,11 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             .ToList();
         TypeOptions.Insert(0, new SelectListItem("–", ""));
         FlowerTypeIds = types.Where(t => t.Category == PlantCategory.Flower).Select(t => t.Id).ToList();
+        TypeOrders = types.Where(t => !string.IsNullOrEmpty(t.PlaceOrder))
+            .ToDictionary(t => t.Id, t => PlaceOrders.Parse(t.PlaceOrder).Select(c => c.ToString()).ToList());
+        typeStoredOrders = types.ToDictionary(t => t.Id, t => t.PlaceOrder);
+        TypeExposures = types.Where(t => t.Exposure is not null).ToDictionary(t => t.Id, t => t.Exposure!.Value.ToString());
+        typeStoredExposures = types.ToDictionary(t => t.Id, t => t.Exposure);
 
         PropagationOptions = EnumOptions<Propagation>();
         SeedTypeOptions = EnumOptions<SeedType>(optional: true);
@@ -454,6 +489,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         SowingOptions = EnumOptions<SowingMethod>(optional: true);
         PlaceOptions = EnumOptions<GrowingPlace>(optional: true);
         ExposureOptions = EnumOptions<Exposure>(optional: true);
+        ExposureOptions[0] = new SelectListItem(L["Priority_AsType"].Value, "");
 
         MonthOptions = Enumerable.Range(1, 12)
             .Select(m => new SelectListItem(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m), m.ToString()))

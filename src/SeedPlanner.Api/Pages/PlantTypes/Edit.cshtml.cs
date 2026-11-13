@@ -32,6 +32,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         public GerminationType? GerminationType { get; set; }
         public Exposure? Exposure { get; set; }
         public SoilType? SoilType { get; set; }
+        public List<string?> PlaceChoices { get; set; } = new();
 
         [Range(0, 14)]
         public decimal? PhMin { get; set; }
@@ -69,6 +70,16 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
     public List<SelectListItem> GerminationOptions { get; private set; } = new();
     public List<SelectListItem> ExposureOptions { get; private set; } = new();
     public List<SelectListItem> SoilOptions { get; private set; } = new();
+    public PlaceOrderField PlaceField => new()
+    {
+        Name = "Input.PlaceChoices",
+        Values = Input.PlaceChoices,
+        FirstEmptyText = "–",
+        Label = L["Field_Priority"].Value,
+        Help = L["Field_PriorityHelp"].Value,
+        ChoiceText = L["Priority_Choice"].Value,
+        Options = PlaceOrderField.CategoryOptions(L)
+    };
     public List<SelectListItem> UnitOptions { get; private set; } = new();
 
     public async Task<IActionResult> OnGetAsync(int? id)
@@ -147,6 +158,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             ModelState.AddModelError("Input.NameEn", L["PlantTypeError_NameExists"]);
         }
 
+        if (PlaceOrderField.FromValues(Input.PlaceChoices) is null)
+            ModelState.AddModelError("Input.PlaceChoices", L["PlaceOrder_Duplicate"]);
         CheckMinMax(nameof(Input.PhMin), Input.PhMin, Input.PhMax);
         CheckMinMax(nameof(Input.GrowthDaysMin), Input.GrowthDaysMin, Input.GrowthDaysMax);
         CheckMinMax(nameof(Input.DemandPerPersonMin), Input.DemandPerPersonMin, Input.DemandPerPersonMax);
@@ -176,6 +189,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         type.GerminationType = Input.GerminationType;
         type.Exposure = Input.Exposure;
         type.SoilType = Input.SoilType;
+        type.PlaceOrder = PlaceOrders.Format(PlaceOrderField.FromValues(Input.PlaceChoices) ?? new());
         type.PhMin = Input.PhMin;
         type.PhMax = Input.PhMax;
         type.GrowthDaysMin = Input.GrowthDaysMin;
@@ -220,6 +234,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             GerminationType = type.GerminationType,
             Exposure = type.Exposure,
             SoilType = type.SoilType,
+            PlaceChoices = PlaceOrderField.ToValues(type.PlaceOrder),
             PhMin = type.PhMin,
             PhMax = type.PhMax,
             GrowthDaysMin = type.GrowthDaysMin,

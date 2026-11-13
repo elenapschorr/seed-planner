@@ -46,7 +46,7 @@
         <select asp-for="Input.StockStatus" asp-items="Model.StockOptions" class="form-select"></select>
     </div>
     <div class="col-md-3">
-        <label asp-for="Input.Exposure" class="form-label">@L["Col_Exposure"]</label>
+        <label asp-for="Input.Exposure" id="exposure-label" class="form-label" data-text="@L["Col_Exposure"]">@L["Col_Exposure"]</label>
         <select asp-for="Input.Exposure" asp-items="Model.ExposureOptions" class="form-select"></select>
     </div>
 
@@ -78,6 +78,11 @@
             <input asp-for="Input.PotSizeMaxLiters" class="form-control" />
         </div>
         <span asp-validation-for="Input.PotSizeMinLiters" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <partial name="_PlaceOrder" model="Model.PlaceField" />
+        <span asp-validation-for="Input.PlaceChoices" class="text-danger"></span>
     </div>
 
     <div class="col-md-4">
@@ -292,6 +297,85 @@
             });
             placeSelect.addEventListener("change", updateSpacing);
             updateSpacing();
+
+            // Order of container kinds: a variety without its own order inherits the one of the plant type.
+            // The inherited order is entered into the fields; the labels of the inherited choices are
+            // coloured, underlined and link to the plant type.
+            var typeOrders = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TypeOrders));
+            var typeUrl = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Page("/PlantTypes/Details", new { id = 0 })));
+            var inheritedHint = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Priority_Inherited"].Value));
+            var orderBox = document.getElementById("place-order");
+            var orderSelects = orderBox.querySelectorAll(".place-choice");
+            var orderLabels = orderBox.querySelectorAll(".place-label");
+            var typeSelect = document.getElementById("Input_PlantTypeId");
+            var inheriting = orderSelects[0].value === "";   // no own order stored
+            function currentTypeOrder() { return typeOrders[parseInt(typeSelect.value, 10)] || []; }
+            function markLabels() {
+                var order = currentTypeOrder();
+                orderLabels.forEach(function (label, i) {
+                    var text = label.getAttribute("data-text");
+                    if (inheriting && i < order.length) {
+                        var a = document.createElement("a");
+                        a.href = typeUrl.replace(/0$/, String(parseInt(typeSelect.value, 10)));
+                        a.target = "_blank";
+                        a.rel = "noopener";
+                        a.title = inheritedHint;
+                        a.className = "link-primary text-decoration-underline fw-semibold";
+                        a.textContent = text;
+                        label.replaceChildren(a);
+                    } else {
+                        label.textContent = text;
+                    }
+                });
+            }
+            function applyInherited() {
+                if (!inheriting) { markLabels(); return; }
+                var order = currentTypeOrder();
+                orderSelects.forEach(function (s, i) { s.value = i < order.length ? order[i] : ""; });
+                orderBox.dispatchEvent(new Event("placeorder:refresh"));
+                markLabels();
+            }
+            orderSelects.forEach(function (s) {
+                s.addEventListener("change", function () {
+                    if (orderSelects[0].value === "") {
+                        inheriting = true;           // first choice cleared = take over the plant type again
+                        applyInherited();
+                        return;
+                    }
+                    inheriting = false;
+                    markLabels();
+                });
+            });
+            typeSelect.addEventListener("change", applyInherited);
+            applyInherited();
+
+            // Exposure: the same logic for a single field
+            var typeExposures = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TypeExposures));
+            var exposureSelect = document.getElementById("Input_Exposure");
+            var exposureLabel = document.getElementById("exposure-label");
+            var exposureInherits = exposureSelect.value === "";
+            function applyExposure() {
+                var fromType = typeExposures[parseInt(typeSelect.value, 10)] || "";
+                if (exposureInherits) exposureSelect.value = fromType;
+                if (exposureInherits && fromType !== "") {
+                    var a = document.createElement("a");
+                    a.href = typeUrl.replace(/0$/, String(parseInt(typeSelect.value, 10)));
+                    a.target = "_blank";
+                    a.rel = "noopener";
+                    a.title = inheritedHint;
+                    a.className = "link-primary text-decoration-underline fw-semibold";
+                    a.textContent = exposureLabel.getAttribute("data-text");
+                    exposureLabel.replaceChildren(a);
+                } else {
+                    exposureLabel.textContent = exposureLabel.getAttribute("data-text");
+                }
+            }
+            exposureSelect.addEventListener("change", function () {
+                exposureInherits = exposureSelect.value === "";   // empty = take over the plant type again
+                applyExposure();
+            });
+            typeSelect.addEventListener("change", applyExposure);
+            applyExposure();
 
             // Flowers are not harvested: for plant types of the category flower the harvest window is hidden
             // (unless it still holds data, so nothing disappears unnoticed)

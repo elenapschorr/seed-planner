@@ -50,6 +50,10 @@
         <select asp-for="Input.SoilType" asp-items="Model.SoilOptions" class="form-select"></select>
     </div>
     <div class="col-md-4">
+        <partial name="_PlaceOrder" model="Model.PlaceField" />
+        <span asp-validation-for="Input.PlaceChoices" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
         <label class="form-label">@L["Soil_PhRange"]</label>
         <div class="input-group">
             <input asp-for="Input.PhMin" class="form-control" inputmode="decimal" />

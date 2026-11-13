@@ -28,6 +28,8 @@
     <dd class="col-sm-9">@(Model.Exposure is null ? "–" : L["Exposure_" + Model.Exposure].Value)</dd>
     <dt class="col-sm-3">@L["Soil_Recommended"]</dt>
     <dd class="col-sm-9">@(Model.SoilType is null ? "–" : L["SoilType_" + Model.SoilType].Value)</dd>
+    <dt class="col-sm-3">@L["Field_Priority"]</dt>
+    <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.PlaceOrder) ? "–" : SeedPlanner.Api.Pages.PlaceOrderField.Describe(Model.PlaceOrder, L))</dd>
     <dt class="col-sm-3">@L["Soil_Ph"]</dt>
     <dd class="col-sm-9">@(DetailsModel.Range(Model.PhMin, Model.PhMax) ?? "–")</dd>
     <dt class="col-sm-3">@L["Col_Germination"]</dt>

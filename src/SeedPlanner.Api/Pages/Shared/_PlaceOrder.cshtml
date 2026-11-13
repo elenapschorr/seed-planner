@@ -1,0 +1,48 @@
+@model SeedPlanner.Api.Pages.PlaceOrderField
+
+<label class="form-label">@Model.Label</label>
+<div id="place-order" class="d-flex flex-column gap-1">
+    @for (var i = 0; i < SeedPlanner.Api.Pages.PlaceOrderField.Slots; i++)
+    {
+        var value = i < Model.Values.Count ? Model.Values[i] : "";
+        <div class="input-group input-group-sm place-choice-row">
+            <span class="input-group-text"><span class="place-label" data-text="@(i + 1). @Model.ChoiceText">@(i + 1). @Model.ChoiceText</span></span>
+            <select name="@Model.Name" class="form-select place-choice">
+                <option value="">@(i == 0 ? Model.FirstEmptyText : "–")</option>
+                @foreach (var o in Model.Options)
+                {
+                    <option value="@o.Value" selected="@(o.Value == value)">@o.Text</option>
+                }
+            </select>
+        </div>
+    }
+</div>
+@if (!string.IsNullOrEmpty(Model.Help))
+{
+    <div class="form-text">@Model.Help</div>
+}
+<script>
+    // Every kind can be chosen only once; a later choice is possible only after the one before it
+    (function () {
+        var rows = document.querySelectorAll("#place-order .place-choice-row");
+        var selects = document.querySelectorAll("#place-order .place-choice");
+        function update() {
+            // a later choice is possible only after the one before it
+            selects.forEach(function (s, i) {
+                var previousEmpty = i > 0 && selects[i - 1].value === "";
+                if (previousEmpty) s.value = "";
+                rows[i].hidden = previousEmpty;
+            });
+            var chosen = [];
+            selects.forEach(function (s) { chosen.push(s.value); });
+            selects.forEach(function (s) {
+                Array.prototype.forEach.call(s.options, function (o) {
+                    o.disabled = o.value !== "" && o.value !== s.value && chosen.indexOf(o.value) >= 0;
+                });
+            });
+        }
+        selects.forEach(function (s) { s.addEventListener("change", update); });
+        document.getElementById("place-order").addEventListener("placeorder:refresh", update);
+        update();
+    })();
+</script>

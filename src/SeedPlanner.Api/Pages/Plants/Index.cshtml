@@ -54,7 +54,14 @@
                         <td>@(r.SowingMethod is null ? "–" : L["SowingMethod_" + r.SowingMethod].Value)</td>
                         <td>@(r.GrowingPlace is null ? "–" : L["GrowingPlace_" + r.GrowingPlace].Value)</td>
                         <td>@(r.NutrientDemand is null ? "–" : L["NutrientDemand_" + r.NutrientDemand].Value)</td>
-                        <td>@(r.Exposure is null ? "–" : L["Exposure_" + r.Exposure].Value)</td>
+                        <td>
+                            @if (r.Exposure is null) { <text>–</text> }
+                            else if (r.ExposureInherited)
+                            {
+                                <a asp-page="/PlantTypes/Details" asp-route-id="@r.TypeId" target="_blank" rel="noopener" title="@L["Priority_Inherited"]" class="link-primary text-decoration-underline">@L["Exposure_" + r.Exposure]</a>
+                            }
+                            else { @L["Exposure_" + r.Exposure] }
+                        </td>
                     <td>@if (r.ShouldBuy) { <span class="badge text-bg-warning">@L["Badge_ToBuy"]</span> }</td>
                     <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id" asp-route-returnUrl="@Model.ReturnUrl">@L["Action_Edit"]</a></td>
                 </tr>
@@ -105,7 +112,14 @@
                         <td>@(r.SowingMethod is null ? "–" : L["SowingMethod_" + r.SowingMethod].Value)</td>
                         <td>@(r.GrowingPlace is null ? "–" : L["GrowingPlace_" + r.GrowingPlace].Value)</td>
                         <td>@(r.NutrientDemand is null ? "–" : L["NutrientDemand_" + r.NutrientDemand].Value)</td>
-                        <td>@(r.Exposure is null ? "–" : L["Exposure_" + r.Exposure].Value)</td>
+                        <td>
+                            @if (r.Exposure is null) { <text>–</text> }
+                            else if (r.ExposureInherited)
+                            {
+                                <a asp-page="/PlantTypes/Details" asp-route-id="@r.TypeId" target="_blank" rel="noopener" title="@L["Priority_Inherited"]" class="link-primary text-decoration-underline">@L["Exposure_" + r.Exposure]</a>
+                            }
+                            else { @L["Exposure_" + r.Exposure] }
+                        </td>
                     <td class="text-end">@(r.PotCount == 0 ? "–" : r.PotCount.ToString())</td>
                     <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id" asp-route-returnUrl="@Model.ReturnUrl">@L["Action_Edit"]</a></td>
                 </tr>
