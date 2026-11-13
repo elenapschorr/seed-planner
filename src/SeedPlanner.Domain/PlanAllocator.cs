@@ -118,7 +118,8 @@ public record PlacementResult(int PlantId, int PlantTypeId, PlantingRole Role, i
 /// NeedsCover: an existing bed that has to get a cover (strategy RetrofitExistingBed).</summary>
 public record ContainerResult(
     ContainerKind Kind, int? Id, string Name, bool IsNew, double Capacity, double Used,
-    IReadOnlyList<PlacementResult> Placements, bool HasCover = false, bool NeedsCover = false);
+    IReadOnlyList<PlacementResult> Placements, bool HasCover = false, bool NeedsCover = false,
+    ContainerCategory? Category = null);
 
 public record UnplacedResult(int PlantId, int Count, UnplacedReason Reason);
 
@@ -245,7 +246,7 @@ public static class PlanAllocator
                 .GroupBy(x => (x.Plant.PlantId, x.Plant.PlantTypeId, x.Role))
                 .Select(g => new PlacementResult(g.Key.PlantId, g.Key.PlantTypeId, g.Key.Role, g.Count(), g.First().Plant.Slots))
                 .ToList(),
-            b.HasCover, b.NeedsCover)).ToList();
+            b.HasCover, b.NeedsCover, b.Category)).ToList();
 
         return new AllocationResult
         {

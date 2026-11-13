@@ -124,7 +124,13 @@ public class PlanItem
     /// <summary>Plants calculated from the demand; empty if the spacing needed for the conversion is missing.</summary>
     public int? CalculatedPlants { get; set; }
 
-    /// <summary>The number the user entered instead of the calculated one.</summary>
+    /// <summary>
+    /// The amount the user entered instead of the demand, in <see cref="Unit"/> (square or row meters).
+    /// The plants of it are worked out when the plan is calculated and put into <see cref="PlantsOverride"/>.
+    /// </summary>
+    public decimal? AmountOverride { get; set; }
+
+    /// <summary>The number of plants the user entered instead of the calculated one (or the plants of <see cref="AmountOverride"/>).</summary>
     public int? PlantsOverride { get; set; }
 
     public int Plants => PlantsOverride ?? CalculatedPlants ?? 0;
@@ -279,10 +285,13 @@ public static class PlanCalculator
                 ? l.Include
                 : p.StockStatus == StockStatus.InStock || plan.IncludeOutOfStock).ToList();
             var basis = used.Count > 0 ? used : varieties;
-            item.CalculatedPlants = PlantsFor(
-                item.DemandAmount.Value, item.Unit.Value,
-                AverageSpacing(basis.Select(p => p.RowSpacingCm)),
-                AverageSpacing(basis.Select(p => p.PlantSpacingCm)));
+            var rowSpacing = AverageSpacing(basis.Select(p => p.RowSpacingCm));
+            var plantSpacing = AverageSpacing(basis.Select(p => p.PlantSpacingCm));
+            item.CalculatedPlants = PlantsFor(item.DemandAmount.Value, item.Unit.Value, rowSpacing, plantSpacing);
+
+            // An own amount in square or row meters is converted with the same spacing
+            if (item.AmountOverride is { } amount && item.Unit != DemandUnit.Plants)
+                item.PlantsOverride = PlantsFor(amount, item.Unit.Value, rowSpacing, plantSpacing);
 
             var lines = new List<PlanLine>();
             foreach (var plant in varieties)

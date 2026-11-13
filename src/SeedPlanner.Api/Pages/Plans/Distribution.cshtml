@@ -72,55 +72,61 @@
 
     <div class="row g-3">
         <div class="col-lg-7">
-            <details class="border rounded p-3 mb-3" open>
-                <summary class="fw-semibold">@L["Distribution_Pots"] <span class="text-muted fw-normal small" id="pot-count"></span></summary>
-                <div class="my-2" data-scope="pots">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-select="free">@L["Distribution_SelectFree"]</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-select="none">@L["Distribution_SelectNone"]</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="fold-groups">@L["Action_ToggleAll"]</button>
-                </div>
-                @if (Model.PotGroups.Count == 0)
-                {
-                    <p class="text-muted mb-0">@L["Distribution_NoPots"]</p>
-                }
-                @foreach (var group in Model.PotGroups)
-                {
-                    <details class="mb-2" data-scope="pots" open="@group.Pots.Any(p => p.Selected)">
-                        <summary class="fw-semibold">
-                            <input type="checkbox" class="form-check-input group-box" aria-label="@group.Name" />
-                            <span>@group.Name</span>
-                            @if (group.Liters is { } liters)
-                            {
-                                <span class="text-muted fw-normal">· @liters.ToString("0.#") l</span>
-                            }
-                            else
-                            {
-                                <span class="text-danger fw-normal">· @L["Distribution_NoVolume"]</span>
-                            }
-                            <span class="text-muted fw-normal small group-count"></span>
-                        </summary>
-                        <div class="ms-4">
-                            @foreach (var pot in group.Pots)
-                            {
-                                <label class="d-block">
-                                    <input type="checkbox" class="form-check-input pot-box" name="PotIds" value="@pot.Id"
-                                           data-free="@(pot.Occupied.Length == 0 ? "1" : "0")" checked="@pot.Selected" />
-                                    @pot.Label
-                                    @if (pot.Occupied.Length > 0)
-                                    {
-                                        <span class="badge text-bg-secondary">@pot.Occupied</span>
-                                    }
-                                </label>
-                            }
-                        </div>
-                    </details>
-                }
-            </details>
+            @foreach (var category in new[] { ContainerCategory.Pot, ContainerCategory.Bowl, ContainerCategory.GrowBag })
+            {
+                var groups = Model.PotGroups.Where(g => PlaceOrders.CategoryOf(g.Kind) == category).ToList();
+                if (groups.Count == 0 && category != ContainerCategory.Pot) continue;
+                var scope = category.ToString().ToLowerInvariant();
+                <details class="border rounded p-3 mb-3" open>
+                    <summary class="fw-semibold">@Model.CategoryTitle(category) <span class="text-muted fw-normal small" data-count="@scope"></span></summary>
+                    <div class="my-2" data-scope="@scope">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-select="free">@L["Distribution_SelectFree"]</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-select="none">@L["Distribution_SelectNone"]</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary fold-groups">@L["Action_ToggleAll"]</button>
+                    </div>
+                    @if (groups.Count == 0)
+                    {
+                        <p class="text-muted mb-0">@L["Distribution_NoPots"]</p>
+                    }
+                    @foreach (var group in groups)
+                    {
+                        <details class="mb-2" data-group="@scope" open="@group.Pots.Any(p => p.Selected)">
+                            <summary class="fw-semibold">
+                                <input type="checkbox" class="form-check-input group-box" aria-label="@group.Name" />
+                                <span>@group.Name</span>
+                                @if (group.Liters is { } liters)
+                                {
+                                    <span class="text-muted fw-normal">· @liters.ToString("0.#") l</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger fw-normal">· @L["Distribution_NoVolume"]</span>
+                                }
+                                <span class="text-muted fw-normal small group-count"></span>
+                            </summary>
+                            <div class="ms-4">
+                                @foreach (var pot in group.Pots)
+                                {
+                                    <label class="d-block">
+                                        <input type="checkbox" class="form-check-input pot-box" name="PotIds" value="@pot.Id" data-box="@scope"
+                                               data-free="@(pot.Occupied.Length == 0 ? "1" : "0")" checked="@pot.Selected" />
+                                        @pot.Label
+                                        @if (pot.Occupied.Length > 0)
+                                        {
+                                            <span class="badge text-bg-secondary">@pot.Occupied</span>
+                                        }
+                                    </label>
+                                }
+                            </div>
+                        </details>
+                    }
+                </details>
+            }
         </div>
         <div class="col-lg-5">
             <details class="border rounded p-3 mb-3" open>
-                <summary class="fw-semibold">@L["Distribution_Beds"] <span class="text-muted fw-normal small" id="bed-count"></span></summary>
-                <div class="my-2" data-scope="beds">
+                <summary class="fw-semibold">@L["Distribution_Beds"] <span class="text-muted fw-normal small" data-count="bed"></span></summary>
+                <div class="my-2" data-scope="bed">
                     <button type="button" class="btn btn-sm btn-outline-secondary" data-select="free">@L["Distribution_SelectFree"]</button>
                     <button type="button" class="btn btn-sm btn-outline-secondary" data-select="none">@L["Distribution_SelectNone"]</button>
                 </div>
@@ -128,11 +134,11 @@
                 {
                     <p class="text-muted mb-0">@L["Distribution_NoBeds"]</p>
                 }
-                <div data-scope="beds">
+                <div>
                     @foreach (var bed in Model.Beds)
                     {
                         <label class="d-block">
-                            <input type="checkbox" class="form-check-input bed-box" name="BedIds" value="@bed.Id"
+                            <input type="checkbox" class="form-check-input bed-box" name="BedIds" value="@bed.Id" data-box="bed"
                                    data-free="@(bed.Occupied.Length == 0 ? "1" : "0")" checked="@bed.Selected" />
                             @bed.Name <span class="text-muted">· @bed.Area.ToString("0.##") m²</span>
                             @if (bed.HasCover)
@@ -159,95 +165,115 @@
 }
 else
 {
-    <h2 class="h4">@L["Distribution_Result"]</h2>
-    <p>
-        @L["Distribution_PlacedOf", Model.PlacedPlants, Model.WantedPlants]
-        @if (result.NewPots.Count > 0)
+    <details class="border rounded p-3 mb-3" open>
+        <summary class="h4 mb-0">@L["Distribution_Result"]</summary>
+
+        <div class="mt-3">
+            <h3 class="h6">@L["Distribution_Summary"]</h3>
+            <p class="mb-2">
+                @L["Distribution_PlacedOf", Model.PlacedPlants, Model.WantedPlants]
+                @if (result.NewPots.Count > 0)
+                {
+                    <span class="ms-2">@L["Distribution_BuyPots"]: @(string.Join(", ", result.NewPots.Select(n => $"{n.Count} × {n.Liters:0.#} l")))</span>
+                }
+            </p>
+            <ul class="list-unstyled">
+                @foreach (var category in Model.CategoriesToShow)
+                {
+                    var totals = Model.CategoryTotals(category);
+                    <li>@L["Distribution_GroupLine", Model.CategoryTitle(category), totals.Containers, totals.Plants]</li>
+                }
+            </ul>
+
+            @if (result.Reductions.Count > 0)
+            {
+                <div class="alert alert-warning">
+                    <div class="fw-semibold">@L["Distribution_Reduced", (result.ScaleFactor * 100).ToString("0")]</div>
+                    <ul class="mb-0">
+                        @foreach (var r in result.Reductions)
+                        {
+                            <li>@Model.PlantName(r.PlantId): @r.Wanted → @r.Placed</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            @if (result.Unplaced.Count > 0)
+            {
+                <div class="alert alert-danger">
+                    <div class="fw-semibold">@L["Distribution_Unplaced"]</div>
+                    <ul class="mb-0">
+                        @foreach (var u in result.Unplaced)
+                        {
+                            <li>@Model.PlantName(u.PlantId) ×@u.Count – @Model.Reason(u.Reason)</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+
+        @foreach (var category in Model.CategoriesToShow)
         {
-            <span class="ms-2">@L["Distribution_BuyPots"]: @(string.Join(", ", result.NewPots.Select(n => $"{n.Count} × {n.Liters:0.#} l")))</span>
+            var rows = Model.ContainersOf(category).ToList();
+            <details class="mb-3" open>
+                <summary class="fw-semibold">@Model.CategoryTitle(category) <span class="text-muted fw-normal small">(@rows.Count)</span></summary>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>@L["Distribution_Container"]</th>
+                                <th class="text-end">@L["Distribution_Used"]</th>
+                                <th>@L["Distribution_Plants"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in rows)
+                            {
+                                <tr>
+                                    <td>
+                                        @Model.Title(c)
+                                        @if (c.IsNew)
+                                        {
+                                            <span class="badge text-bg-warning">@L["Distribution_New"]</span>
+                                        }
+                                        @if (c.NeedsCover)
+                                        {
+                                            <span class="badge text-bg-info">@L["Distribution_NeedsCover"]</span>
+                                        }
+                                        else if (c.HasCover)
+                                        {
+                                            <span class="badge text-bg-info">@L["Distribution_Covered"]</span>
+                                        }
+                                    </td>
+                                    <td class="text-end text-nowrap">@Model.Capacity(c)</td>
+                                    <td>
+                                        @if (c.Placements.Count == 0)
+                                        {
+                                            <span class="text-muted">–</span>
+                                        }
+                                        else if (c.Placements.Count == 1)
+                                        {
+                                            <div>@Model.Placement(c.Placements[0])</div>
+                                        }
+                                        else
+                                        {
+                                            <details open>
+                                                <summary class="small text-muted">@L["Distribution_PlacementsSummary", c.Placements.Count, c.Placements.Sum(q => q.Count)]</summary>
+                                                @foreach (var pl in c.Placements.OrderBy(q => q.Role))
+                                                {
+                                                    <div>@Model.Placement(pl)</div>
+                                                }
+                                            </details>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </details>
         }
-    </p>
-
-    @if (result.Reductions.Count > 0)
-    {
-        <div class="alert alert-warning">
-            <div class="fw-semibold">@L["Distribution_Reduced", (result.ScaleFactor * 100).ToString("0")]</div>
-            <ul class="mb-0">
-                @foreach (var r in result.Reductions)
-                {
-                    <li>@Model.PlantName(r.PlantId): @r.Wanted → @r.Placed</li>
-                }
-            </ul>
-        </div>
-    }
-
-    @if (result.Unplaced.Count > 0)
-    {
-        <div class="alert alert-danger">
-            <div class="fw-semibold">@L["Distribution_Unplaced"]</div>
-            <ul class="mb-0">
-                @foreach (var u in result.Unplaced)
-                {
-                    <li>@Model.PlantName(u.PlantId) ×@u.Count – @Model.Reason(u.Reason)</li>
-                }
-            </ul>
-        </div>
-    }
-
-    <div class="table-responsive">
-        <table class="table align-middle">
-            <thead>
-                <tr>
-                    <th>@L["Distribution_Container"]</th>
-                    <th class="text-end">@L["Distribution_Used"]</th>
-                    <th>@L["Distribution_Plants"]</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var c in Model.ContainersToShow)
-                {
-                    <tr>
-                        <td>
-                            @Model.Title(c)
-                            @if (c.IsNew)
-                            {
-                                <span class="badge text-bg-warning">@L["Distribution_New"]</span>
-                            }
-                            @if (c.NeedsCover)
-                            {
-                                <span class="badge text-bg-info">@L["Distribution_NeedsCover"]</span>
-                            }
-                            else if (c.HasCover)
-                            {
-                                <span class="badge text-bg-info">@L["Distribution_Covered"]</span>
-                            }
-                        </td>
-                        <td class="text-end text-nowrap">@Model.Capacity(c)</td>
-                        <td>
-                            @if (c.Placements.Count == 0)
-                            {
-                                <span class="text-muted">–</span>
-                            }
-                            else if (c.Placements.Count == 1)
-                            {
-                                <div>@Model.Placement(c.Placements[0])</div>
-                            }
-                            else
-                            {
-                                <details open>
-                                    <summary class="small text-muted">@L["Distribution_PlacementsSummary", c.Placements.Count, c.Placements.Sum(q => q.Count)]</summary>
-                                    @foreach (var p in c.Placements.OrderBy(q => q.Role))
-                                    {
-                                        <div>@Model.Placement(p)</div>
-                                    }
-                                </details>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+    </details>
 
     var clusters = Model.Clusters();
     if (clusters.Count > 0)
@@ -359,15 +385,14 @@ else
 
 @section Scripts {
     <script>
-        // Select all / none / only free pots and beds, and a counter of what is chosen
+        // Select all / none / only free containers per kind (pots, bowls, grow bags, beds), and a counter of what is chosen
         (function () {
-            function boxes(scope) { return document.querySelectorAll(scope === "pots" ? ".pot-box" : ".bed-box"); }
+            function boxes(scope) { return document.querySelectorAll('input[data-box="' + scope + '"]'); }
             function count() {
-                var pots = document.querySelectorAll(".pot-box:checked").length;
-                var beds = document.querySelectorAll(".bed-box:checked").length;
-                var p = document.getElementById("pot-count"), b = document.getElementById("bed-count");
-                if (p) p.textContent = pots > 0 ? "(" + pots + ")" : "";
-                if (b) b.textContent = beds > 0 ? "(" + beds + ")" : "";
+                document.querySelectorAll("[data-count]").forEach(function (el) {
+                    var n = document.querySelectorAll('input[data-box="' + el.dataset.count + '"]:checked').length;
+                    el.textContent = n > 0 ? "(" + n + ")" : "";
+                });
             }
             document.querySelectorAll("button[data-select]").forEach(function (button) {
                 button.addEventListener("click", function () {
@@ -380,7 +405,7 @@ else
                 });
             });
             function syncGroup(groupBox) {
-                var group = groupBox.closest("details[data-scope]");
+                var group = groupBox.closest("details[data-group]");
                 var pots = group.querySelectorAll(".pot-box");
                 var n = 0; pots.forEach(function (p) { if (p.checked) n++; });
                 group.querySelector(".group-count").textContent = "(" + n + "/" + pots.length + ")";
@@ -390,7 +415,7 @@ else
             document.querySelectorAll(".group-box").forEach(function (groupBox) {
                 syncGroup(groupBox);
                 groupBox.addEventListener("click", function () {
-                    groupBox.closest("details[data-scope]").querySelectorAll(".pot-box").forEach(function (p) { p.checked = groupBox.checked; });
+                    groupBox.closest("details[data-group]").querySelectorAll(".pot-box").forEach(function (p) { p.checked = groupBox.checked; });
                     groupBox.indeterminate = false;
                     syncGroup(groupBox);
                     count();
@@ -402,12 +427,13 @@ else
                     count();
                 });
             });
-            // One button for all pot groups: if any is open, close all; otherwise open all
-            var foldAll = document.getElementById("fold-groups");
-            if (foldAll) foldAll.addEventListener("click", function () {
-                var groups = document.querySelectorAll("details[data-scope='pots']");
-                var anyOpen = Array.prototype.some.call(groups, function (g) { return g.open; });
-                groups.forEach(function (g) { g.open = !anyOpen; });
+            // One button per kind for all its groups: if any is open, close all; otherwise open all
+            document.querySelectorAll("button.fold-groups").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    var groups = document.querySelectorAll('details[data-group="' + button.parentElement.dataset.scope + '"]');
+                    var anyOpen = Array.prototype.some.call(groups, function (g) { return g.open; });
+                    groups.forEach(function (g) { g.open = !anyOpen; });
+                });
             });
             // The print view opens in a new tab; files are downloaded
             var report = document.getElementById("report-form");

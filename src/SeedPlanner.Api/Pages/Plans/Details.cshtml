@@ -68,8 +68,39 @@ else
                         <td class="text-end">@Model.AmountText(item)</td>
                         <td class="text-end">@(item.CalculatedPlants is null ? "–" : item.CalculatedPlants.ToString())</td>
                         <td>
-                            <input type="number" min="0" name="Items[@itemIndex].PlantsOverride" value="@item.PlantsOverride"
-                                   class="form-control form-control-sm" style="width: 6rem;" placeholder="@item.CalculatedPlants" aria-label="@L["Plan_OwnNumber"].Value" />
+                            @if (SeedPlanner.Api.Pages.Plans.DetailsModel.UsesAmount(item))
+                            {
+                                <div class="input-group input-group-sm" style="width: 13rem;">
+                                    @{
+                                        var shown = (item.AmountOverride ?? item.DemandAmount)?.ToString("0.##", System.Globalization.CultureInfo.CurrentCulture) ?? "";
+                                    }
+                                    <input type="hidden" name="Items[@itemIndex].ShownAmount" value="@shown" />
+                                    <input type="text" inputmode="decimal" name="Items[@itemIndex].AmountOverride" value="@shown" data-shown="@shown"
+                                           class="form-control own-number @(item.AmountOverride is null ? "text-muted" : "")"
+                                           aria-label="@L["Plan_OwnNumber"].Value" />
+                                    <span class="input-group-text">@Model.UnitText(item)</span>
+                                </div>
+                                @if (item.AmountOverride is not null && item.PlantsOverride is not null)
+                                {
+                                    <div class="form-text mt-0">= @item.PlantsOverride @L["Plan_Plants"]</div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="input-group input-group-sm" style="width: 13rem;">
+                                    @{
+                                        var shownPlants = item.PlantsOverride ?? item.CalculatedPlants;
+                                    }
+                                    <input type="hidden" name="Items[@itemIndex].ShownPlants" value="@shownPlants" />
+                                    <input type="number" min="0" name="Items[@itemIndex].PlantsOverride" value="@shownPlants" data-shown="@shownPlants"
+                                           class="form-control own-number @(item.PlantsOverride is null ? "text-muted" : "")" aria-label="@L["Plan_OwnNumber"].Value" />
+                                    <span class="input-group-text">@L["Plan_Plants"]</span>
+                                </div>
+                            }
+                            @if (item.Lines.Any(l => l.Include && l.PlantsOverride is not null))
+                            {
+                                <button type="submit" name="SpreadItemId" value="@item.Id" class="btn btn-link btn-sm p-0 mt-1 text-start">@L["Plan_SpreadEvenly"]</button>
+                            }
                         </td>
                         <td>
                             <input type="checkbox" class="form-check-input crop-include" checked="@(state == "full")" aria-label="@L["Plan_IncludeCrop"].Value" />
@@ -101,8 +132,12 @@ else
                             <td></td>
                             <td class="text-end">@(line.Include ? line.CalculatedPlants : 0)</td>
                             <td>
-                                <input type="number" min="0" name="Lines[@lineIndex].PlantsOverride" value="@line.PlantsOverride"
-                                       class="form-control form-control-sm" style="width: 6rem;" aria-label="@L["Plan_OwnNumber"].Value" />
+                                @{
+                                    int? shownLine = line.Include ? line.Plants : null;
+                                }
+                                <input type="hidden" name="Lines[@lineIndex].ShownPlants" value="@shownLine" />
+                                <input type="number" min="0" name="Lines[@lineIndex].PlantsOverride" value="@shownLine" data-shown="@shownLine"
+                                       class="form-control form-control-sm own-number @(line.PlantsOverride is null ? "text-muted" : "")" style="width: 6rem;" aria-label="@L["Plan_OwnNumber"].Value" />
                             </td>
                             <td>
                                 <input type="checkbox" class="form-check-input line-include" name="Lines[@lineIndex].Include" value="true" checked="@line.Include" aria-label="@L["Plan_Include"].Value" />
@@ -117,8 +152,9 @@ else
             <tfoot>
                 <tr>
                     <th colspan="2">@L["Plan_Total"]</th>
-                    <th class="text-end">@Model.TotalPlants</th>
-                    <th colspan="2"></th>
+                    <th class="text-end">@Model.CalculatedTotal</th>
+                    <th>@Model.TotalPlants @L["Plan_Plants"]</th>
+                    <th></th>
                 </tr>
             </tfoot>
         </table>
@@ -153,6 +189,14 @@ else
 </form>
 
 @section Scripts {
+    <script>
+        // The fields are filled with the calculated value (grey); a changed value is an own number (normal text)
+        document.querySelectorAll("input.own-number").forEach(function (input) {
+            input.addEventListener("input", function () {
+                input.classList.toggle("text-muted", input.value.trim() === (input.dataset.shown || ""));
+            });
+        });
+    </script>
     <style>
         tbody.crop-none { opacity: .55; }
         tbody.crop-full > tr.table-light > td:first-child { box-shadow: inset 4px 0 0 var(--bs-success); }

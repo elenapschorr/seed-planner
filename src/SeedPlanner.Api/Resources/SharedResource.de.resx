@@ -520,4 +520,11 @@
   <data name="Calendar_Intro" xml:space="preserve"><value>Alle Sorten im Jahresverlauf, in Monatsdritteln. Eine Pflanzenart aufklappen, um ihre Sorten zu sehen.</value></data>
   <data name="Calendar_HarvestCount" xml:space="preserve"><value>Pflanzenarten mit Ernte</value></data>
   <data name="Calendar_OnlyInStock" xml:space="preserve"><value>Nur vorhandene Sorten</value></data>
+  <data name="Distribution_Bowls" xml:space="preserve"><value>Schalen</value></data>
+  <data name="Distribution_GrowBags" xml:space="preserve"><value>Pflanzsäcke</value></data>
+  <data name="Distribution_NewBowl" xml:space="preserve"><value>Neue Schale</value></data>
+  <data name="Distribution_NewGrowBag" xml:space="preserve"><value>Neuer Pflanzsack</value></data>
+  <data name="Distribution_Summary" xml:space="preserve"><value>Zusammenfassung</value></data>
+  <data name="Distribution_GroupLine" xml:space="preserve"><value>{0}: {1} belegt, {2} Pflanzen</value></data>
+  <data name="Plan_SpreadEvenly" xml:space="preserve"><value>Gleichmäßig auf Sorten verteilen</value></data>
 </root>

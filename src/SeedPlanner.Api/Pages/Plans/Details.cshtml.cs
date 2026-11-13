@@ -15,6 +15,14 @@ public class DetailsModel(SeedPlannerDbContext db, IStringLocalizer<SharedResour
     {
         public int Id { get; set; }
         public int? PlantsOverride { get; set; }
+
+        // In the unit of the demand (square or row meters); text, because the browser sends a dot
+        public string? AmountOverride { get; set; }
+
+        // What the field showed when the page was built: the field is filled with the calculated value,
+        // and only a changed value counts as an own number
+        public int? ShownPlants { get; set; }
+        public string? ShownAmount { get; set; }
     }
 
     public class LineInput
@@ -22,6 +30,7 @@ public class DetailsModel(SeedPlannerDbContext db, IStringLocalizer<SharedResour
         public int Id { get; set; }
         public bool Include { get; set; }
         public int? PlantsOverride { get; set; }
+        public int? ShownPlants { get; set; }
     }
 
     public Plan Plan { get; private set; } = null!;
@@ -33,6 +42,10 @@ public class DetailsModel(SeedPlannerDbContext db, IStringLocalizer<SharedResour
 
     [BindProperty]
     public List<LineInput> Lines { get; set; } = new();
+
+    /// <summary>Set by the button "spread evenly" of a crop: the own numbers of its varieties are dropped.</summary>
+    [BindProperty]
+    public int? SpreadItemId { get; set; }
 
     public bool Saved => Request.Query["saved"] == "1";
 
@@ -53,7 +66,21 @@ public class DetailsModel(SeedPlannerDbContext db, IStringLocalizer<SharedResour
         foreach (var input in Items)
         {
             var item = plan.Items.FirstOrDefault(i => i.Id == input.Id);
-            if (item is not null) item.PlantsOverride = input.PlantsOverride is >= 0 ? input.PlantsOverride : null;
+            if (item is null) continue;
+            if (input.AmountOverride is not null)
+            {
+                // Entered in the unit of the demand; unchanged (still the shown value) = no change
+                if (input.AmountOverride.Trim() != (input.ShownAmount ?? "").Trim())
+                {
+                    item.AmountOverride = ParseAmount(input.AmountOverride);
+                    item.PlantsOverride = null;   // worked out when the plan is calculated
+                }
+            }
+            else if (input.PlantsOverride != input.ShownPlants)
+            {
+                item.AmountOverride = null;
+                item.PlantsOverride = input.PlantsOverride is >= 0 ? input.PlantsOverride : null;
+            }
         }
         var lines = plan.Items.SelectMany(i => i.Lines).ToList();
         foreach (var input in Lines)
@@ -61,13 +88,28 @@ public class DetailsModel(SeedPlannerDbContext db, IStringLocalizer<SharedResour
             var line = lines.FirstOrDefault(l => l.Id == input.Id);
             if (line is null) continue;
             line.Include = input.Include;
-            line.PlantsOverride = input.PlantsOverride is >= 0 ? input.PlantsOverride : null;
+            if (input.PlantsOverride != input.ShownPlants)
+                line.PlantsOverride = input.PlantsOverride is >= 0 ? input.PlantsOverride : null;
         }
+
+        // Without own numbers of the varieties the number of the crop is shared evenly by the included varieties
+        if (SpreadItemId is { } spreadId && plan.Items.FirstOrDefault(i => i.Id == spreadId) is { } spreadItem)
+            foreach (var line in spreadItem.Lines) line.PlantsOverride = null;
 
         await Calculation.RebuildAsync(db, plan);
         await db.SaveChangesAsync();
         return RedirectToPage("Details", new { id, saved = 1 });
     }
+
+    private static decimal? ParseAmount(string? text) =>
+        decimal.TryParse(text?.Trim().Replace(',', '.'), NumberStyles.Number, CultureInfo.InvariantCulture, out var value) && value >= 0
+            ? value : null;
+
+    /// <summary>The own number of a crop is entered in the unit of the demand if the plants can be worked out from it.</summary>
+    public static bool UsesAmount(PlanItem item) =>
+        item.Unit is DemandUnit.RowMeters or DemandUnit.SquareMeters && (item.CalculatedPlants is not null || item.AmountOverride is not null);
+
+    public string UnitText(PlanItem item) => item.Unit is null ? "" : L["DemandUnit_" + item.Unit].Value;
 
     public async Task<IActionResult> OnPostDeleteAsync(int id)
     {
@@ -119,6 +161,9 @@ public class DetailsModel(SeedPlannerDbContext db, IStringLocalizer<SharedResour
     public string LevelText => Plan.Level == DemandLevel.Custom
         ? L["DemandLevel_CustomShort", Plan.CustomPercent].Value
         : L["DemandLevel_" + Plan.Level].Value;
+
+    /// <summary>Plants as calculated from the demand (without own numbers).</summary>
+    public int CalculatedTotal => Plan.Items.Sum(i => i.CalculatedPlants ?? 0);
 
     public int TotalPlants => Plan.Items.Sum(i => i.Lines.Sum(l => l.Plants));
 

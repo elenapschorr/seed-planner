@@ -432,6 +432,11 @@ namespace SeedPlanner.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal?>("AmountOverride")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("amount_override");
+
                     b.Property<int?>("CalculatedPlants")
                         .HasColumnType("integer")
                         .HasColumnName("calculated_plants");

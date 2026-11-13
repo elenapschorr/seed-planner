@@ -520,4 +520,11 @@
   <data name="Calendar_Intro" xml:space="preserve"><value>All varieties through the year, in thirds of a month. Open a plant type to see its varieties.</value></data>
   <data name="Calendar_HarvestCount" xml:space="preserve"><value>Plant types with harvest</value></data>
   <data name="Calendar_OnlyInStock" xml:space="preserve"><value>Only varieties in stock</value></data>
+  <data name="Distribution_Bowls" xml:space="preserve"><value>Bowls</value></data>
+  <data name="Distribution_GrowBags" xml:space="preserve"><value>Grow bags</value></data>
+  <data name="Distribution_NewBowl" xml:space="preserve"><value>New bowl</value></data>
+  <data name="Distribution_NewGrowBag" xml:space="preserve"><value>New grow bag</value></data>
+  <data name="Distribution_Summary" xml:space="preserve"><value>Summary</value></data>
+  <data name="Distribution_GroupLine" xml:space="preserve"><value>{0}: {1} in use, {2} plants</value></data>
+  <data name="Plan_SpreadEvenly" xml:space="preserve"><value>Spread evenly over the varieties</value></data>
 </root>

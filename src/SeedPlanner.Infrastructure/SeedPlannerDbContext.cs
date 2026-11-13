@@ -244,6 +244,7 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
         modelBuilder.Entity<PlanItem>(e =>
         {
             e.Property(i => i.DemandAmount).HasPrecision(10, 2);
+            e.Property(i => i.AmountOverride).HasPrecision(10, 2);
             e.Property(i => i.Unit).HasConversion<string>();
             e.HasIndex(i => new { i.PlanId, i.PlantTypeId }).IsUnique();
             // Results can be calculated again, so a plant type that is deleted takes its plan items with it

@@ -520,4 +520,11 @@
   <data name="Calendar_Intro" xml:space="preserve"><value>Все сорта в течение года, по третям месяца. Раскройте культуру, чтобы увидеть её сорта.</value></data>
   <data name="Calendar_HarvestCount" xml:space="preserve"><value>Культуры со сбором урожая</value></data>
   <data name="Calendar_OnlyInStock" xml:space="preserve"><value>Только имеющиеся сорта</value></data>
+  <data name="Distribution_Bowls" xml:space="preserve"><value>Чаши</value></data>
+  <data name="Distribution_GrowBags" xml:space="preserve"><value>Мешки для растений</value></data>
+  <data name="Distribution_NewBowl" xml:space="preserve"><value>Новая чаша</value></data>
+  <data name="Distribution_NewGrowBag" xml:space="preserve"><value>Новый мешок</value></data>
+  <data name="Distribution_Summary" xml:space="preserve"><value>Итог</value></data>
+  <data name="Distribution_GroupLine" xml:space="preserve"><value>{0}: занято {1}, растений {2}</value></data>
+  <data name="Plan_SpreadEvenly" xml:space="preserve"><value>Распределить поровну по сортам</value></data>
 </root>

@@ -13,7 +13,7 @@ namespace SeedPlanner.Api.Pages.Plans;
 public class DistributionModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource> L) : PageModel
 {
     public record PotRow(int Id, string Label, string Occupied, bool Selected);
-    public record PotGroupRow(string Name, double? Liters, List<PotRow> Pots);
+    public record PotGroupRow(string Name, double? Liters, PotKind Kind, List<PotRow> Pots);
     public record BedRow(int Id, string Name, double Area, bool HasCover, string Occupied, bool Selected);
 
     public Plan Plan { get; private set; } = null!;
@@ -260,6 +260,7 @@ public class DistributionModel(SeedPlannerDbContext db, IStringLocalizer<SharedR
                 plantParts[line.PlantId] = (typeName, variety);
             }
 
+        ChosenCategories = new HashSet<ContainerCategory>();
         var chosenPots = plan.Containers.Where(c => c.PotId is not null).Select(c => c.PotId!.Value).ToHashSet();
         var chosenBeds = plan.Containers.Where(c => c.RaisedBedId is not null).Select(c => c.RaisedBedId!.Value).ToHashSet();
 
@@ -275,13 +276,17 @@ public class DistributionModel(SeedPlannerDbContext db, IStringLocalizer<SharedR
         PotGroups = groups
             .OrderBy(g => g.Name, comparer)
             .Select(g => new PotGroupRow(
-                g.Name, g.VolumeLiters,
+                g.Name, g.VolumeLiters, g.Kind,
                 g.Pots.OrderBy(p => p.Id).Select((p, i) => new PotRow(
                     p.Id,
                     g.Quantity > 1 ? $"{g.Name} #{i + 1}" : g.Name,
                     Occupied(p.Plantings),
                     chosenPots.Contains(p.Id))).ToList()))
             .ToList();
+
+        foreach (var g in groups.Where(g => g.Pots.Any(p => chosenPots.Contains(p.Id))))
+            ChosenCategories.Add(PlaceOrders.CategoryOf(g.Kind));
+        if (chosenBeds.Count > 0) ChosenCategories.Add(ContainerCategory.Bed);
 
         var beds = await db.RaisedBeds.AsNoTracking().Include(b => b.Plantings).ToListAsync();
         Beds = beds
@@ -337,6 +342,40 @@ public class DistributionModel(SeedPlannerDbContext db, IStringLocalizer<SharedR
             .ToList();
     }
 
+    // ---- the result is shown by kind of container: pots, bowls, grow bags, beds
+
+    /// <summary>The kinds the user chose something from before the distribution.</summary>
+    public HashSet<ContainerCategory> ChosenCategories { get; private set; } = new();
+
+    public static readonly ContainerCategory[] CategoryOrder =
+        [ContainerCategory.Pot, ContainerCategory.Bowl, ContainerCategory.GrowBag, ContainerCategory.Bed];
+
+    public static ContainerCategory CategoryOf(ContainerResult c) =>
+        c.Category ?? (c.Kind == ContainerKind.Bed ? ContainerCategory.Bed : ContainerCategory.Pot);
+
+    /// <summary>The kinds to show details for: something of the kind was chosen, or new containers of it were added.</summary>
+    public IEnumerable<ContainerCategory> CategoriesToShow =>
+        CategoryOrder.Where(c => ChosenCategories.Contains(c)
+                                 || ContainersToShow.Any(x => x.IsNew && CategoryOf(x) == c));
+
+    public IEnumerable<ContainerResult> ContainersOf(ContainerCategory category) =>
+        ContainersToShow.Where(c => CategoryOf(c) == category);
+
+    public string CategoryTitle(ContainerCategory category) => category switch
+    {
+        ContainerCategory.Bed => L["Distribution_Beds"].Value,
+        ContainerCategory.Bowl => L["Distribution_Bowls"].Value,
+        ContainerCategory.GrowBag => L["Distribution_GrowBags"].Value,
+        _ => L["Distribution_Pots"].Value
+    };
+
+    // Containers that hold plants, and the plants in them, per kind
+    public (int Containers, int Plants) CategoryTotals(ContainerCategory category)
+    {
+        var list = ContainersOf(category).ToList();
+        return (list.Count(c => c.Placements.Count > 0), list.Sum(c => c.Placements.Sum(p => p.Count)));
+    }
+
     public string PlantName(int plantId) => plantNames.GetValueOrDefault(plantId, "?");
 
     // ---------------------------------------------------------------- texts of the result
@@ -355,10 +394,16 @@ public class DistributionModel(SeedPlannerDbContext db, IStringLocalizer<SharedR
     {
         if (!c.IsNew) return c.Name;
         var number = (Result?.Containers ?? Array.Empty<ContainerResult>())
-            .Where(x => x.IsNew && x.Kind == c.Kind)
+            .Where(x => x.IsNew && CategoryOf(x) == CategoryOf(c))
             .ToList()
             .FindIndex(x => ReferenceEquals(x, c)) + 1;
-        var name = c.Kind == ContainerKind.Pot ? L["Distribution_NewPot"].Value : L["Distribution_NewBed"].Value;
+        var name = CategoryOf(c) switch
+        {
+            ContainerCategory.Bed => L["Distribution_NewBed"].Value,
+            ContainerCategory.Bowl => L["Distribution_NewBowl"].Value,
+            ContainerCategory.GrowBag => L["Distribution_NewGrowBag"].Value,
+            _ => L["Distribution_NewPot"].Value
+        };
         return $"{name} {number}";
     }
 
