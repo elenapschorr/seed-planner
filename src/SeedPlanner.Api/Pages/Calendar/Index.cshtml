@@ -1,0 +1,74 @@
+@page
+@model SeedPlanner.Api.Pages.Calendar.IndexModel
+@{
+    ViewData["Title"] = L["Calendar_Title"].Value;
+    ViewData["Wide"] = true;
+}
+
+<h1 class="mb-1">@L["Calendar_Title"]</h1>
+<p class="text-muted">@L["Calendar_Intro"]</p>
+
+<form method="get" class="d-flex flex-wrap align-items-center gap-3 mb-3">
+    <input type="hidden" name="f" value="1" />
+    <input type="search" name="q" value="@Model.Q" class="form-control" style="max-width: 22rem" placeholder="@L["Search"].Value" aria-label="@L["Search"].Value" />
+    <button type="submit" class="btn btn-outline-dark">@L["Filter_Apply"]</button>
+    <div class="form-check mb-0">
+        <input class="form-check-input" type="checkbox" id="onlyInStock" name="onlyInStock" value="true" checked="@Model.OnlyInStock" onchange="this.form.submit()" />
+        <label class="form-check-label" for="onlyInStock">@L["Calendar_OnlyInStock"]</label>
+    </div>
+    <div class="form-check mb-0">
+        <input class="form-check-input" type="checkbox" id="sow" name="sow" value="true" checked="@Model.Sow" onchange="this.form.submit()" />
+        <label class="form-check-label cal-legend-item" for="sow"><span class="mk mk-sow"></span> @L["Window_Sowing"]</label>
+    </div>
+    <div class="form-check mb-0">
+        <input class="form-check-input" type="checkbox" id="bloom" name="bloom" value="true" checked="@Model.Bloom" onchange="this.form.submit()" />
+        <label class="form-check-label cal-legend-item" for="bloom"><span class="mk mk-bloom"></span> @L["Window_Bloom"]</label>
+    </div>
+    <div class="form-check mb-0">
+        <input class="form-check-input" type="checkbox" id="harvest" name="harvest" value="true" checked="@Model.Harvest" onchange="this.form.submit()" />
+        <label class="form-check-label cal-legend-item" for="harvest"><span class="mk mk-harvest"></span> @L["Window_Harvest"]</label>
+    </div>
+</form>
+
+<div class="cal">
+    <div class="cal-row cal-head">
+        <div></div>
+        <div class="cal-strip">
+            @foreach (var name in Model.MonthNames)
+            {
+                <div class="cal-month-name">@name</div>
+            }
+        </div>
+    </div>
+
+    @foreach (var t in Model.Types)
+    {
+        <details class="cal-type">
+            <summary class="cal-row">
+                <div class="cal-name">@t.Name <span class="text-muted small">(@t.Varieties.Count)</span></div>
+                <partial name="_Strip" model="t.Strip" />
+            </summary>
+            @foreach (var v in t.Varieties)
+            {
+                <div class="cal-row cal-variety">
+                    <div class="cal-name">
+                        <a asp-page="/Plants/Edit" asp-route-id="@v.Id" class="text-decoration-none">
+                            @if (v.IsUnnamed) { <span class="text-muted fst-italic">@Model.Unnamed</span> } else { @v.Name }
+                        </a>
+                    </div>
+                    <partial name="_Strip" model="v.Strip" />
+                </div>
+            }
+        </details>
+    }
+
+    <div class="cal-row cal-counts" hidden="@(!Model.Harvest)">
+        <div class="cal-name">@L["Calendar_HarvestCount"]</div>
+        <div class="cal-strip">
+            @for (var m = 0; m < 12; m++)
+            {
+                <div class="cal-count @(Model.HarvestTypesPerMonth[m] == 0 ? "none" : "")">@Model.HarvestTypesPerMonth[m]</div>
+            }
+        </div>
+    </div>
+</div>

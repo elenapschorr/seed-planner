@@ -1,0 +1,18 @@
+@model SeedPlanner.Api.Pages.Calendar.IndexModel.Strip
+
+<div class="cal-strip" role="img" aria-label="@Model.Label">
+    @for (var m = 0; m < 12; m++)
+    {
+        <div class="cal-month">
+            @for (var p = 0; p < 3; p++)
+            {
+                var t = m * 3 + p;
+                <div class="cal-third">
+                    @if (Model.Sowing[t]) { <span class="mk mk-sow"></span> }
+                    @if (Model.Bloom[t]) { <span class="mk mk-bloom"></span> }
+                    @if (Model.Harvest[t]) { <span class="mk mk-harvest"></span> }
+                </div>
+            }
+        </div>
+    }
+</div>

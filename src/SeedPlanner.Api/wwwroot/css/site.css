@@ -260,3 +260,29 @@ details > summary { cursor: pointer; font-family: var(--sp-serif); font-size: 1.
 /* The long text columns take the remaining width and wrap */
 .table td.col-uses { min-width: 16rem; }
 .table td.col-note { min-width: 8rem; }
+
+/* ---- Calendar: strip of the year, 12 months of 3 thirds; rows: sowing (ring), bloom (diamond), harvest (dot) ---- */
+.cal-row { display: grid; grid-template-columns: 15rem 1fr; align-items: center; gap: .5rem; }
+.cal-head { position: sticky; top: 0; background: var(--sp-paper); z-index: 1; border-bottom: 1px solid var(--sp-line); }
+.cal-type { border-bottom: 1px solid var(--sp-line); }
+.cal-type > summary { list-style: none; cursor: pointer; padding: .2rem 0; }
+.cal-type > summary::-webkit-details-marker { display: none; }
+.cal-type > summary .cal-name::before { content: "\25B8"; display: inline-block; width: 1rem; color: var(--sp-muted); }
+.cal-type[open] > summary .cal-name::before { content: "\25BE"; }
+.cal-variety { padding: .1rem 0 .1rem 1rem; }
+.cal-name { font-family: var(--sp-serif); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-variety .cal-name { font-family: var(--sp-sans); font-size: .9rem; }
+.cal-strip { display: grid; grid-template-columns: repeat(12, 1fr); }
+.cal-month { display: grid; grid-template-columns: repeat(3, 1fr); border-left: 1px solid var(--sp-line); }
+.cal-month-name { border-left: 1px solid var(--sp-line); padding-left: .25rem; font-size: .8rem; color: var(--sp-muted); }
+.cal-third { display: grid; grid-template-rows: repeat(3, 8px); justify-items: center; align-items: center; padding: 1px 0; }
+.mk { display: inline-block; width: 6px; height: 6px; box-sizing: border-box; }
+.cal-legend-item .mk { margin-right: .25rem; vertical-align: baseline; }
+.cal-counts[hidden] { display: none; }
+.mk-sow { border: 1.5px solid var(--sp-accent); border-radius: 50%; grid-row: 1; }
+.mk-bloom { background: var(--sp-accent); opacity: .6; transform: rotate(45deg) scale(.85); grid-row: 2; }
+.mk-harvest { background: var(--sp-ink); border-radius: 50%; grid-row: 3; }
+.cal-counts { margin-top: .75rem; }
+.cal-count { text-align: center; font-variant-numeric: tabular-nums; border-left: 1px solid var(--sp-line); }
+.cal-count.none { color: var(--sp-accent); font-weight: 600; }
+@media (max-width: 767px) { .cal-row { grid-template-columns: 8rem 1fr; } }

@@ -45,6 +45,7 @@ builder.Services.AddAuthorizationBuilder()
 builder.Services.AddRazorPages(o =>
     {
         o.Conventions.AuthorizeFolder("/Plants");
+        o.Conventions.AuthorizeFolder("/Calendar");
         o.Conventions.AuthorizeFolder("/Pots");
         o.Conventions.AuthorizeFolder("/Saucers");
         o.Conventions.AuthorizeFolder("/RaisedBeds");
