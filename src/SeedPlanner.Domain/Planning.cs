@@ -33,6 +33,37 @@ public class UserDemand : IOwnedByUser
     public DemandRange ToRange() => new(Min, Max, Unit);
 }
 
+/// <summary>The user's own role of a plant type. It is stored only if it differs from the suggestion of the plant type.</summary>
+public class UserPlantRole : IOwnedByUser
+{
+    public int Id { get; set; }
+    public string OwnerId { get; set; } = "";
+
+    public int PlantTypeId { get; set; }
+    public PlantType? PlantType { get; set; }
+
+    public PlantRole Role { get; set; }
+}
+
+/// <summary>
+/// The user's own change of the partners of a main plant (plant type): a secondary plant added (<see cref="Included"/>)
+/// or a suggested one taken away. The suggestion itself comes from the table of good neighbours, see <see cref="PlantPairs"/>.
+/// </summary>
+public class UserPlantPartner : IOwnedByUser
+{
+    public int Id { get; set; }
+    public string OwnerId { get; set; } = "";
+
+    public int MainPlantTypeId { get; set; }
+    public PlantType? MainPlantType { get; set; }
+
+    public int SecondaryPlantTypeId { get; set; }
+    public PlantType? SecondaryPlantType { get; set; }
+
+    /// <summary>True: the secondary plant was added by the user. False: it is a suggestion the user removed.</summary>
+    public bool Included { get; set; }
+}
+
 /// <summary>
 /// A plan for one year: the settings and the result, stored together. Several plans per year are possible,
 /// e.g. a basic plan and one with guests.
@@ -129,6 +160,9 @@ public class PlanItem
     /// The plants of it are worked out when the plan is calculated and put into <see cref="PlantsOverride"/>.
     /// </summary>
     public decimal? AmountOverride { get; set; }
+
+    /// <summary>When within the sowing window the varieties of this crop are sown in this plan.</summary>
+    public SowingTiming SowingTiming { get; set; } = SowingTiming.Start;
 
     /// <summary>The number of plants the user entered instead of the calculated one (or the plants of <see cref="AmountOverride"/>).</summary>
     public int? PlantsOverride { get; set; }

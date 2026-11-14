@@ -626,7 +626,7 @@ public class PlanAllocatorTests
         var r = Run([herb, tree], [withTree, withVeg]);
 
         Assert.Equal(1, Count(Box(r, 1), 1));
-        Assert.Empty(Box(r, 2).Placements.Where(p => p.PlantId == 2));
+        Assert.DoesNotContain(Box(r, 2).Placements, p => p.PlantId == 2);
     }
 
     [Fact]
@@ -715,5 +715,198 @@ public class PlanAllocatorTests
 
         Assert.Equal(2, r.Containers.Count(c => c.IsNew && c.Kind == ContainerKind.Pot));
         Assert.Empty(r.Unplaced);
+    }
+
+    // ---------------------------------------------------------------- moving the sowing
+
+    [Fact]
+    public void A_later_sowing_in_the_window_is_used_when_the_place_is_free_only_then()
+    {
+        // Bed of 1 m²: the early plant (0.6 m², until third 12) is placed first; the other (0.5 m²) would start at 10,
+        // which is too early, but a sowing at third 13 is free
+        var early = Plant(1, 1, area: 0.6, place: PlantPlace.Bed, slots: OccupancyMask.Range(0, 12));
+        var late = Plant(2, 2, area: 0.5, place: PlantPlace.Bed, slots: OccupancyMask.Range(10, 30))
+            with { SlotOptions = [OccupancyMask.Range(10, 30), OccupancyMask.Range(13, 30)] };
+
+        var r = Run([early, late], [Bed(1, 1.0)]);
+
+        var bed = Box(r, 1);
+        Assert.Equal(1, Count(bed, 1));
+        Assert.Equal(1, Count(bed, 2));
+        Assert.Equal(OccupancyMask.Range(13, 30), bed.Placements.Single(p => p.PlantId == 2).Slots);
+        Assert.True(bed.Placements.Single(p => p.PlantId == 2).Moved);
+        Assert.False(bed.Placements.Single(p => p.PlantId == 1).Moved);
+        Assert.Empty(r.NewBeds);
+    }
+
+    [Fact]
+    public void Without_other_times_the_same_plants_do_not_fit_together()
+    {
+        var early = Plant(1, 1, area: 0.6, place: PlantPlace.Bed, slots: OccupancyMask.Range(0, 12));
+        var late = Plant(2, 2, area: 0.5, place: PlantPlace.Bed, slots: OccupancyMask.Range(10, 30));
+
+        var r = Run([early, late], [Bed(1, 1.0)]);
+
+        Assert.Equal(0, Count(Box(r, 1), 2) * Count(Box(r, 1), 1));
+    }
+
+    [Fact]
+    public void The_earliest_possible_sowing_is_used_when_there_is_room_from_the_start()
+    {
+        var plant = Plant(1, 1, area: 0.5, place: PlantPlace.Bed, slots: OccupancyMask.Range(10, 30))
+            with { SlotOptions = [OccupancyMask.Range(10, 30), OccupancyMask.Range(13, 30)] };
+
+        var r = Run([plant], [Bed(1, 1.0)]);
+
+        Assert.Equal(OccupancyMask.Range(10, 30), Box(r, 1).Placements.Single().Slots);
+    }
+
+    [Fact]
+    public void A_later_sowing_in_a_used_bed_is_preferred_to_an_early_one_in_an_empty_bed()
+    {
+        // Two beds of 1 m²; the early plant occupies bed 1 until third 12. The flexible plant could start at 10 in the
+        // empty bed 2, but waiting until 13 in bed 1 saves using a second bed
+        var early = Plant(1, 1, area: 0.6, place: PlantPlace.Bed, slots: OccupancyMask.Range(0, 12));
+        var late = Plant(2, 2, area: 0.5, place: PlantPlace.Bed, slots: OccupancyMask.Range(10, 30))
+            with { SlotOptions = [OccupancyMask.Range(10, 30), OccupancyMask.Range(13, 30)] };
+
+        var r = Run([early, late], [Bed(1, 1.0), Bed(2, 1.0)]);
+
+        Assert.Equal(1, Count(Box(r, 1), 2));
+        Assert.Equal(0, Count(Box(r, 2), 2));
+        Assert.True(Box(r, 1).Placements.Single(p => p.PlantId == 2).Moved);
+    }
+
+    // ---------------------------------------------------------------- trace
+
+    [Fact]
+    public void The_trace_lists_the_order_and_where_a_plant_was_placed()
+    {
+        var big = Plant(1, 1, area: 0.6, place: PlantPlace.Bed);
+        var small = Plant(2, 2, area: 0.2, place: PlantPlace.Bed);
+
+        var r = Run([small, big], [Bed(1, 2.0)]);
+
+        var order = r.Trace.Where(t => t.Code == TraceCode.PlantOrder).OrderBy(t => t.Count).Select(t => t.PlantId).ToList();
+        Assert.Equal(new[] { 1, 2 }, order);
+        Assert.Contains(r.Trace, t => t.Code == TraceCode.MainPlaced && t.PlantId == 1 && t.Kind == ContainerKind.Bed);
+        Assert.Contains(r.Trace, t => t.Code == TraceCode.PhaseMain);
+    }
+
+    [Fact]
+    public void The_trace_names_the_reason_when_a_plant_does_not_fit()
+    {
+        // The bed is taken by the first plant for the whole year, so nothing is left for the second one
+        var first = Plant(1, 1, area: 0.9, place: PlantPlace.Bed);
+        var second = Plant(2, 2, area: 0.5, place: PlantPlace.Bed);
+
+        var r = Run([first, second], [Bed(1, 1.0)], ShortageStrategy.ShrinkProportionally);
+
+        // the run with all plants does not fit, so the trace of the last (reduced) run is the one that counts
+        Assert.NotEmpty(r.Trace);
+        Assert.Contains(r.Trace, t => t.Code == TraceCode.ShrinkApplied);
+    }
+
+    [Fact]
+    public void The_trace_records_a_rejection_with_its_reason()
+    {
+        var first = Plant(1, 1, area: 0.9, place: PlantPlace.Bed);
+        var second = Plant(2, 2, area: 0.5, place: PlantPlace.Bed);
+
+        var r = Run([first, second], [Bed(1, 1.0)], ShortageStrategy.BuyPots);
+
+        var failed = Assert.Single(r.Trace, t => t.Code == TraceCode.MainNotPlaced && t.PlantId == 2);
+        Assert.Equal(new TraceReason(RejectCode.NoRoom, 1), Assert.Single(failed.Reasons!));
+    }
+
+    [Fact]
+    public void The_trace_tells_that_a_sowing_was_moved()
+    {
+        var early = Plant(1, 1, area: 0.6, place: PlantPlace.Bed, slots: OccupancyMask.Range(0, 12));
+        var late = Plant(2, 2, area: 0.5, place: PlantPlace.Bed, slots: OccupancyMask.Range(10, 30))
+            with { SlotOptions = [OccupancyMask.Range(10, 30), OccupancyMask.Range(13, 30)] };
+
+        var r = Run([early, late], [Bed(1, 1.0), Bed(2, 1.0)]);
+
+        Assert.Contains(r.Trace, t => t.Code == TraceCode.MainPlacedMoved && t.PlantId == 2);
+    }
+
+    [Fact]
+    public void The_trace_tells_when_a_flexible_plant_had_to_start_a_new_bed()
+    {
+        var plant = Plant(1, 1, area: 0.5, place: PlantPlace.Bed, slots: OccupancyMask.Range(10, 30))
+            with { SlotOptions = [OccupancyMask.Range(10, 30), OccupancyMask.Range(13, 30)] };
+
+        var r = Run([plant], [Bed(1, 1.0)]);
+
+        Assert.Contains(r.Trace, t => t.Code == TraceCode.MainPlacedEmptyBox && t.PlantId == 1);
+    }
+
+    // ---------------------------------------------------------------- roles (main / secondary plant)
+
+    [Fact]
+    public void A_secondary_plant_waits_for_a_main_plant_even_if_it_is_larger()
+    {
+        // The secondary plant is the larger one, but it still goes under the main plant instead of taking a pot first
+        var r = Run(
+            [Plant(1, 1, liters: 5, height: 100) with { Role = PlantRole.Main },
+             Plant(2, 2, liters: 8, height: 30) with { Role = PlantRole.Secondary }],
+            [Pot(1, 20), Pot(2, 20)]);
+
+        Assert.Empty(r.Unplaced);
+        var pot = r.Containers.Single(c => c.Placements.Count == 2);
+        Assert.Equal(1, pot.Placements.Single(p => p.Role == PlantingRole.Main).PlantId);
+        Assert.Equal(2, pot.Placements.Single(p => p.Role == PlantingRole.Companion).PlantId);
+    }
+
+    [Fact]
+    public void A_secondary_plant_without_a_main_plant_gets_its_own_place()
+    {
+        var r = Run([Plant(2, 2, liters: 5, height: 30) with { Role = PlantRole.Secondary }], [Pot(1, 10)]);
+
+        Assert.Empty(r.Unplaced);
+        Assert.Equal(PlantingRole.Main, Box(r, 1).Placements.Single().Role);
+        Assert.Contains(r.Trace, t => t.Code == TraceCode.PhaseSecondaryAlone);
+    }
+
+    [Fact]
+    public void A_main_plant_is_never_put_under_another_plant()
+    {
+        // One pot only: the second main plant is lower and would fit under the first, but it is a main plant
+        var r = Run(
+            [Plant(1, 1, liters: 5, height: 100) with { Role = PlantRole.Main },
+             Plant(2, 2, liters: 5, height: 30) with { Role = PlantRole.Main }],
+            [Pot(1, 20)],
+            ShortageStrategy.BuyPots);
+
+        Assert.All(r.Containers.SelectMany(c => c.Placements), p => Assert.Equal(PlantingRole.Main, p.Role));
+        Assert.Equal(2, r.Containers.Count(c => c.Placements.Count > 0));
+    }
+
+    [Fact]
+    public void A_plant_without_a_role_is_placed_as_before()
+    {
+        var r = Run(
+            [Plant(1, 1, liters: 5, height: 100), Plant(2, 2, liters: 5, height: 30)],
+            [Pot(1, 20)]);
+
+        Assert.Equal(2, Box(r, 1).Placements.Single(p => p.Role == PlantingRole.Companion).PlantId);
+    }
+
+    [Fact]
+    public void A_secondary_plant_goes_to_a_main_plant_that_is_its_partner()
+    {
+        // Two pots with a main plant each; the secondary plant is a partner of type 2 only, so it goes to its pot
+        var r = PlanAllocator.Allocate(
+            [Plant(1, 1, liters: 5, height: 100) with { Role = PlantRole.Main },
+             Plant(2, 2, liters: 5, height: 100) with { Role = PlantRole.Main },
+             Plant(3, 3, liters: 2, height: 20) with { Role = PlantRole.Secondary }],
+            [Pot(1, 20), Pot(2, 20)],
+            Array.Empty<PlantTypeCompanion>(),
+            ShortageStrategy.ShrinkProportionally,
+            partners: [(2, 3)]);
+
+        Assert.Equal(3, Box(r, 2).Placements.Single(p => p.Role == PlantingRole.Companion).PlantId);
+        Assert.Single(Box(r, 1).Placements);
     }
 }

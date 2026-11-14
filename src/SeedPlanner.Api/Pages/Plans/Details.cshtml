@@ -37,6 +37,7 @@ else
         <div class="mb-2">
             <span class="text-muted small" id="crop-count" data-template="@L["Plan_CropsIncluded"].Value">@L["Plan_CropsIncluded", Model.IncludedCrops, Model.Crops.Count]</span>
             <button type="button" class="btn btn-sm btn-outline-secondary ms-3" id="fold-all">@L["Action_ToggleAll"]</button>
+            <div class="form-text">@L["Plan_SowingTimingHelp"]</div>
         </div>
         <div class="table-responsive">
         <table class="table align-middle">
@@ -46,6 +47,7 @@ else
                     <th class="text-end">@L["Plan_Demand"]</th>
                     <th class="text-end">@L["Plan_Calculated"]</th>
                     <th>@L["Plan_OwnNumber"]</th>
+                    <th>@L["Plan_SowingTiming"]</th>
                     <th>
                         <input type="checkbox" class="form-check-input me-1" id="crop-all" aria-label="@L["Plan_IncludeAll"].Value" />
                         @L["Plan_Include"]
@@ -103,16 +105,24 @@ else
                             }
                         </td>
                         <td>
+                            <select name="Items[@itemIndex].SowingTiming" class="form-select form-select-sm" style="width: 9rem;" aria-label="@L["Plan_SowingTiming"].Value">
+                                @foreach (var t in Enum.GetValues<SeedPlanner.Domain.SowingTiming>())
+                                {
+                                    <option value="@t" selected="@(item.SowingTiming == t)">@Model.TimingText(t)</option>
+                                }
+                            </select>
+                        </td>
+                        <td>
                             <input type="checkbox" class="form-check-input crop-include" checked="@(state == "full")" aria-label="@L["Plan_IncludeCrop"].Value" />
                         </td>
                     </tr>
                     @if (item.NeedsNumber)
                     {
-                        <tr class="crop-detail"><td colspan="5" class="text-danger small">@L["Plan_NoSpacing"]</td></tr>
+                        <tr class="crop-detail"><td colspan="6" class="text-danger small">@L["Plan_NoSpacing"]</td></tr>
                     }
                     else if (!item.Lines.Any(l => l.Include))
                     {
-                        <tr class="crop-detail"><td colspan="5" class="text-danger small">@L["Plan_NoVariety"]</td></tr>
+                        <tr class="crop-detail"><td colspan="6" class="text-danger small">@L["Plan_NoVariety"]</td></tr>
                     }
                     @foreach (var line in Model.LinesOf(item))
                     {
@@ -139,6 +149,7 @@ else
                                 <input type="number" min="0" name="Lines[@lineIndex].PlantsOverride" value="@shownLine" data-shown="@shownLine"
                                        class="form-control form-control-sm own-number @(line.PlantsOverride is null ? "text-muted" : "")" style="width: 6rem;" aria-label="@L["Plan_OwnNumber"].Value" />
                             </td>
+                            <td></td>
                             <td>
                                 <input type="checkbox" class="form-check-input line-include" name="Lines[@lineIndex].Include" value="true" checked="@line.Include" aria-label="@L["Plan_Include"].Value" />
                                 <input type="hidden" name="Lines[@lineIndex].Include" value="false" />
@@ -154,7 +165,7 @@ else
                     <th colspan="2">@L["Plan_Total"]</th>
                     <th class="text-end">@Model.CalculatedTotal</th>
                     <th>@Model.TotalPlants @L["Plan_Plants"]</th>
-                    <th></th>
+                    <th colspan="2"></th>
                 </tr>
             </tfoot>
         </table>

@@ -1,0 +1,90 @@
+@page
+@model SeedPlanner.Api.Pages.Roles.IndexModel
+@{
+    ViewData["Title"] = L["Roles_Title"].Value;
+    ViewData["Wide"] = true;
+}
+
+<h1 class="mb-1">@L["Roles_Title"]</h1>
+<p class="text-muted">@L["Roles_Intro"]</p>
+
+@if (Model.Rows.Count == 0)
+{
+    <p class="text-muted">@L["Roles_NoMain"]</p>
+}
+else
+{
+    <div class="table-responsive">
+    <table class="table table-hover align-top">
+        <thead>
+            <tr>
+                <th>@L["PlantRole_Main"]</th>
+                <th>@L["Roles_PartnersSecondary"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Model.Rows)
+            {
+                <tr id="t@(row.MainId)">
+                    <td style="width: 16rem;">
+                        <a asp-page="/PlantTypes/Details" asp-route-id="@row.MainId" class="text-decoration-none"><strong>@row.Name</strong></a>
+                    </td>
+                    <td>
+                        <details open="@(Model.Open == row.MainId)">
+                            <summary>@L["Roles_PartnersSecondary"] <span class="text-muted">(@row.Partners.Count)</span></summary>
+
+                            @if (row.Partners.Count == 0)
+                            {
+                                <p class="text-muted small mb-2 mt-2">@L["Roles_NoPartners"]</p>
+                            }
+                            else
+                            {
+                                <ul class="list-unstyled mt-2 mb-2">
+                                    @foreach (var partner in row.Partners)
+                                    {
+                                        <li class="d-flex align-items-baseline gap-2">
+                                            <a asp-page="/PlantTypes/Details" asp-route-id="@partner.Id" class="text-decoration-none">@partner.Name</a>
+                                            @if (partner.Added)
+                                            {
+                                                <span class="text-muted small">@L["Roles_Added"]</span>
+                                            }
+                                            <form method="post" asp-page-handler="Remove" class="d-inline ms-auto">
+                                                <input type="hidden" name="mainId" value="@row.MainId" />
+                                                <input type="hidden" name="secondaryId" value="@partner.Id" />
+                                                <button type="submit" class="btn btn-link btn-sm p-0 text-danger">@L["Roles_Remove"]</button>
+                                            </form>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+
+                            @if (row.AddOptions.Count > 0)
+                            {
+                                <form method="post" asp-page-handler="Add" class="d-flex gap-2 mb-2" style="max-width: 28rem;">
+                                    <input type="hidden" name="mainId" value="@row.MainId" />
+                                    <select name="secondaryId" class="form-select form-select-sm" aria-label="@L["Roles_Add"]" required>
+                                        <option value="">@L["Roles_Add"]</option>
+                                        @foreach (var option in row.AddOptions)
+                                        {
+                                            <option value="@option.Value">@option.Text</option>
+                                        }
+                                    </select>
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">@L["Action_Add"]</button>
+                                </form>
+                            }
+
+                            @if (row.Changed)
+                            {
+                                <form method="post" asp-page-handler="Reset" class="mb-1">
+                                    <input type="hidden" name="mainId" value="@row.MainId" />
+                                    <button type="submit" class="btn btn-link btn-sm p-0">@L["Roles_Reset"]</button>
+                                </form>
+                            }
+                        </details>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    </div>
+}

@@ -31,6 +31,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         public NutrientDemand? NutrientDemand { get; set; }
         public GerminationType? GerminationType { get; set; }
         public Exposure? Exposure { get; set; }
+        public PlantRole? Role { get; set; }
         public SoilType? SoilType { get; set; }
         public List<string?> PlaceChoices { get; set; } = new();
 
@@ -69,6 +70,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
     public List<SelectListItem> NutrientOptions { get; private set; } = new();
     public List<SelectListItem> GerminationOptions { get; private set; } = new();
     public List<SelectListItem> ExposureOptions { get; private set; } = new();
+    public List<SelectListItem> RoleOptions { get; private set; } = new();
     public List<SelectListItem> SoilOptions { get; private set; } = new();
     public PlaceOrderField PlaceField => new()
     {
@@ -188,6 +190,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         type.NutrientDemand = Input.NutrientDemand;
         type.GerminationType = Input.GerminationType;
         type.Exposure = Input.Exposure;
+        type.Role = Input.Role;
         type.SoilType = Input.SoilType;
         type.PlaceOrder = PlaceOrders.Format(PlaceOrderField.FromValues(Input.PlaceChoices) ?? new());
         type.PhMin = Input.PhMin;
@@ -233,6 +236,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             NutrientDemand = type.NutrientDemand,
             GerminationType = type.GerminationType,
             Exposure = type.Exposure,
+            Role = type.Role,
             SoilType = type.SoilType,
             PlaceChoices = PlaceOrderField.ToValues(type.PlaceOrder),
             PhMin = type.PhMin,
@@ -254,6 +258,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         NutrientOptions = EnumOptions<NutrientDemand>("NutrientDemand_");
         GerminationOptions = EnumOptions<GerminationType>("GerminationType_");
         ExposureOptions = EnumOptions<Exposure>("Exposure_");
+        RoleOptions = EnumOptions<PlantRole>("PlantRole_");
         SoilOptions = EnumOptions<SoilType>("SoilType_");
         UnitOptions = EnumOptions<DemandUnit>("DemandUnit_");
     }

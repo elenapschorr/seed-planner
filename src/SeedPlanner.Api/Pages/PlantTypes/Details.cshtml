@@ -26,6 +26,34 @@
     <dd class="col-sm-9">@(Model.NutrientDemand is null ? "–" : L["NutrientDemand_" + Model.NutrientDemand].Value)</dd>
     <dt class="col-sm-3">@L["Col_Exposure"]</dt>
     <dd class="col-sm-9">@(Model.Exposure is null ? "–" : L["Exposure_" + Model.Exposure].Value)</dd>
+    <dt class="col-sm-3">@L["Col_Role"]</dt>
+    <dd class="col-sm-9">
+        @if (Model.SignedIn)
+        {
+            <form method="post" asp-page-handler="OwnRole" asp-route-id="@Model.Id" class="d-flex align-items-center gap-2 flex-wrap">
+                <select name="role" class="form-select form-select-sm" style="max-width: 12rem;" aria-label="@L["Col_Role"]">
+                    @foreach (var option in Model.RoleOptions)
+                    {
+                        <option value="@option.Value" selected="@(option.Value == (Model.OwnRole?.ToString() ?? ""))">@option.Text</option>
+                    }
+                </select>
+                <button type="submit" class="btn btn-outline-secondary btn-sm">@L["Action_Save"]</button>
+                @if (Model.OwnRole is not null && Model.OwnRole == Model.Role)
+                {
+                    <span class="text-muted small">@L["Roles_Suggestion"]</span>
+                }
+                else if (Model.Role is not null)
+                {
+                    <span class="text-muted small">@L["Roles_SuggestionIs"] @L["PlantRole_" + Model.Role]</span>
+                }
+                <a asp-page="/Roles/Index" class="small ms-2">@L["Roles_Open"]</a>
+            </form>
+        }
+        else
+        {
+            @(Model.Role is null ? "–" : L["PlantRole_" + Model.Role].Value)
+        }
+    </dd>
     <dt class="col-sm-3">@L["Soil_Recommended"]</dt>
     <dd class="col-sm-9">@(Model.SoilType is null ? "–" : L["SoilType_" + Model.SoilType].Value)</dd>
     <dt class="col-sm-3">@L["Field_Priority"]</dt>

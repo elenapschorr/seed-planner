@@ -45,6 +45,11 @@
         <label asp-for="Input.Exposure" class="form-label">@L["Col_Exposure"]</label>
         <select asp-for="Input.Exposure" asp-items="Model.ExposureOptions" class="form-select"></select>
     </div>
+    <div class="col-md-3">
+        <label asp-for="Input.Role" class="form-label">@L["Col_Role"]</label>
+        <select asp-for="Input.Role" asp-items="Model.RoleOptions" class="form-select"></select>
+        <div class="form-text">@L["Role_Help"]</div>
+    </div>
     <div class="col-md-4">
         <label asp-for="Input.SoilType" class="form-label">@L["Soil_Recommended"]</label>
         <select asp-for="Input.SoilType" asp-items="Model.SoilOptions" class="form-select"></select>

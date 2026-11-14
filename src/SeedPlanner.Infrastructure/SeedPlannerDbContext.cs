@@ -19,6 +19,8 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
     public DbSet<Saucer> Saucers => Set<Saucer>();
     public DbSet<RaisedBed> RaisedBeds => Set<RaisedBed>();
     public DbSet<UserDemand> UserDemands => Set<UserDemand>();
+    public DbSet<UserPlantRole> UserPlantRoles => Set<UserPlantRole>();
+    public DbSet<UserPlantPartner> UserPlantPartners => Set<UserPlantPartner>();
     public DbSet<Plan> Plans => Set<Plan>();
     public DbSet<PlanItem> PlanItems => Set<PlanItem>();
     public DbSet<PlanLine> PlanLines => Set<PlanLine>();
@@ -51,6 +53,7 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(t => t.GerminationType).HasConversion<string>();
             e.Property(t => t.DemandUnit).HasConversion<string>();
             e.Property(t => t.Exposure).HasConversion<string>();
+            e.Property(t => t.Role).HasConversion<string>();
             e.Property(t => t.SoilType).HasConversion<string>();
             e.Property(t => t.PlaceOrder).HasMaxLength(60);
             e.Property(t => t.PhMin).HasPrecision(3, 1);
@@ -87,6 +90,7 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(p => p.SowingMethod).HasConversion<string>();
             e.Property(p => p.GrowingPlace).HasConversion<string>();
             e.Property(p => p.PlaceOrder).HasMaxLength(60);
+            e.Property(p => p.Role).HasConversion<string>();
             e.Property(p => p.Exposure).HasConversion<string>();
             e.HasMany(p => p.SeasonWindows).WithOne(w => w.Plant).HasForeignKey(w => w.PlantId);
             e.HasOne<IdentityUser>().WithMany().HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
@@ -189,6 +193,27 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.HasQueryFilter(b => b.OwnerId == CurrentUserId);
         });
 
+        // The user's own role (main or secondary plant) of a plant type instead of the suggestion: personal data
+        modelBuilder.Entity<UserPlantRole>(e =>
+        {
+            e.Property(r => r.Role).HasConversion<string>();
+            e.HasIndex(r => new { r.OwnerId, r.PlantTypeId }).IsUnique();
+            // Deleting a plant type takes the personal values for it along
+            e.HasOne(r => r.PlantType).WithMany().HasForeignKey(r => r.PlantTypeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<IdentityUser>().WithMany().HasForeignKey(r => r.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            e.HasQueryFilter(r => r.OwnerId == CurrentUserId);
+        });
+
+        // The user's own changes of the partner list of a main plant: personal data
+        modelBuilder.Entity<UserPlantPartner>(e =>
+        {
+            e.HasIndex(r => new { r.OwnerId, r.MainPlantTypeId, r.SecondaryPlantTypeId }).IsUnique();
+            e.HasOne(r => r.MainPlantType).WithMany().HasForeignKey(r => r.MainPlantTypeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(r => r.SecondaryPlantType).WithMany().HasForeignKey(r => r.SecondaryPlantTypeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<IdentityUser>().WithMany().HasForeignKey(r => r.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            e.HasQueryFilter(r => r.OwnerId == CurrentUserId);
+        });
+
         // Own demand per person and plans (settings and results): personal data
         modelBuilder.Entity<UserDemand>(e =>
         {
@@ -246,6 +271,7 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(i => i.DemandAmount).HasPrecision(10, 2);
             e.Property(i => i.AmountOverride).HasPrecision(10, 2);
             e.Property(i => i.Unit).HasConversion<string>();
+            e.Property(i => i.SowingTiming).HasConversion<string>().HasDefaultValueSql("'Start'");
             e.HasIndex(i => new { i.PlanId, i.PlantTypeId }).IsUnique();
             // Results can be calculated again, so a plant type that is deleted takes its plan items with it
             e.HasOne(i => i.PlantType).WithMany().HasForeignKey(i => i.PlantTypeId).OnDelete(DeleteBehavior.Cascade);

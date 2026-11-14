@@ -16,6 +16,9 @@ public class PlantType
     public List<Plant> Plants { get; } = [];
     public Exposure? Exposure { get; set; }
 
+    /// <summary>Suggested role (main or secondary plant); users can change it for themselves (<see cref="UserPlantRole"/>).</summary>
+    public PlantRole? Role { get; set; }
+
     /// <summary>
     /// Where plants of this type go in the distribution: the allowed kinds of container, first choice first
     /// (see <see cref="Domain.PlaceOrders"/>). Empty = decided by the growing place of the variety (not set: into a bed).

@@ -23,6 +23,9 @@ public class DetailsModel(SeedPlannerDbContext db, IStringLocalizer<SharedResour
         // and only a changed value counts as an own number
         public int? ShownPlants { get; set; }
         public string? ShownAmount { get; set; }
+
+        // When within the sowing window the crop is sown
+        public string? SowingTiming { get; set; }
     }
 
     public class LineInput
@@ -67,6 +70,7 @@ public class DetailsModel(SeedPlannerDbContext db, IStringLocalizer<SharedResour
         {
             var item = plan.Items.FirstOrDefault(i => i.Id == input.Id);
             if (item is null) continue;
+            if (Enum.TryParse<SowingTiming>(input.SowingTiming, out var timing)) item.SowingTiming = timing;
             if (input.AmountOverride is not null)
             {
                 // Entered in the unit of the demand; unchanged (still the shown value) = no change
@@ -108,6 +112,8 @@ public class DetailsModel(SeedPlannerDbContext db, IStringLocalizer<SharedResour
     /// <summary>The own number of a crop is entered in the unit of the demand if the plants can be worked out from it.</summary>
     public static bool UsesAmount(PlanItem item) =>
         item.Unit is DemandUnit.RowMeters or DemandUnit.SquareMeters && (item.CalculatedPlants is not null || item.AmountOverride is not null);
+
+    public string TimingText(SowingTiming t) => L["SowingTiming_" + t].Value;
 
     public string UnitText(PlanItem item) => item.Unit is null ? "" : L["DemandUnit_" + item.Unit].Value;
 

@@ -96,4 +96,46 @@ public class PlantOccupancyTests
 
         Assert.Equal(OccupancyMask.Range(13, 29), PlantOccupancy.Slots(p, Lifecycle.Annual));
     }
+
+    // ---------------------------------------------------------------- moving the sowing within its window
+
+    [Fact]
+    public void Sowing_at_the_start_of_the_window_is_the_normal_time()
+    {
+        var p = Make(SowingMethod.DirectSow, 4, 5, 7, 9);
+
+        Assert.Equal(new[] { PlantOccupancy.Slots(p, Lifecycle.Annual) }, PlantOccupancy.SlotOptions(p, Lifecycle.Annual, 13, SowingTiming.Start));
+    }
+
+    [Fact]
+    public void Sowing_in_the_middle_or_at_the_end_of_the_window_shortens_the_time_but_keeps_the_end_of_the_harvest()
+    {
+        // Sowing April to May = thirds 9..14, harvest until the end of September (26)
+        var p = Make(SowingMethod.DirectSow, 4, 5, 7, 9);
+
+        Assert.Equal(new[] { OccupancyMask.Range(11, 26) }, PlantOccupancy.SlotOptions(p, Lifecycle.Annual, 13, SowingTiming.Middle));
+        Assert.Equal(new[] { OccupancyMask.Range(14, 26) }, PlantOccupancy.SlotOptions(p, Lifecycle.Annual, 13, SowingTiming.End));
+    }
+
+    [Fact]
+    public void Automatic_timing_offers_every_start_in_the_window_earliest_first()
+    {
+        var p = Make(SowingMethod.DirectSow, 4, 5, 7, 9);
+
+        var options = PlantOccupancy.SlotOptions(p, Lifecycle.Annual, 13, SowingTiming.Auto);
+
+        Assert.Equal(6, options.Count);
+        Assert.Equal(OccupancyMask.Range(9, 26), options[0]);
+        Assert.Equal(OccupancyMask.Range(14, 26), options[^1]);
+    }
+
+    [Fact]
+    public void Perennials_and_plants_without_times_have_only_one_option()
+    {
+        var perennial = Make(SowingMethod.DirectSow, 4, 5, 7, 9);
+        Assert.Equal(new[] { OccupancyMask.AllYear }, PlantOccupancy.SlotOptions(perennial, Lifecycle.Perennial, 13, SowingTiming.Auto));
+
+        var none = new Plant { Name = "P" };
+        Assert.Equal(new[] { 0UL }, PlantOccupancy.SlotOptions(none, Lifecycle.Annual, 13, SowingTiming.Auto));
+    }
 }

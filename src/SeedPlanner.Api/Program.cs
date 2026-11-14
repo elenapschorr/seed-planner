@@ -49,8 +49,15 @@ builder.Services.AddRazorPages(o =>
         o.Conventions.AuthorizeFolder("/Pots");
         o.Conventions.AuthorizeFolder("/Saucers");
         o.Conventions.AuthorizeFolder("/RaisedBeds");
+        o.Conventions.AuthorizeFolder("/Roles");
+        o.Conventions.AuthorizeFolder("/Demand");
+        o.Conventions.AuthorizeFolder("/Plans");
     })
+    .AddMvcOptions(o => o.MaxModelBindingCollectionSize = 5000)
     .AddViewLocalization();
+// The plan page posts a few values for every crop and variety: more than the default 1024 values of a form
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o => o.ValueCountLimit = 20000);
+
 builder.Services.AddDbContext<SeedPlannerDbContext>(options =>
     options
         .UseNpgsql(builder.Configuration.GetConnectionString("Default"))

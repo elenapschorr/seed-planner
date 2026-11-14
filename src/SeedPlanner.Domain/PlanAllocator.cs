@@ -68,8 +68,15 @@ public record AllocPlant(
     double? PotLitersMin, double? PotLitersMax, double? AreaM2, double? HeightCm,
     bool ColdFrame = false, double? RowSpacingCm = null, ulong Slots = OccupancyMask.AllYear,
     decimal? PhMin = null, decimal? PhMax = null, SoilType? SoilType = null, PlantCategory? Category = null,
-    bool Required = false, IReadOnlyList<ContainerCategory>? Order = null)
+    bool Required = false, IReadOnlyList<ContainerCategory>? Order = null,
+    IReadOnlyList<ulong>? SlotOptions = null, PlantRole? Role = null)
 {
+    // Role: main plant or secondary plant of the plant type (suggestion or the user's own choice); null = not known.
+    // A secondary plant is only placed with a main plant (under-planting); if there is none, it stands alone.
+    // A main plant always gets a place of its own; it is never put under another plant. Unknown: both ways, as before.
+    // SlotOptions: alternative times (see PlantOccupancy.SlotOptions), earliest first; Slots is the first one.
+    // If the main plant does not fit with Slots, the later ones are tried, so the sowing is moved within its window.
+
     // Order: the kinds of container the user allows, first choice first (null = every kind).
     // Required: the user allowed only one kind of container (bed or pot) for the plant. It is never reduced and never
     // left out for lack of room: new pots or beds are added for it, whatever the strategy is.
@@ -111,8 +118,10 @@ public record AllocContainerInput(
     decimal? SoilPh = null, SoilType? SoilType = null, bool HasTree = false, bool HasVegetable = false,
     ContainerCategory? Category = null);
 
-/// <summary><see cref="Slots"/>: the time the plants take the place (thirds of months), all year if not limited.</summary>
-public record PlacementResult(int PlantId, int PlantTypeId, PlantingRole Role, int Count, ulong Slots = OccupancyMask.AllYear);
+/// <summary><see cref="Slots"/>: the time the plants take the place (thirds of months), all year if not limited.
+/// <see cref="Moved"/>: the sowing was moved later within the sowing window to find a place.</summary>
+public record PlacementResult(int PlantId, int PlantTypeId, PlantingRole Role, int Count, ulong Slots = OccupancyMask.AllYear,
+    bool Moved = false);
 
 /// <summary>A chosen container or a new one (<see cref="IsNew"/>, no id) with what was placed in it.
 /// NeedsCover: an existing bed that has to get a cover (strategy RetrofitExistingBed).</summary>
@@ -133,6 +142,9 @@ public class AllocationResult
     public IReadOnlyList<ContainerResult> Containers { get; init; } = Array.Empty<ContainerResult>();
     public IReadOnlyList<UnplacedResult> Unplaced { get; init; } = Array.Empty<UnplacedResult>();
     public IReadOnlyList<ReductionResult> Reductions { get; init; } = Array.Empty<ReductionResult>();
+
+    /// <summary>How the distribution came about, step by step.</summary>
+    public IReadOnlyList<TraceEntry> Trace { get; init; } = Array.Empty<TraceEntry>();
 
     /// <summary>Placed plants divided by wanted plants; 1 if nothing had to be reduced.</summary>
     public double ScaleFactor { get; init; } = 1;
@@ -175,11 +187,13 @@ public static class PlanAllocator
         ShortageStrategy strategy,
         double maxBedAreaM2 = 0,
         NoCoverStrategy noCover = NoCoverStrategy.NewCoveredBed,
-        bool allowOthersInCoveredBeds = false)
+        bool allowOthersInCoveredBeds = false,
+        IEnumerable<(int Main, int Secondary)>? partners = null)
     {
-        var rel = new Rules(companions, allowOthersInCoveredBeds);
+        var rel = new Rules(companions, allowOthersInCoveredBeds, partners);
         var opt = new Opt(strategy, maxBedAreaM2, noCover);
         var unplaced = new List<UnplacedResult>();
+        var head = new List<TraceEntry>();
 
         // A plant that cannot be placed even alone (missing data, no suitable place) is reported and left out
         var usable = new List<AllocPlant>();
@@ -188,6 +202,7 @@ public static class PlanAllocator
             if (p.Slots == 0)
             {
                 unplaced.Add(new UnplacedResult(p.PlantId, p.Count, UnplacedReason.MissingTimeData));
+                head.Add(new TraceEntry(TraceCode.Excluded, p.PlantId, Count: p.Count, Detail: nameof(UnplacedReason.MissingTimeData)));
                 continue;
             }
             var probe = Execute(new[] { p with { Count = 1 } }, containers, rel, opt);
@@ -200,13 +215,15 @@ public static class PlanAllocator
                     Execute(new[] { p with { Count = 1, PhMin = null, PhMax = null } }, containers, rel, opt).Left.Count == 0)
                     reason = UnplacedReason.SoilMismatch;
                 unplaced.Add(new UnplacedResult(p.PlantId, p.Count, reason));
+                head.Add(new TraceEntry(TraceCode.Excluded, p.PlantId, Count: p.Count, Detail: reason.ToString()));
             }
         }
 
         var counts = usable.Select(p => p.Count).ToArray();
         List<AllocPlant> Build() => usable.Select((p, i) => p with { Count = counts[i] }).ToList();
 
-        var run = Execute(Build(), containers, rel, opt);
+        var trace = new TraceLog();
+        var run = Execute(Build(), containers, rel, opt, trace);
         var reductions = new List<ReductionResult>();
         var scale = 1.0;
 
@@ -224,7 +241,8 @@ public static class PlanAllocator
                     .ThenBy(k => k)
                     .First();
                 counts[i]--;
-                run = Execute(Build(), containers, rel, opt);
+                trace = new TraceLog();
+                run = Execute(Build(), containers, rel, opt, trace);
             }
 
             for (var k = 0; k < usable.Count; k++)
@@ -233,6 +251,11 @@ public static class PlanAllocator
 
             var wanted = usable.Sum(p => p.Count);
             if (wanted > 0) scale = (double)counts.Sum() / wanted;
+            if (counts.Sum() < wanted)
+            {
+                trace.Add(new TraceEntry(TraceCode.PhaseShortage));
+                trace.Add(new TraceEntry(TraceCode.ShrinkApplied, Count: wanted - counts.Sum(), Value: scale));
+            }
         }
         else
         {
@@ -243,8 +266,10 @@ public static class PlanAllocator
         var result = run.Boxes.Select(b => new ContainerResult(
             b.Kind, b.Id, b.Name, b.IsNew, b.Capacity, b.Used,
             b.Placements
-                .GroupBy(x => (x.Plant.PlantId, x.Plant.PlantTypeId, x.Role))
-                .Select(g => new PlacementResult(g.Key.PlantId, g.Key.PlantTypeId, g.Key.Role, g.Count(), g.First().Plant.Slots))
+                .GroupBy(x => (x.Plant.PlantId, x.Plant.PlantTypeId, x.Role, x.Plant.Slots))
+                .Select(g => new PlacementResult(g.Key.PlantId, g.Key.PlantTypeId, g.Key.Role, g.Count(), g.Key.Slots,
+                    // the sowing was moved later within its window
+                    Moved: g.First().Plant.SlotOptions is { Count: > 1 } o && g.Key.Slots != o[0]))
                 .ToList(),
             b.HasCover, b.NeedsCover, b.Category)).ToList();
 
@@ -253,7 +278,8 @@ public static class PlanAllocator
             Containers = result,
             Unplaced = unplaced,
             Reductions = reductions,
-            ScaleFactor = scale
+            ScaleFactor = scale,
+            Trace = head.Concat(trace.Entries).ToList()
         };
     }
 
@@ -331,9 +357,18 @@ public static class PlanAllocator
 
         public bool AllowOthersInCovered { get; }
 
-        public Rules(IEnumerable<PlantTypeCompanion> pairs, bool allowOthersInCovered)
+        /// <summary>Where the run writes down what it does; null for the test runs.</summary>
+        public TraceLog? Trace;
+
+        private readonly HashSet<(int, int)> partners = new();
+
+        /// <summary>The secondary plant type is a partner of the main plant type (the user's list).</summary>
+        public bool IsPartner(int mainType, int secondaryType) => partners.Contains((mainType, secondaryType));
+
+        public Rules(IEnumerable<PlantTypeCompanion> pairs, bool allowOthersInCovered, IEnumerable<(int Main, int Secondary)>? partnerPairs = null)
         {
             AllowOthersInCovered = allowOthersInCovered;
+            foreach (var (main, secondary) in partnerPairs ?? Array.Empty<(int, int)>()) partners.Add((main, secondary));
             foreach (var p in pairs)
                 map[(Math.Min(p.PlantTypeId, p.OtherPlantTypeId), Math.Max(p.PlantTypeId, p.OtherPlantTypeId))] = p.Relation;
         }
@@ -369,13 +404,36 @@ public static class PlanAllocator
 
     // One run with the given numbers: the boxes with their placements and the single plants that did not fit
     private static (List<Box> Boxes, List<AllocPlant> Left) Execute(
+        IReadOnlyList<AllocPlant> plants, IReadOnlyList<AllocContainerInput> inputs, Rules rel, Opt opt, TraceLog? trace = null)
+    {
+        rel.Trace = trace;
+        try
+        {
+            return ExecuteTraced(plants, inputs, rel, opt);
+        }
+        finally
+        {
+            rel.Trace = null;
+        }
+    }
+
+    private static (List<Box> Boxes, List<AllocPlant> Left) ExecuteTraced(
         IReadOnlyList<AllocPlant> plants, IReadOnlyList<AllocContainerInput> inputs, Rules rel, Opt opt)
     {
         var boxes = inputs.Select(ToBox).ToList();
         var units = plants.SelectMany(p => Enumerable.Repeat(p with { Count = 1 }, Math.Max(0, p.Count))).ToList();
-        var retrofit = EnsureCover(units, boxes, opt);
+        var retrofit = EnsureCover(units, boxes, rel, opt);
+
+        if (rel.Trace is { } log)
+        {
+            var position = 0;
+            foreach (var u in Order(units).DistinctBy(u => u.PlantId))
+                log.Add(new TraceEntry(u.ColdFrame ? TraceCode.PlantOrderColdFrame : TraceCode.PlantOrder, u.PlantId, Count: ++position));
+        }
 
         var left = PlaceAll(units, boxes, rel);
+        if (left.Count > 0 && opt.Strategy != ShortageStrategy.ShrinkProportionally)
+            rel.Trace?.Add(new TraceEntry(TraceCode.PhaseShortage));
         if (opt.Strategy == ShortageStrategy.BuyPots) left = BuyPots(left, boxes, rel);
         else if (opt.Strategy == ShortageStrategy.AddBeds) left = AddBeds(left, boxes, rel, opt.MaxBed);
 
@@ -413,7 +471,7 @@ public static class PlanAllocator
 
     // Cold frame plants are planned but no chosen bed has a cover: retrofit one bed or add new covered beds.
     // Returns the retrofitted bed, if there is one.
-    private static Box? EnsureCover(List<AllocPlant> units, List<Box> boxes, Opt opt)
+    private static Box? EnsureCover(List<AllocPlant> units, List<Box> boxes, Rules rel, Opt opt)
     {
         var cold = units.Where(u => u.ColdFrame && u.AreaM2 is not null).ToList();
         if (cold.Count == 0 || boxes.Any(b => b.Kind == ContainerKind.Bed && b.HasCover)) return null;
@@ -434,6 +492,7 @@ public static class PlanAllocator
                 : beds.OrderByDescending(b => b.Free).ThenBy(b => b.Id ?? int.MaxValue).First();
             bed.HasCover = true;
             bed.NeedsCover = true;
+            rel.Trace?.Add(new TraceEntry(TraceCode.CoverRetrofit, Kind: bed.Kind, Container: bed.Name, Value: total));
             return bed;
         }
 
@@ -442,16 +501,23 @@ public static class PlanAllocator
         var capacity = opt.MaxBed > 0 ? opt.MaxBed : total;
         for (var n = 0; n < Math.Max(1, count); n++)
             boxes.Add(new Box { Kind = ContainerKind.Bed, IsNew = true, Category = ContainerCategory.Bed, HasCover = true, Capacity = capacity });
+        rel.Trace?.Add(new TraceEntry(TraceCode.NewCoveredBeds, Count: Math.Max(1, count), Value: capacity));
         return null;
     }
 
     // Cold frame plants first (they only use covered beds), then from large to small
     private static IEnumerable<AllocPlant> Order(IEnumerable<AllocPlant> units) => units
         .OrderByDescending(p => p.ColdFrame)
+        .ThenBy(p => IsSecondary(p) ? 1 : 0)
         .ThenByDescending(p => p.SpaceScore)
         .ThenByDescending(p => OccupancyMask.Bits(p.Slots))
         .ThenByDescending(p => p.HeightCm ?? 0)
         .ThenBy(p => p.PlantId);
+
+    private static bool IsSecondary(AllocPlant p) => p.Role == PlantRole.Secondary;
+
+    // A main plant is never put under another plant
+    private static bool MayBeCompanion(AllocPlant p) => p.Role != PlantRole.Main;
 
     // potFallback: the plants of the open ground may also use pots (only after the beds and the pot plants)
     private static bool Allowed(AllocPlant p, ContainerKind kind, bool potFallback) => p.Place switch
@@ -464,18 +530,22 @@ public static class PlanAllocator
     };
 
     // Cold frame plants only go into covered beds. Other plants stay out of covered beds unless the user allowed it.
-    private static bool Fits(AllocPlant p, Box b, Rules rel, bool potFallback)
+    private static bool Fits(AllocPlant p, Box b, Rules rel, bool potFallback) => FitsReject(p, b, rel, potFallback) is null;
+
+    // Why the container is not suitable for the plant at all (null = it is)
+    private static RejectCode? FitsReject(AllocPlant p, Box b, Rules rel, bool potFallback)
     {
         // A bed has to be at least as wide as the distance between the rows
-        if (b.Kind == ContainerKind.Bed && b.WidthCm is { } width && p.RowSpacingCm is { } row && row > width + Eps) return false;
+        if (b.Kind == ContainerKind.Bed && b.WidthCm is { } width && p.RowSpacingCm is { } row && row > width + Eps) return RejectCode.BedTooNarrow;
         // The soil pH has to be inside the range the plant likes (with a small tolerance); unknown values do not restrict
-        if (!PhOk(p, b)) return false;
+        if (!PhOk(p, b)) return RejectCode.SoilPh;
         // Only the kinds of container the user allowed for the plant
-        if (p.Order is { Count: > 0 } order && !order.Contains(b.Category)) return false;
+        if (p.Order is { Count: > 0 } order && !order.Contains(b.Category)) return RejectCode.CategoryNotChosen;
         // No vegetables under trees, and no trees among vegetables
-        if ((p.IsVegetable && b.HasTree) || (p.IsTree && b.HasVegetable)) return false;
-        if (p.ColdFrame) return b.Kind == ContainerKind.Bed && b.HasCover;
-        return Allowed(p, b.Kind, potFallback) && (!b.HasCover || rel.AllowOthersInCovered);
+        if ((p.IsVegetable && b.HasTree) || (p.IsTree && b.HasVegetable)) return RejectCode.TreeAndVegetable;
+        if (p.ColdFrame) return b.Kind == ContainerKind.Bed && b.HasCover ? null : RejectCode.NeedsCover;
+        if (!Allowed(p, b.Kind, potFallback)) return RejectCode.WrongKind;
+        return !b.HasCover || rel.AllowOthersInCovered ? null : RejectCode.CoveredBed;
     }
 
     /// <summary>How far the soil pH of a container may be outside the range of the plant.</summary>
@@ -503,6 +573,10 @@ public static class PlanAllocator
     private static bool NeighboursOk(Box c, AllocPlant p, Rules rel) =>
         c.TypeTimes.All(t => !OccupancyMask.Overlaps(t.Slots, p.Slots) || rel.Between(t.TypeId, p.PlantTypeId) != CompanionRelation.Bad);
 
+    // A main plant of the container is a partner of the plant (the user's partner list), at the same time
+    private static bool HasPartner(Box c, AllocPlant p, Rules rel) =>
+        c.TypeTimes.Any(t => OccupancyMask.Overlaps(t.Slots, p.Slots) && rel.IsPartner(t.TypeId, p.PlantTypeId));
+
     private static bool HasGood(Box c, AllocPlant p, Rules rel) =>
         c.TypeTimes.Any(t => OccupancyMask.Overlaps(t.Slots, p.Slots) && rel.Between(t.TypeId, p.PlantTypeId) == CompanionRelation.Good);
 
@@ -524,30 +598,109 @@ public static class PlanAllocator
 
     // First everything is placed as far as the rules allow, the plants of the open ground only into beds.
     // What of the open ground is left then takes the pots that are still free (after the pot plants).
-    private static List<AllocPlant> PlaceAll(IEnumerable<AllocPlant> units, List<Box> boxes, Rules rel)
+    // top: the run of the distribution itself (not the tries with a new bed); only there the failures are written down
+    private static List<AllocPlant> PlaceAll(IEnumerable<AllocPlant> units, List<Box> boxes, Rules rel, bool top = true)
     {
         var left = new List<AllocPlant>();
+        if (top) rel.Trace?.Add(new TraceEntry(TraceCode.PhaseMain));
         foreach (var u in Order(units))
-            if (!TryPlaceMain(u, boxes, rel, potFallback: false)) left.Add(u);
-        left = PlaceCompanions(left, boxes, rel, potFallback: false);
+        {
+            // Secondary plants wait for a main plant
+            if (IsSecondary(u)) left.Add(u);
+            else if (!TryPlaceMain(u, boxes, rel, potFallback: false, logFailure: top && u.Place != PlantPlace.BedThenPot)) left.Add(u);
+        }
+        if (top) rel.Trace?.Add(new TraceEntry(TraceCode.PhaseCompanions));
+        left = PlaceCompanions(left, boxes, rel, potFallback: false, logFailure: top);
+        left = PlaceSecondaryAlone(left, boxes, rel, potFallback: false, top);
 
         if (left.Any(p => p.Place == PlantPlace.BedThenPot))
         {
+            if (top) rel.Trace?.Add(new TraceEntry(TraceCode.PhasePotFallback));
             var rest = new List<AllocPlant>();
             foreach (var u in Order(left))
-                if (u.Place != PlantPlace.BedThenPot || !TryPlaceMain(u, boxes, rel, potFallback: true)) rest.Add(u);
-            left = PlaceCompanions(rest, boxes, rel, potFallback: true);
+                if (u.Place != PlantPlace.BedThenPot || IsSecondary(u) || !TryPlaceMain(u, boxes, rel, potFallback: true, logFailure: top)) rest.Add(u);
+            if (top) rel.Trace?.Add(new TraceEntry(TraceCode.PhaseCompanions));
+            left = PlaceCompanions(rest, boxes, rel, potFallback: true, logFailure: top);
+            left = PlaceSecondaryAlone(left, boxes, rel, potFallback: true, top);
         }
         return left;
     }
 
-    // A pot gets one main plant (the smallest pot that is large enough); a bed as many as fit by area
-    private static bool TryPlaceMain(AllocPlant p, List<Box> boxes, Rules rel, bool potFallback)
+    // Secondary plants that found no main plant to stand with get a place of their own, like a main plant
+    private static List<AllocPlant> PlaceSecondaryAlone(List<AllocPlant> left, List<Box> boxes, Rules rel, bool potFallback, bool top)
+    {
+        var rest = new List<AllocPlant>();
+        var header = false;
+        foreach (var u in Order(left))
+        {
+            if (!IsSecondary(u))
+            {
+                rest.Add(u);
+                continue;
+            }
+            if (top && !header)
+            {
+                rel.Trace?.Add(new TraceEntry(TraceCode.PhaseSecondaryAlone));
+                header = true;
+            }
+            if (!TryPlaceMain(u, boxes, rel, potFallback, logFailure: top && (u.Place != PlantPlace.BedThenPot || potFallback))) rest.Add(u);
+        }
+        return rest;
+    }
+
+    // The sowing is moved within its window to use a container that is already in use, before an empty one is taken:
+    // first every time (earliest first) is tried in the containers that already hold plants, then every time in all of them.
+    private static bool TryPlaceMain(AllocPlant p, List<Box> boxes, Rules rel, bool potFallback, bool logFailure = false)
+    {
+        Box? placed;
+        if (p.SlotOptions is { Count: > 1 } options)
+        {
+            foreach (var slots in options)
+            {
+                var at = p with { Slots = slots };
+                if ((placed = TryPlaceMainAt(at, boxes, rel, potFallback, InUse)) is not null)
+                {
+                    LogMain(rel, at, placed, moved: slots != options[0], emptyBox: false);
+                    return true;
+                }
+            }
+            foreach (var slots in options)
+            {
+                var at = p with { Slots = slots };
+                if ((placed = TryPlaceMainAt(at, boxes, rel, potFallback, null)) is not null)
+                {
+                    LogMain(rel, at, placed, moved: slots != options[0], emptyBox: true);
+                    return true;
+                }
+            }
+        }
+        else if ((placed = TryPlaceMainAt(p, boxes, rel, potFallback, null)) is not null)
+        {
+            LogMain(rel, p, placed, moved: false, emptyBox: false);
+            return true;
+        }
+
+        if (logFailure && rel.Trace is { } log)
+            log.Add(new TraceEntry(TraceCode.MainNotPlaced, p.PlantId, Reasons: Reasons(boxes, b => MainReject(b, p, rel, potFallback))));
+        return false;
+    }
+
+    private static void LogMain(Rules rel, AllocPlant p, Box b, bool moved, bool emptyBox) =>
+        rel.Trace?.Add(new TraceEntry(
+            emptyBox ? TraceCode.MainPlacedEmptyBox : moved ? TraceCode.MainPlacedMoved : TraceCode.MainPlaced,
+            p.PlantId, b.Kind, b.Name, b.IsNew, p.Slots));
+
+    // Something stands in the container at some time (a plant of this run or one that was there before)
+    private static bool InUse(Box b) => b.Placements.Count > 0 || b.UsedAt.Any(u => u > Eps) || b.MainMask != 0;
+
+    // A pot gets one main plant (the smallest pot that is large enough); a bed as many as fit by area.
+    // only: restricts the containers that are looked at (null = all)
+    private static Box? TryPlaceMainAt(AllocPlant p, List<Box> boxes, Rules rel, bool potFallback, Func<Box, bool>? only)
     {
         if (!p.ColdFrame && p.PotLitersMin is { } liters)
         {
             var pot = boxes
-                .Where(b => b.Kind == ContainerKind.Pot && Fits(p, b, rel, potFallback)
+                .Where(b => (only is null || only(b)) && b.Kind == ContainerKind.Pot && Fits(p, b, rel, potFallback)
                     && !OccupancyMask.Overlaps(b.MainMask, p.Slots) && b.FreeFor(p.Slots) + Eps >= liters && NeighboursOk(b, p, rel))
                 .OrderBy(b => OrderRank(p, b))
                 .ThenBy(b => SoilRank(p, b))
@@ -557,7 +710,7 @@ public static class PlanAllocator
             if (pot is not null)
             {
                 Put(pot, p, PlantingRole.Main);
-                return true;
+                return pot;
             }
         }
 
@@ -566,7 +719,7 @@ public static class PlanAllocator
             // Cold frame plants: stay in a bed that already has some, otherwise the bed with the most free area.
             // Other plants: uncovered beds first, then beds with good neighbours, then the tightest fit.
             var bed = boxes
-                .Where(b => b.Kind == ContainerKind.Bed && Fits(p, b, rel, potFallback) && b.FreeFor(p.Slots) + Eps >= area && NeighboursOk(b, p, rel))
+                .Where(b => (only is null || only(b)) && b.Kind == ContainerKind.Bed && Fits(p, b, rel, potFallback) && b.FreeFor(p.Slots) + Eps >= area && NeighboursOk(b, p, rel))
                 .OrderBy(b => p.ColdFrame ? (b.ColdCount > 0 ? 0 : 1) : (b.HasCover ? 1 : 0))
                 .ThenBy(b => SoilRank(p, b))
                 .ThenBy(b => p.ColdFrame ? 0 : (HasGood(b, p, rel) ? 0 : 1))
@@ -576,30 +729,59 @@ public static class PlanAllocator
             if (bed is not null)
             {
                 Put(bed, p, PlantingRole.Main);
-                return true;
+                return bed;
             }
         }
 
-        return false;
+        return null;
     }
 
-    private static bool CanHost(Box c, AllocPlant p, Rules rel, bool potFallback)
+    private static bool CanHost(Box c, AllocPlant p, Rules rel, bool potFallback) => HostReject(c, p, rel, potFallback) is null;
+
+    // Why the container cannot take the plant as under-planting (null = it can)
+    private static RejectCode? HostReject(Box c, AllocPlant p, Rules rel, bool potFallback)
     {
-        if (!OccupancyMask.Overlaps(c.MainMask, p.Slots) || !Fits(p, c, rel, potFallback)) return false;
-        if (Need(p, c.Kind) is not { } need) return false;
-        if (c.FreeFor(p.Slots) + Eps < need) return false;
-        if (!NeighboursOk(c, p, rel)) return false;
-        if (c.TopAt(p.Slots) is { } top && p.HeightCm is { } height && height >= top) return false;
-        return true;
+        if (!OccupancyMask.Overlaps(c.MainMask, p.Slots)) return RejectCode.NoMainPlant;
+        if (FitsReject(p, c, rel, potFallback) is { } fit) return fit;
+        if (Need(p, c.Kind) is not { } need) return RejectCode.NoSizeData;
+        if (c.FreeFor(p.Slots) + Eps < need) return RejectCode.NoRoom;
+        if (!NeighboursOk(c, p, rel)) return RejectCode.BadNeighbour;
+        if (c.TopAt(p.Slots) is { } top && p.HeightCm is { } height && height >= top) return RejectCode.TooTall;
+        return null;
     }
+
+    // Why the container did not take the plant as main plant (null = it would)
+    private static RejectCode? MainReject(Box b, AllocPlant p, Rules rel, bool potFallback)
+    {
+        if (FitsReject(p, b, rel, potFallback) is { } fit) return fit;
+        if (b.Kind == ContainerKind.Pot)
+        {
+            if (p.ColdFrame || p.PotLitersMin is not { } liters) return RejectCode.NoSizeData;
+            if (OccupancyMask.Overlaps(b.MainMask, p.Slots)) return RejectCode.MainTaken;
+            if (b.FreeFor(p.Slots) + Eps < liters) return RejectCode.NoRoom;
+        }
+        else
+        {
+            if (p.AreaM2 is not { } area) return RejectCode.NoSizeData;
+            if (b.FreeFor(p.Slots) + Eps < area) return RejectCode.NoRoom;
+        }
+        return NeighboursOk(b, p, rel) ? null : RejectCode.BadNeighbour;
+    }
+
+    private static List<TraceReason> Reasons(IEnumerable<Box> boxes, Func<Box, RejectCode?> reject) =>
+        boxes.Select(reject).Where(r => r is not null).GroupBy(r => r!.Value)
+            .Select(g => new TraceReason(g.Key, g.Count()))
+            .OrderByDescending(r => r.Count).ThenBy(r => r.Code)
+            .ToList();
 
     // Under-planting. Every round the plant with the fewest possible host plant types goes first
     // (then the one with the fewest possible containers, then the larger one); the numbers are recalculated
     // after each placement. Returns the plants that did not fit.
-    private static List<AllocPlant> PlaceCompanions(List<AllocPlant> left, List<Box> boxes, Rules rel, bool potFallback)
+    private static List<AllocPlant> PlaceCompanions(List<AllocPlant> left, List<Box> boxes, Rules rel, bool potFallback, bool logFailure = false)
     {
-        var remaining = new List<AllocPlant>(left);
-        var unplaced = new List<AllocPlant>();
+        // Main plants never go under other plants
+        var remaining = left.Where(MayBeCompanion).ToList();
+        var unplaced = left.Where(p => !MayBeCompanion(p)).ToList();
 
         while (remaining.Count > 0)
         {
@@ -627,6 +809,9 @@ public static class PlanAllocator
 
             foreach (var d in dead)
             {
+                // A plant of the open ground may still get a pot afterwards
+                if (logFailure && rel.Trace is { } log && !(d.Place == PlantPlace.BedThenPot && !potFallback))
+                    log.Add(new TraceEntry(TraceCode.CompanionNotPlaced, d.PlantId, Reasons: Reasons(boxes, b => HostReject(b, d, rel, potFallback))));
                 unplaced.Add(d);
                 remaining.Remove(d);
             }
@@ -634,11 +819,13 @@ public static class PlanAllocator
 
             var host = bestHosts
                 .OrderBy(h => !best.ColdFrame && h.HasCover ? 1 : 0)
+                .ThenByDescending(h => HasPartner(h, best, rel) ? 1 : 0)
                 .ThenByDescending(h => HasGood(h, best, rel) ? 1 : 0)
                 .ThenByDescending(h => h.FreeFor(best.Slots))
                 .ThenBy(h => h.Id ?? int.MaxValue)
                 .First();
             Put(host, best, PlantingRole.Companion);
+            rel.Trace?.Add(new TraceEntry(TraceCode.CompanionPlaced, best.PlantId, host.Kind, host.Name, host.IsNew, best.Slots));
             remaining.Remove(best);
         }
 
@@ -670,7 +857,9 @@ public static class PlanAllocator
                 Capacity = Math.Max(seed.PotLitersMax ?? 0, seed.PotLitersMin!.Value)
             };
             boxes.Add(pot);
+            rel.Trace?.Add(new TraceEntry(TraceCode.NewPot, seed.PlantId, ContainerKind.Pot, IsNew: true, Value: pot.Capacity));
             Put(pot, seed, PlantingRole.Main);
+            rel.Trace?.Add(new TraceEntry(TraceCode.MainPlaced, seed.PlantId, ContainerKind.Pot, IsNew: true, Slots: seed.Slots));
             left.Remove(seed);
             left = PlaceCompanions(left, boxes, rel, potFallback: true);
         }
@@ -685,9 +874,13 @@ public static class PlanAllocator
         {
             var bed = new Box { Kind = ContainerKind.Bed, IsNew = true, Category = ContainerCategory.Bed, HasCover = tryCover, Capacity = maxBed };
             boxes.Add(bed);
-            var next = PlaceAll(left, boxes, rel);
+            var mark = rel.Trace?.Entries.Count ?? 0;
+            rel.Trace?.Add(new TraceEntry(tryCover ? TraceCode.NewBedCovered : TraceCode.NewBed, Kind: ContainerKind.Bed, IsNew: true, Value: maxBed));
+            var next = PlaceAll(left, boxes, rel, top: false);
             if (next.Count == left.Count)
             {
+                // nothing fitted into the new bed: take the notes of this try back
+                if (rel.Trace is { } log) log.Entries.RemoveRange(mark, log.Entries.Count - mark);
                 boxes.Remove(bed);
                 if (!tryCover) break;
                 tryCover = false;

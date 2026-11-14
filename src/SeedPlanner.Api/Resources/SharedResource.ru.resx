@@ -527,4 +527,70 @@
   <data name="Distribution_Summary" xml:space="preserve"><value>Итог</value></data>
   <data name="Distribution_GroupLine" xml:space="preserve"><value>{0}: занято {1}, растений {2}</value></data>
   <data name="Plan_SpreadEvenly" xml:space="preserve"><value>Распределить поровну по сортам</value></data>
+  <data name="SowingTiming_Start" xml:space="preserve"><value>Начало</value></data>
+  <data name="SowingTiming_Middle" xml:space="preserve"><value>Середина</value></data>
+  <data name="SowingTiming_End" xml:space="preserve"><value>Конец</value></data>
+  <data name="SowingTiming_Auto" xml:space="preserve"><value>Автоматически</value></data>
+  <data name="Plan_SowingTiming" xml:space="preserve"><value>Посев в окне</value></data>
+  <data name="Plan_SowingTimingHelp" xml:space="preserve"><value>Посев в окне: начало, середина или конец окна посева культуры; автоматически: как можно раньше, позже в окне, если при распределении так освобождается место. Конец сбора урожая остаётся как введён.</value></data>
+  <data name="Distribution_Moved" xml:space="preserve"><value>посев сдвинут</value></data>
+  <data name="Distribution_MovedSummary" xml:space="preserve"><value>{0} растений: посев сдвинут позже в пределах окна посева</value></data>
+  <data name="Trace_PhasePrepare" xml:space="preserve"><value>Подготовка</value></data>
+  <data name="Trace_PhaseMain" xml:space="preserve"><value>Шаг 1: основные растения</value></data>
+  <data name="Trace_PhasePotFallback" xml:space="preserve"><value>Шаг 1б: растения открытого грунта в свободные горшки</value></data>
+  <data name="Trace_PhaseCompanions" xml:space="preserve"><value>Шаг 2: подсадка</value></data>
+  <data name="Trace_PhaseSecondaryAlone" xml:space="preserve"><value>Шаг 2б: второстепенные растения без основного получают отдельное место</value></data>
+  <data name="Trace_PhaseShortage" xml:space="preserve"><value>Шаг 3: нехватка места</value></data>
+  <data name="Trace_PlantOrder" xml:space="preserve"><value>{0}. {1}</value></data>
+  <data name="Trace_PlantOrderColdFrame" xml:space="preserve"><value>{0}. {1} (парник, размещается первым)</value></data>
+  <data name="Trace_Excluded" xml:space="preserve"><value>{0} ×{1} исключено с самого начала: {2}</value></data>
+  <data name="Trace_CoverRetrofit" xml:space="preserve"><value>Ни у одной выбранной грядки нет укрытия: {0} получает его (растениям для парника нужно {1} м²)</value></data>
+  <data name="Trace_NewCoveredBeds" xml:space="preserve"><value>Ни у одной выбранной грядки нет укрытия: новых грядок с укрытием: {0}, по {1} м²</value></data>
+  <data name="Trace_MainPlaced" xml:space="preserve"><value>{0} ×{1} в {2}</value></data>
+  <data name="Trace_MainPlacedMoved" xml:space="preserve"><value>{0} ×{1} в {2}, посев сдвинут позже в пределах окна</value></data>
+  <data name="Trace_MainPlacedEmptyBox" xml:space="preserve"><value>{0} ×{1} в {2}, до сих пор не использовавшийся контейнер: ни в одном используемом контейнере не было места в течение окна посева</value></data>
+  <data name="Trace_MainNotPlaced" xml:space="preserve"><value>{0} ×{1} не размещено: {2}</value></data>
+  <data name="Trace_NoContainers" xml:space="preserve"><value>контейнеры не выбраны</value></data>
+  <data name="Trace_CompanionPlaced" xml:space="preserve"><value>{0} ×{1} как подсадка в {2}</value></data>
+  <data name="Trace_CompanionNotPlaced" xml:space="preserve"><value>{0} ×{1} невозможно как подсадка: {2}</value></data>
+  <data name="Trace_NewPot" xml:space="preserve"><value>{0}: новый горшок {1} л</value></data>
+  <data name="Trace_NewBed" xml:space="preserve"><value>Добавлена новая грядка {0} м²</value></data>
+  <data name="Trace_NewBedCovered" xml:space="preserve"><value>Добавлена новая грядка с укрытием ({0} м²)</value></data>
+  <data name="Trace_ShrinkApplied" xml:space="preserve"><value>{0} растений убрано пропорционально (осталось: {1} % от желаемого числа)</value></data>
+  <data name="Reject_BedTooNarrow" xml:space="preserve"><value>грядка слишком узкая для расстояния между рядами</value></data>
+  <data name="Reject_SoilPh" xml:space="preserve"><value>pH почвы не подходит</value></data>
+  <data name="Reject_CategoryNotChosen" xml:space="preserve"><value>вид контейнера не разрешён для растения</value></data>
+  <data name="Reject_TreeAndVegetable" xml:space="preserve"><value>деревья и овощи не делят контейнер</value></data>
+  <data name="Reject_NeedsCover" xml:space="preserve"><value>нужна грядка с укрытием</value></data>
+  <data name="Reject_WrongKind" xml:space="preserve"><value>не тот вид контейнера (горшок или грядка)</value></data>
+  <data name="Reject_CoveredBed" xml:space="preserve"><value>грядка с укрытием не открыта для других растений</value></data>
+  <data name="Reject_NoSizeData" xml:space="preserve"><value>нет данных о размерах</value></data>
+  <data name="Reject_MainTaken" xml:space="preserve"><value>в горшке в это время уже есть основное растение</value></data>
+  <data name="Reject_NoRoom" xml:space="preserve"><value>не хватает места</value></data>
+  <data name="Reject_BadNeighbour" xml:space="preserve"><value>плохой сосед</value></data>
+  <data name="Reject_NoMainPlant" xml:space="preserve"><value>в это время нет основного растения</value></data>
+  <data name="Reject_TooTall" xml:space="preserve"><value>не ниже основного растения</value></data>
+  <data name="Log_Link" xml:space="preserve"><value>Скачать протокол расчёта (для разработчика)</value></data>
+  <data name="Log_Title" xml:space="preserve"><value>протокол распределения</value></data>
+  <data name="Log_Settings" xml:space="preserve"><value>Нехватка места: {0}; без укрытия: {1}; максимальная площадь новой грядки: {2} м²; другие в грядках с укрытием: {3}</value></data>
+  <data name="Log_Yes" xml:space="preserve"><value>да</value></data>
+  <data name="Log_No" xml:space="preserve"><value>нет</value></data>
+  <data name="Log_FileName" xml:space="preserve"><value>protokol-raspredeleniya</value></data>
+  <data name="Nav_Roles" xml:space="preserve"><value>Партнёры</value></data>
+  <data name="Roles_Title" xml:space="preserve"><value>Партнёры основных растений</value></data>
+  <data name="Roles_Intro" xml:space="preserve"><value>У каждого основного растения есть второстепенные, которые растут рядом или под ним. Предложение берётся из таблицы хороших соседей (основное растение со второстепенным). Можно убрать партнёров или добавить другие второстепенные растения; при распределении сначала пробуются ваши партнёры. Саму роль меняют у вида растения или у сорта.</value></data>
+  <data name="Roles_PartnersSecondary" xml:space="preserve"><value>Сопутствующие растения</value></data>
+  <data name="Roles_NoMain" xml:space="preserve"><value>Ни один вид растения ещё не отмечен как основной.</value></data>
+  <data name="Roles_NoPartners" xml:space="preserve"><value>Нет второстепенных растений в партнёрах.</value></data>
+  <data name="Roles_Added" xml:space="preserve"><value>(добавлено мной)</value></data>
+  <data name="Roles_Remove" xml:space="preserve"><value>Убрать</value></data>
+  <data name="Roles_Add" xml:space="preserve"><value>Добавить второстепенное растение …</value></data>
+  <data name="Roles_Reset" xml:space="preserve"><value>Вернуть предложение</value></data>
+  <data name="Roles_SuggestionIs" xml:space="preserve"><value>Предложение:</value></data>
+  <data name="Roles_Suggestion" xml:space="preserve"><value>предложение</value></data>
+  <data name="Roles_Open" xml:space="preserve"><value>Показать партнёров</value></data>
+  <data name="Col_Role" xml:space="preserve"><value>Роль</value></data>
+  <data name="Role_Help" xml:space="preserve"><value>Предложение для всех; каждый пользователь может изменить его для себя.</value></data>
+  <data name="PlantRole_Main" xml:space="preserve"><value>Основное растение</value></data>
+  <data name="PlantRole_Secondary" xml:space="preserve"><value>Сопутствующее растение</value></data>
 </root>

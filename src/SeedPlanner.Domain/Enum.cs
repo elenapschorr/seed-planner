@@ -15,6 +15,12 @@ public enum ContainerCategory { Bed, Pot, Bowl, GrowBag }
 /// <summary>Kind of soil: what a plant type likes and what a pot or bed contains.</summary>
 public enum SoilType { Sandy, Loamy, Clay, Humus, PottingSoil }
 public enum WindowKind { Sowing, Harvest, Bloom }
+
+/// <summary>
+/// When within the sowing window a variety is sown: always at the start, in the middle or at the end of it, or the
+/// distribution chooses (the earliest date at which a place is free). The end of the harvest stays as entered.
+/// </summary>
+public enum SowingTiming { Start, Middle, End, Auto }
 public enum PlantCategory
 {
     FruitVegetable, RootVegetable, LeafyVegetable, StemVegetable, Brassica, Legume,
@@ -22,3 +28,6 @@ public enum PlantCategory
 }
 public enum NutrientDemand { Heavy, Medium, Light }
 public enum DemandUnit { Plants, RowMeters, SquareMeters }
+
+/// <summary>Main plant: big, tall, stands long. Secondary plant: lower, fits in between or below a main plant.</summary>
+public enum PlantRole { Main, Secondary }

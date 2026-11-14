@@ -458,6 +458,13 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("plants_override");
 
+                    b.Property<string>("SowingTiming")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasColumnName("sowing_timing")
+                        .HasDefaultValueSql("'Start'");
+
                     b.Property<string>("Unit")
                         .HasColumnType("text")
                         .HasColumnName("unit");
@@ -620,6 +627,10 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasDefaultValue("Seed")
                         .HasColumnName("propagation");
 
+                    b.Property<string>("Role")
+                        .HasColumnType("text")
+                        .HasColumnName("role");
+
                     b.Property<int?>("RowSpacingCm")
                         .HasColumnType("integer")
                         .HasColumnName("row_spacing_cm");
@@ -722,6 +733,10 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)")
                         .HasColumnName("place_order");
+
+                    b.Property<string>("Role")
+                        .HasColumnType("text")
+                        .HasColumnName("role");
 
                     b.Property<string>("SoilType")
                         .HasColumnType("text")
@@ -1231,6 +1246,84 @@ namespace SeedPlanner.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SeedPlanner.Domain.UserPlantPartner", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Included")
+                        .HasColumnType("boolean")
+                        .HasColumnName("included");
+
+                    b.Property<int>("MainPlantTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("main_plant_type_id");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("owner_id");
+
+                    b.Property<int>("SecondaryPlantTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("secondary_plant_type_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_plant_partners");
+
+                    b.HasIndex("MainPlantTypeId")
+                        .HasDatabaseName("ix_user_plant_partners_main_plant_type_id");
+
+                    b.HasIndex("SecondaryPlantTypeId")
+                        .HasDatabaseName("ix_user_plant_partners_secondary_plant_type_id");
+
+                    b.HasIndex("OwnerId", "MainPlantTypeId", "SecondaryPlantTypeId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_plant_partners_owner_id_main_plant_type_id_secondary_p");
+
+                    b.ToTable("user_plant_partners", (string)null);
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.UserPlantRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("owner_id");
+
+                    b.Property<int>("PlantTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("plant_type_id");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("role");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_plant_roles");
+
+                    b.HasIndex("PlantTypeId")
+                        .HasDatabaseName("ix_user_plant_roles_plant_type_id");
+
+                    b.HasIndex("OwnerId", "PlantTypeId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_plant_roles_owner_id_plant_type_id");
+
+                    b.ToTable("user_plant_roles", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -1542,6 +1635,53 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_demands_plant_types_plant_type_id");
+
+                    b.Navigation("PlantType");
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.UserPlantPartner", b =>
+                {
+                    b.HasOne("SeedPlanner.Domain.PlantType", "MainPlantType")
+                        .WithMany()
+                        .HasForeignKey("MainPlantTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_plant_partners_plant_types_main_plant_type_id");
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_plant_partners_asp_net_users_owner_id");
+
+                    b.HasOne("SeedPlanner.Domain.PlantType", "SecondaryPlantType")
+                        .WithMany()
+                        .HasForeignKey("SecondaryPlantTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_plant_partners_plant_types_secondary_plant_type_id");
+
+                    b.Navigation("MainPlantType");
+
+                    b.Navigation("SecondaryPlantType");
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.UserPlantRole", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_plant_roles_asp_net_users_owner_id");
+
+                    b.HasOne("SeedPlanner.Domain.PlantType", "PlantType")
+                        .WithMany()
+                        .HasForeignKey("PlantTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_plant_roles_plant_types_plant_type_id");
 
                     b.Navigation("PlantType");
                 });

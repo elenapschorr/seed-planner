@@ -177,6 +177,10 @@ else
                     <span class="ms-2">@L["Distribution_BuyPots"]: @(string.Join(", ", result.NewPots.Select(n => $"{n.Count} × {n.Liters:0.#} l")))</span>
                 }
             </p>
+            @if (Model.MovedPlants > 0)
+            {
+                <p class="mb-2">@L["Distribution_MovedSummary", Model.MovedPlants]</p>
+            }
             <ul class="list-unstyled">
                 @foreach (var category in Model.CategoriesToShow)
                 {
@@ -375,6 +379,7 @@ else
                 <span class="text-muted small ms-2">@L["Report_ExportHelp"]</span>
             </form>
         </details>
+        <p class="small mb-3"><a asp-page="Distribution" asp-page-handler="Log" asp-route-id="@Model.Plan.Id">@L["Log_Link"]</a></p>
     }
 
     <form method="post" asp-page-handler="Apply" asp-route-id="@Model.Plan.Id" id="apply-form" data-confirm="@L["Distribution_ConfirmApply"].Value">

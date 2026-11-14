@@ -22,6 +22,12 @@ public class DetailsModel(
     public PlantCategory? Category { get; private set; }
     public NutrientDemand? NutrientDemand { get; private set; }
     public Exposure? Exposure { get; private set; }
+    public PlantRole? Role { get; private set; }
+
+    /// <summary>The role that counts for the signed-in user: the own choice, otherwise the suggestion (<see cref="Role"/>).</summary>
+    public PlantRole? OwnRole { get; private set; }
+    public bool SignedIn => User.Identity?.IsAuthenticated == true;
+    public List<SelectListItem> RoleOptions { get; private set; } = new();
     public SoilType? SoilType { get; private set; }
     public string? PlaceOrder { get; private set; }
     public decimal? PhMin { get; private set; }
@@ -84,6 +90,7 @@ public class DetailsModel(
                 t.Category,
                 t.NutrientDemand,
                 t.Exposure,
+                t.Role,
                 t.SoilType,
                 t.PlaceOrder,
                 t.PhMin,
@@ -108,6 +115,11 @@ public class DetailsModel(
         Category = type.Category;
         NutrientDemand = type.NutrientDemand;
         Exposure = type.Exposure;
+        Role = type.Role;
+        var ownRole = await db.UserPlantRoles.AsNoTracking().Where(r => r.PlantTypeId == id).Select(r => (PlantRole?)r.Role).FirstOrDefaultAsync();
+        OwnRole = ownRole ?? type.Role;
+        RoleOptions = Enum.GetValues<PlantRole>().Select(r => new SelectListItem(L["PlantRole_" + r].Value, r.ToString())).ToList();
+        RoleOptions.Insert(0, new SelectListItem("–", ""));
         SoilType = type.SoilType;
         PlaceOrder = type.PlaceOrder;
         PhMin = type.PhMin;
@@ -192,6 +204,27 @@ public class DetailsModel(
         }
 
         return Page();
+    }
+
+    // The user's own role for this plant type; only a role that differs from the suggestion is stored
+    public async Task<IActionResult> OnPostOwnRoleAsync(int id, PlantRole? role)
+    {
+        if (!SignedIn) return Forbid();
+        var type = await db.PlantTypes.AsNoTracking().Where(t => t.Id == id).Select(t => new { t.Role }).FirstOrDefaultAsync();
+        if (type is null) return NotFound();
+
+        var existing = await db.UserPlantRoles.FirstOrDefaultAsync(r => r.PlantTypeId == id);
+        if (role is null || role == type.Role)
+        {
+            if (existing is not null) db.UserPlantRoles.Remove(existing);
+        }
+        else if (existing is null)
+            db.UserPlantRoles.Add(new UserPlantRole { PlantTypeId = id, Role = role.Value });
+        else
+            existing.Role = role.Value;
+
+        await db.SaveChangesAsync();
+        return RedirectToPage(new { id });
     }
 
     // Adds a neighbour, or changes Good/Bad if the pair already exists

@@ -22,20 +22,28 @@ public static class PlanAllocation
         List<AllocPlant> Plants,
         List<AllocContainerInput> Containers,
         List<PlantTypeCompanion> Companions,
+        List<(int Main, int Secondary)> Partners,
         string Hash);
 
     // What the fingerprint is made of: every input of the calculation
     private sealed record Fingerprint(
         ShortageStrategy Shortage, NoCoverStrategy NoCover, double MaxBed, bool AllowOthers,
-        List<AllocPlant> Plants, List<AllocContainerInput> Containers, List<string> Companions);
+        List<AllocPlant> Plants, List<AllocContainerInput> Containers, List<string> Companions,
+        List<string> Partners, int Version = 4); // raised when the result gets new content, so stored results are calculated again
 
     /// <summary>The plan has to be loaded with its items, their lines (with the varieties) and the chosen containers.</summary>
     public static async Task<Prepared> PrepareAsync(SeedPlannerDbContext db, Plan plan)
     {
+        // Main or secondary plant: the suggestion of the plant type, overridden by the user's own choice
+        var roles = await db.PlantTypes.AsNoTracking().ToDictionaryAsync(t => t.Id, t => t.Role);
+        foreach (var own in await db.UserPlantRoles.AsNoTracking().ToListAsync())
+            roles[own.PlantTypeId] = own.Role;
+
         var plants = plan.Items
-            .SelectMany(i => i.Lines.Select(l => (Line: l, Life: i.PlantType?.Lifecycle, Type: i.PlantType)))
+            .SelectMany(i => i.Lines.Select(l => (Line: l, Life: i.PlantType?.Lifecycle, Type: i.PlantType, Timing: i.SowingTiming)))
             .Where(x => x.Line.Plants > 0 && x.Line.Plant is not null)
-            .Select(x => ToPlant(x.Line.Plant!, x.Line.Plants, plan.SpacingPercent, x.Life, plan.LastFrostThird, x.Type))
+            .Select(x => ToPlant(x.Line.Plant!, x.Line.Plants, plan.SpacingPercent, x.Life, plan.LastFrostThird, x.Type, x.Timing,
+                x.Line.Plant!.Role ?? roles.GetValueOrDefault(x.Line.Plant!.PlantTypeId)))
             .OrderBy(p => p.PlantId)
             .ToList();
 
@@ -63,13 +71,22 @@ public static class PlanAllocation
 
         var companions = await db.PlantTypeCompanions.AsNoTracking().OrderBy(c => c.Id).ToListAsync();
 
+        // The partners of the main plants: the good neighbours with the other role, changed by the user
+        var changes = (await db.UserPlantPartners.AsNoTracking().ToListAsync())
+            .Select(c => new PlantPairs.PartnerChange(c.MainPlantTypeId, c.SecondaryPlantTypeId, c.Included));
+        var partners = PlantPairs.MainPartners(roles, companions, changes)
+            .SelectMany(m => m.Value.Select(s => (Main: m.Key, Secondary: s)))
+            .OrderBy(x => x.Main).ThenBy(x => x.Secondary)
+            .ToList();
+
         var print = new Fingerprint(
             plan.Shortage, plan.NoCover, plan.MaxBedAreaSquareMeters, plan.AllowOthersInCoveredBeds,
             plants, containers,
-            companions.Select(c => $"{c.PlantTypeId}:{c.OtherPlantTypeId}:{c.Relation}").ToList());
+            companions.Select(c => $"{c.PlantTypeId}:{c.OtherPlantTypeId}:{c.Relation}").ToList(),
+            partners.Select(x => $"{x.Main}:{x.Secondary}").ToList());
         var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(print, Json))));
 
-        return new Prepared(plants, containers, companions, hash);
+        return new Prepared(plants, containers, companions, partners, hash);
     }
 
     /// <summary>
@@ -96,7 +113,7 @@ public static class PlanAllocation
 
         var result = PlanAllocator.Allocate(
             prepared.Plants, prepared.Containers, prepared.Companions,
-            plan.Shortage, plan.MaxBedAreaSquareMeters, plan.NoCover, plan.AllowOthersInCoveredBeds);
+            plan.Shortage, plan.MaxBedAreaSquareMeters, plan.NoCover, plan.AllowOthersInCoveredBeds, prepared.Partners);
 
         plan.AllocationJson = JsonSerializer.Serialize(result, Json);
         plan.AllocationHash = prepared.Hash;
@@ -153,7 +170,7 @@ public static class PlanAllocation
     // ---------------------------------------------------------------- input
 
     // spacingPercent: the user may plant closer than the spacing of the variety; the area per plant shrinks with the square
-    private static AllocPlant ToPlant(Plant p, int count, int spacingPercent, Lifecycle? life, int lastFrostThird, PlantType? type)
+    private static AllocPlant ToPlant(Plant p, int count, int spacingPercent, Lifecycle? life, int lastFrostThird, PlantType? type, SowingTiming timing, PlantRole? role)
     {
         var factor = Math.Clamp(spacingPercent, 50, 100) / 100.0;
         var place = p.GrowingPlace switch
@@ -182,6 +199,7 @@ public static class PlanAllocation
         }
         else order.Clear();
         double? row = (p.RowSpacingCm ?? p.PlantSpacingCm) * factor;
+        var times = PlantOccupancy.SlotOptions(p, life, lastFrostThird, timing);
         return new AllocPlant(
             p.Id, p.PlantTypeId, p.Name, count, place,
             p.PotSizeMinLiters, p.PotSizeMaxLiters,
@@ -189,9 +207,11 @@ public static class PlanAllocation
             HeightOf(p),
             ColdFrame: p.GrowingPlace == GrowingPlace.ColdFrame,
             RowSpacingCm: row,
-            Slots: PlantOccupancy.Slots(p, life, lastFrostThird),
+            Slots: times[0],
             PhMin: type?.PhMin, PhMax: type?.PhMax, SoilType: type?.SoilType, Category: type?.Category,
-            Required: onlyOne, Order: order.Count > 0 ? order : null);
+            Required: onlyOne, Order: order.Count > 0 ? order : null,
+            SlotOptions: times.Count > 1 ? times : null,
+            Role: role);
     }
 
     /// <summary>"Mar–May" for display; empty if the plant takes the place all year.</summary>

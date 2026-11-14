@@ -20,6 +20,9 @@ public class Plant
     /// <summary>Overrides the placement of the plant type (see <see cref="Domain.PlaceOrders"/>). Empty = as the plant type.</summary>
     public string? PlaceOrder { get; set; }
     public Exposure? Exposure { get; set; }
+
+    /// <summary>Main or secondary plant. Empty = as the plant type (its suggestion or the user's own role for it).</summary>
+    public PlantRole? Role { get; set; }
     public Exposure? EffectiveExposure => Exposure ?? PlantType?.Exposure;
 
     public int? GerminationDaysMin { get; set; }

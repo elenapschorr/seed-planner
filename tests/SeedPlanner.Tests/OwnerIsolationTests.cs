@@ -30,7 +30,7 @@ public class OwnerIsolationTests
     }
 
     private static PostgreSqlContainer NewDatabase() =>
-        new PostgreSqlBuilder().WithImage("postgres:17").Build();
+        new PostgreSqlBuilder("postgres:17").Build();
 
     // Creates the schema, two users, one plant type and one plant (with a sowing window) for each user
     private static async Task PrepareAsync(string connectionString)

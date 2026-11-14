@@ -123,6 +123,33 @@ public class DistributionModel(SeedPlannerDbContext db, IStringLocalizer<SharedR
         };
     }
 
+    /// <summary>The log of the calculation as a text file (a developer feature, separate from the report).</summary>
+    public async Task<IActionResult> OnGetLogAsync(int id)
+    {
+        var plan = await LoadPlanAsync(id);
+        if (plan is null) return NotFound();
+
+        Result = await PlanAllocation.EnsureAsync(db, plan);
+        if (Result is null) return RedirectToPage("Distribution", new { id });
+        await ShowAsync(plan);
+
+        string YesNo(bool b) => b ? L["Log_Yes"].Value : L["Log_No"].Value;
+        var culture = CultureInfo.CurrentCulture;
+        var text = new System.Text.StringBuilder();
+        text.Append($"{Plan.Name} ({Plan.Year}) – {L["Log_Title"].Value}, {DateTime.Now.ToString("g", culture)}\r\n");
+        text.Append(L["Log_Settings", StrategyText(Plan.Shortage), NoCoverText(Plan.NoCover),
+            Plan.MaxBedAreaSquareMeters.ToString("0.##", culture), YesNo(Plan.AllowOthersInCoveredBeds)].Value + "\r\n");
+        foreach (var group in TraceGroups())
+        {
+            text.Append($"\r\n== {group.Title} ==\r\n");
+            foreach (var line in group.Lines) text.Append(TraceText(line)).Append("\r\n");
+        }
+
+        var slug = new string(plan.Name.Where(ch => char.IsLetterOrDigit(ch) || ch == '-').ToArray());
+        var file = $"{(slug.Length == 0 ? "plan" : slug)}-{L["Log_FileName"].Value}-{DateTime.Now:yyyyMMdd}.log";
+        return File(new System.Text.UTF8Encoding(false).GetBytes(text.ToString()), "text/plain; charset=utf-8", file);
+    }
+
     private ReportDocument BuildReport(string[] sec, string[] col)
     {
         bool Has(string section) => sec.Length == 0 || sec.Contains(section);
@@ -417,7 +444,69 @@ public class DistributionModel(SeedPlannerDbContext db, IStringLocalizer<SharedR
 
     public string Placement(PlacementResult p) =>
         $"{PlantName(p.PlantId)} ×{p.Count}" + (p.Role == PlantingRole.Companion ? $" ({L["Distribution_Under"].Value})" : "")
-        + (PlanAllocation.Period(p.Slots) is { } period ? $" · {period}" : "");
+        + (PlanAllocation.Period(p.Slots) is { } period ? $" · {period}" : "")
+        + (p.Moved ? $" · {L["Distribution_Moved"].Value}" : "");
+
+    /// <summary>Plants whose sowing was moved within the sowing window.</summary>
+    public int MovedPlants => Result?.Containers.Sum(c => c.Placements.Where(p => p.Moved).Sum(p => p.Count)) ?? 0;
+
+    // ---------------------------------------------------------------- how the distribution came about
+
+    public sealed record TraceGroup(string Title, List<TraceEntry> Lines);
+
+    /// <summary>The trace in sections: preparation, then one section for every step of the calculation.</summary>
+    public List<TraceGroup> TraceGroups()
+    {
+        var groups = new List<TraceGroup>();
+        foreach (var e in Result?.Trace ?? Array.Empty<TraceEntry>())
+        {
+            var title = e.Code switch
+            {
+                TraceCode.PhaseMain => L["Trace_PhaseMain"].Value,
+                TraceCode.PhasePotFallback => L["Trace_PhasePotFallback"].Value,
+                TraceCode.PhaseCompanions => L["Trace_PhaseCompanions"].Value,
+                TraceCode.PhaseSecondaryAlone => L["Trace_PhaseSecondaryAlone"].Value,
+                TraceCode.PhaseShortage => L["Trace_PhaseShortage"].Value,
+                _ => null
+            };
+            if (title is not null)
+            {
+                groups.Add(new TraceGroup(title, new List<TraceEntry>()));
+                continue;
+            }
+            if (groups.Count == 0) groups.Add(new TraceGroup(L["Trace_PhasePrepare"].Value, new List<TraceEntry>()));
+            groups[^1].Lines.Add(e);
+        }
+        return groups;
+    }
+
+    private string Where(TraceEntry e) => !e.IsNew ? e.Container : e.Kind == ContainerKind.Bed ? L["Distribution_NewBed"].Value : L["Distribution_NewPot"].Value;
+
+    private string ReasonsText(TraceEntry e) => e.Reasons is { Count: > 0 } r
+        ? string.Join("; ", r.Select(x => $"{x.Count} × {L["Reject_" + x.Code].Value}"))
+        : L["Trace_NoContainers"].Value;
+
+    public string TraceText(TraceEntry e)
+    {
+        var plant = e.PlantId == 0 ? "" : PlantName(e.PlantId);
+        var period = PlanAllocation.Period(e.Slots) is { } t ? $" · {t}" : "";
+        return e.Code switch
+        {
+            TraceCode.PlantOrder or TraceCode.PlantOrderColdFrame => L["Trace_" + e.Code, e.Count, plant].Value,
+            TraceCode.Excluded => L["Trace_Excluded", plant, e.Count, L["Unplaced_" + e.Detail].Value].Value,
+            TraceCode.CoverRetrofit => L["Trace_CoverRetrofit", e.Container, e.Value.ToString("0.##", CultureInfo.CurrentCulture)].Value,
+            TraceCode.NewCoveredBeds => L["Trace_NewCoveredBeds", e.Count, e.Value.ToString("0.##", CultureInfo.CurrentCulture)].Value,
+            TraceCode.MainPlaced or TraceCode.MainPlacedMoved or TraceCode.MainPlacedEmptyBox =>
+                L["Trace_" + e.Code, plant, e.Count, Where(e)].Value + period,
+            TraceCode.MainNotPlaced => L["Trace_MainNotPlaced", plant, e.Count, ReasonsText(e)].Value,
+            TraceCode.CompanionPlaced => L["Trace_CompanionPlaced", plant, e.Count, Where(e)].Value + period,
+            TraceCode.CompanionNotPlaced => L["Trace_CompanionNotPlaced", plant, e.Count, ReasonsText(e)].Value,
+            TraceCode.NewPot => L["Trace_NewPot", plant, e.Value.ToString("0.#", CultureInfo.CurrentCulture)].Value,
+            TraceCode.NewBed or TraceCode.NewBedCovered => L["Trace_" + e.Code, e.Value.ToString("0.##", CultureInfo.CurrentCulture)].Value,
+            TraceCode.ShrinkApplied => L["Trace_ShrinkApplied", e.Count, (e.Value * 100).ToString("0", CultureInfo.CurrentCulture)].Value,
+            _ => e.Code.ToString()
+        };
+    }
 
     public string Reason(UnplacedReason reason) => L["Unplaced_" + reason].Value;
 

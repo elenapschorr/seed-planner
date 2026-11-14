@@ -29,6 +29,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         public GrowingPlace? GrowingPlace { get; set; }
         public List<string?> PlaceChoices { get; set; } = new();
         public Exposure? Exposure { get; set; }
+        public PlantRole? Role { get; set; }
 
         public int? GerminationDaysMin { get; set; }
         public int? GerminationDaysMax { get; set; }
@@ -90,6 +91,11 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
     // Exposure of every plant type; a variety without its own value inherits it
     public Dictionary<int, string> TypeExposures { get; private set; } = new();
     private Dictionary<int, Exposure?> typeStoredExposures = new();
+
+    // Role (main or secondary plant) of every plant type as it counts for the user; a variety without its own value inherits it
+    public Dictionary<int, string> TypeRoles { get; private set; } = new();
+    private Dictionary<int, PlantRole?> typeStoredRoles = new();
+    public List<SelectListItem> RoleOptions { get; private set; } = new();
     public PlaceOrderField PlaceField => new()
     {
         Name = "Input.PlaceChoices",
@@ -361,6 +367,9 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         // The field shows the exposure of the plant type; what equals it is stored as "not set" (= inherit)
         typeStoredExposures.TryGetValue(plant.PlantTypeId, out var typeExposure);
         plant.Exposure = Input.Exposure == typeExposure ? null : Input.Exposure;
+        // The same for the role
+        typeStoredRoles.TryGetValue(plant.PlantTypeId, out var typeRole);
+        plant.Role = Input.Role == typeRole ? null : Input.Role;
         plant.GerminationDaysMin = Input.GerminationDaysMin;
         plant.GerminationDaysMax = Input.GerminationDaysMax;
         plant.GerminationTempMinC = Input.GerminationTempMinC;
@@ -434,6 +443,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             GrowingPlace = plant.GrowingPlace,
             PlaceChoices = PlaceOrderField.ToValues(plant.PlaceOrder),
             Exposure = plant.Exposure,
+            Role = plant.Role,
             GerminationDaysMin = plant.GerminationDaysMin,
             GerminationDaysMax = plant.GerminationDaysMax,
             GerminationTempMinC = plant.GerminationTempMinC,
@@ -482,6 +492,10 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         typeStoredOrders = types.ToDictionary(t => t.Id, t => t.PlaceOrder);
         TypeExposures = types.Where(t => t.Exposure is not null).ToDictionary(t => t.Id, t => t.Exposure!.Value.ToString());
         typeStoredExposures = types.ToDictionary(t => t.Id, t => t.Exposure);
+        typeStoredRoles = types.ToDictionary(t => t.Id, t => t.Role);
+        foreach (var own in await db.UserPlantRoles.AsNoTracking().ToListAsync())
+            typeStoredRoles[own.PlantTypeId] = own.Role;
+        TypeRoles = typeStoredRoles.Where(t => t.Value is not null).ToDictionary(t => t.Key, t => t.Value!.Value.ToString());
 
         PropagationOptions = EnumOptions<Propagation>();
         SeedTypeOptions = EnumOptions<SeedType>(optional: true);
@@ -490,6 +504,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         PlaceOptions = EnumOptions<GrowingPlace>(optional: true);
         ExposureOptions = EnumOptions<Exposure>(optional: true);
         ExposureOptions[0] = new SelectListItem(L["Priority_AsType"].Value, "");
+        RoleOptions = EnumOptions<PlantRole>(optional: true);
+        RoleOptions[0] = new SelectListItem(L["Priority_AsType"].Value, "");
 
         MonthOptions = Enumerable.Range(1, 12)
             .Select(m => new SelectListItem(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m), m.ToString()))

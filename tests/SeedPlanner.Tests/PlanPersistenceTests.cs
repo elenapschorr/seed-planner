@@ -31,7 +31,7 @@ public class PlanPersistenceTests
     }
 
     private static PostgreSqlContainer NewDatabase() =>
-        new PostgreSqlBuilder().WithImage("postgres:17").Build();
+        new PostgreSqlBuilder("postgres:17").Build();
 
     // Two users; a crop "Tomato" (2 to 4 plants per person) with three varieties for user A and one for user B
     private static async Task PrepareAsync(string connectionString)

@@ -527,4 +527,70 @@
   <data name="Distribution_Summary" xml:space="preserve"><value>Summary</value></data>
   <data name="Distribution_GroupLine" xml:space="preserve"><value>{0}: {1} in use, {2} plants</value></data>
   <data name="Plan_SpreadEvenly" xml:space="preserve"><value>Spread evenly over the varieties</value></data>
+  <data name="SowingTiming_Start" xml:space="preserve"><value>Start</value></data>
+  <data name="SowingTiming_Middle" xml:space="preserve"><value>Middle</value></data>
+  <data name="SowingTiming_End" xml:space="preserve"><value>End</value></data>
+  <data name="SowingTiming_Auto" xml:space="preserve"><value>Automatic</value></data>
+  <data name="Plan_SowingTiming" xml:space="preserve"><value>Sowing in the window</value></data>
+  <data name="Plan_SowingTimingHelp" xml:space="preserve"><value>Sowing in the window: start, middle or end of the sowing window of the crop; automatic: as early as possible, later within the window if that frees a place in the distribution. The end of the harvest stays as entered.</value></data>
+  <data name="Distribution_Moved" xml:space="preserve"><value>sowing moved</value></data>
+  <data name="Distribution_MovedSummary" xml:space="preserve"><value>{0} plants: sowing moved later within the sowing window</value></data>
+  <data name="Trace_PhasePrepare" xml:space="preserve"><value>Preparation</value></data>
+  <data name="Trace_PhaseMain" xml:space="preserve"><value>Step 1: main plants</value></data>
+  <data name="Trace_PhasePotFallback" xml:space="preserve"><value>Step 1b: open-ground plants into free pots</value></data>
+  <data name="Trace_PhaseCompanions" xml:space="preserve"><value>Step 2: under-planting</value></data>
+  <data name="Trace_PhaseSecondaryAlone" xml:space="preserve"><value>Step 2b: secondary plants without a main plant get a place of their own</value></data>
+  <data name="Trace_PhaseShortage" xml:space="preserve"><value>Step 3: lack of space</value></data>
+  <data name="Trace_PlantOrder" xml:space="preserve"><value>{0}. {1}</value></data>
+  <data name="Trace_PlantOrderColdFrame" xml:space="preserve"><value>{0}. {1} (cold frame, placed first)</value></data>
+  <data name="Trace_Excluded" xml:space="preserve"><value>{0} ×{1} left out from the start: {2}</value></data>
+  <data name="Trace_CoverRetrofit" xml:space="preserve"><value>No chosen bed has a cover: {0} gets one (cold frame plants need {1} m²)</value></data>
+  <data name="Trace_NewCoveredBeds" xml:space="preserve"><value>No chosen bed has a cover: {0} new bed(s) with a cover of {1} m² each</value></data>
+  <data name="Trace_MainPlaced" xml:space="preserve"><value>{0} ×{1} in {2}</value></data>
+  <data name="Trace_MainPlacedMoved" xml:space="preserve"><value>{0} ×{1} in {2}, sowing moved later within its window</value></data>
+  <data name="Trace_MainPlacedEmptyBox" xml:space="preserve"><value>{0} ×{1} in {2}, a container not used so far: no container in use had room at any time of the sowing window</value></data>
+  <data name="Trace_MainNotPlaced" xml:space="preserve"><value>{0} ×{1} not placed: {2}</value></data>
+  <data name="Trace_NoContainers" xml:space="preserve"><value>no container chosen</value></data>
+  <data name="Trace_CompanionPlaced" xml:space="preserve"><value>{0} ×{1} as under-planting in {2}</value></data>
+  <data name="Trace_CompanionNotPlaced" xml:space="preserve"><value>{0} ×{1} not possible as under-planting: {2}</value></data>
+  <data name="Trace_NewPot" xml:space="preserve"><value>{0}: new pot of {1} l</value></data>
+  <data name="Trace_NewBed" xml:space="preserve"><value>New bed of {0} m² added</value></data>
+  <data name="Trace_NewBedCovered" xml:space="preserve"><value>New bed with a cover ({0} m²) added</value></data>
+  <data name="Trace_ShrinkApplied" xml:space="preserve"><value>{0} plants were taken away in proportion (kept: {1} % of the wanted number)</value></data>
+  <data name="Reject_BedTooNarrow" xml:space="preserve"><value>bed too narrow for the row spacing</value></data>
+  <data name="Reject_SoilPh" xml:space="preserve"><value>soil pH does not fit</value></data>
+  <data name="Reject_CategoryNotChosen" xml:space="preserve"><value>kind of container not allowed for the plant</value></data>
+  <data name="Reject_TreeAndVegetable" xml:space="preserve"><value>trees and vegetables do not share a container</value></data>
+  <data name="Reject_NeedsCover" xml:space="preserve"><value>needs a bed with a cover</value></data>
+  <data name="Reject_WrongKind" xml:space="preserve"><value>wrong kind of container (pot or bed)</value></data>
+  <data name="Reject_CoveredBed" xml:space="preserve"><value>covered bed not released for other plants</value></data>
+  <data name="Reject_NoSizeData" xml:space="preserve"><value>size data missing</value></data>
+  <data name="Reject_MainTaken" xml:space="preserve"><value>pot already has a main plant at that time</value></data>
+  <data name="Reject_NoRoom" xml:space="preserve"><value>not enough space</value></data>
+  <data name="Reject_BadNeighbour" xml:space="preserve"><value>bad neighbour</value></data>
+  <data name="Reject_NoMainPlant" xml:space="preserve"><value>no main plant at that time</value></data>
+  <data name="Reject_TooTall" xml:space="preserve"><value>not lower than the main plant</value></data>
+  <data name="Log_Link" xml:space="preserve"><value>Download calculation log (developer)</value></data>
+  <data name="Log_Title" xml:space="preserve"><value>log of the distribution</value></data>
+  <data name="Log_Settings" xml:space="preserve"><value>Lack of space: {0}; no cover: {1}; maximum area of a new bed: {2} m²; others in covered beds: {3}</value></data>
+  <data name="Log_Yes" xml:space="preserve"><value>yes</value></data>
+  <data name="Log_No" xml:space="preserve"><value>no</value></data>
+  <data name="Log_FileName" xml:space="preserve"><value>distribution-log</value></data>
+  <data name="Nav_Roles" xml:space="preserve"><value>Partner plants</value></data>
+  <data name="Roles_Title" xml:space="preserve"><value>Partners of main plants</value></data>
+  <data name="Roles_Intro" xml:space="preserve"><value>Every main plant has secondary plants that stand between or under it. The suggestion comes from the table of good neighbours (main plant with secondary plant). You can remove partners or add more secondary plants; the distribution tries your partners first. You change the role itself at the plant type or the variety.</value></data>
+  <data name="Roles_PartnersSecondary" xml:space="preserve"><value>Secondary plants</value></data>
+  <data name="Roles_NoMain" xml:space="preserve"><value>No plant type is marked as a main plant yet.</value></data>
+  <data name="Roles_NoPartners" xml:space="preserve"><value>No secondary plants as partners.</value></data>
+  <data name="Roles_Added" xml:space="preserve"><value>(added by me)</value></data>
+  <data name="Roles_Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Roles_Add" xml:space="preserve"><value>Add secondary plant …</value></data>
+  <data name="Roles_Reset" xml:space="preserve"><value>Restore the suggestion</value></data>
+  <data name="Roles_SuggestionIs" xml:space="preserve"><value>Suggestion:</value></data>
+  <data name="Roles_Suggestion" xml:space="preserve"><value>suggestion</value></data>
+  <data name="Roles_Open" xml:space="preserve"><value>Show partners</value></data>
+  <data name="Col_Role" xml:space="preserve"><value>Role</value></data>
+  <data name="Role_Help" xml:space="preserve"><value>Suggestion for all users; each user can change it for themselves.</value></data>
+  <data name="PlantRole_Main" xml:space="preserve"><value>Main plant</value></data>
+  <data name="PlantRole_Secondary" xml:space="preserve"><value>Secondary plant</value></data>
 </root>

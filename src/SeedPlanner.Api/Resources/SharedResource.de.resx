@@ -527,4 +527,70 @@
   <data name="Distribution_Summary" xml:space="preserve"><value>Zusammenfassung</value></data>
   <data name="Distribution_GroupLine" xml:space="preserve"><value>{0}: {1} belegt, {2} Pflanzen</value></data>
   <data name="Plan_SpreadEvenly" xml:space="preserve"><value>Gleichmäßig auf Sorten verteilen</value></data>
+  <data name="SowingTiming_Start" xml:space="preserve"><value>Anfang</value></data>
+  <data name="SowingTiming_Middle" xml:space="preserve"><value>Mitte</value></data>
+  <data name="SowingTiming_End" xml:space="preserve"><value>Ende</value></data>
+  <data name="SowingTiming_Auto" xml:space="preserve"><value>Automatisch</value></data>
+  <data name="Plan_SowingTiming" xml:space="preserve"><value>Aussaat im Fenster</value></data>
+  <data name="Plan_SowingTimingHelp" xml:space="preserve"><value>Aussaat im Fenster: Anfang, Mitte oder Ende des Aussaatfensters der Art; automatisch: so früh wie möglich, später im Fenster, wenn dadurch bei der Verteilung ein Platz frei wird. Das Ende der Ernte bleibt wie eingetragen.</value></data>
+  <data name="Distribution_Moved" xml:space="preserve"><value>Aussaat verschoben</value></data>
+  <data name="Distribution_MovedSummary" xml:space="preserve"><value>{0} Pflanzen: Aussaat im Aussaatfenster nach hinten verschoben</value></data>
+  <data name="Trace_PhasePrepare" xml:space="preserve"><value>Vorbereitung</value></data>
+  <data name="Trace_PhaseMain" xml:space="preserve"><value>Schritt 1: Hauptpflanzen</value></data>
+  <data name="Trace_PhasePotFallback" xml:space="preserve"><value>Schritt 1b: Freilandpflanzen in freie Töpfe</value></data>
+  <data name="Trace_PhaseCompanions" xml:space="preserve"><value>Schritt 2: Unterpflanzung</value></data>
+  <data name="Trace_PhaseSecondaryAlone" xml:space="preserve"><value>Schritt 2b: Nebenpflanzen ohne Hauptpflanze bekommen einen eigenen Platz</value></data>
+  <data name="Trace_PhaseShortage" xml:space="preserve"><value>Schritt 3: Platzmangel</value></data>
+  <data name="Trace_PlantOrder" xml:space="preserve"><value>{0}. {1}</value></data>
+  <data name="Trace_PlantOrderColdFrame" xml:space="preserve"><value>{0}. {1} (Frühbeet, wird zuerst platziert)</value></data>
+  <data name="Trace_Excluded" xml:space="preserve"><value>{0} ×{1} von vornherein ausgeschlossen: {2}</value></data>
+  <data name="Trace_CoverRetrofit" xml:space="preserve"><value>Kein gewähltes Beet hat eine Abdeckung: {0} bekommt eine (Frühbeet-Pflanzen brauchen {1} m²)</value></data>
+  <data name="Trace_NewCoveredBeds" xml:space="preserve"><value>Kein gewähltes Beet hat eine Abdeckung: {0} neue(s) Beet(e) mit Abdeckung zu je {1} m²</value></data>
+  <data name="Trace_MainPlaced" xml:space="preserve"><value>{0} ×{1} in {2}</value></data>
+  <data name="Trace_MainPlacedMoved" xml:space="preserve"><value>{0} ×{1} in {2}, Aussaat im Fenster nach hinten verschoben</value></data>
+  <data name="Trace_MainPlacedEmptyBox" xml:space="preserve"><value>{0} ×{1} in {2}, bisher ungenutzter Behälter: kein genutzter Behälter hatte im Aussaatfenster zu irgendeiner Zeit Platz</value></data>
+  <data name="Trace_MainNotPlaced" xml:space="preserve"><value>{0} ×{1} nicht untergebracht: {2}</value></data>
+  <data name="Trace_NoContainers" xml:space="preserve"><value>kein Behälter gewählt</value></data>
+  <data name="Trace_CompanionPlaced" xml:space="preserve"><value>{0} ×{1} als Unterpflanzung in {2}</value></data>
+  <data name="Trace_CompanionNotPlaced" xml:space="preserve"><value>{0} ×{1} als Unterpflanzung nicht möglich: {2}</value></data>
+  <data name="Trace_NewPot" xml:space="preserve"><value>{0}: neuer Topf mit {1} l</value></data>
+  <data name="Trace_NewBed" xml:space="preserve"><value>Neues Beet mit {0} m² angelegt</value></data>
+  <data name="Trace_NewBedCovered" xml:space="preserve"><value>Neues Beet mit Abdeckung ({0} m²) angelegt</value></data>
+  <data name="Trace_ShrinkApplied" xml:space="preserve"><value>{0} Pflanzen wurden anteilig gekürzt (behalten: {1} % der gewünschten Zahl)</value></data>
+  <data name="Reject_BedTooNarrow" xml:space="preserve"><value>Beet zu schmal für den Reihenabstand</value></data>
+  <data name="Reject_SoilPh" xml:space="preserve"><value>Boden-pH passt nicht</value></data>
+  <data name="Reject_CategoryNotChosen" xml:space="preserve"><value>Behälterart für die Pflanze nicht erlaubt</value></data>
+  <data name="Reject_TreeAndVegetable" xml:space="preserve"><value>Bäume und Gemüse teilen sich keinen Behälter</value></data>
+  <data name="Reject_NeedsCover" xml:space="preserve"><value>braucht ein Beet mit Abdeckung</value></data>
+  <data name="Reject_WrongKind" xml:space="preserve"><value>falsche Behälterart (Topf oder Beet)</value></data>
+  <data name="Reject_CoveredBed" xml:space="preserve"><value>abgedecktes Beet nicht für andere Pflanzen freigegeben</value></data>
+  <data name="Reject_NoSizeData" xml:space="preserve"><value>Größenangaben fehlen</value></data>
+  <data name="Reject_MainTaken" xml:space="preserve"><value>Topf hat zu der Zeit schon eine Hauptpflanze</value></data>
+  <data name="Reject_NoRoom" xml:space="preserve"><value>nicht genug Platz</value></data>
+  <data name="Reject_BadNeighbour" xml:space="preserve"><value>schlechter Nachbar</value></data>
+  <data name="Reject_NoMainPlant" xml:space="preserve"><value>zu der Zeit keine Hauptpflanze</value></data>
+  <data name="Reject_TooTall" xml:space="preserve"><value>nicht niedriger als die Hauptpflanze</value></data>
+  <data name="Log_Link" xml:space="preserve"><value>Berechnungsprotokoll herunterladen (Entwickler)</value></data>
+  <data name="Log_Title" xml:space="preserve"><value>Protokoll der Verteilung</value></data>
+  <data name="Log_Settings" xml:space="preserve"><value>Platzmangel: {0}; ohne Abdeckung: {1}; Höchstfläche eines neuen Beets: {2} m²; andere in abgedeckten Beeten: {3}</value></data>
+  <data name="Log_Yes" xml:space="preserve"><value>ja</value></data>
+  <data name="Log_No" xml:space="preserve"><value>nein</value></data>
+  <data name="Log_FileName" xml:space="preserve"><value>verteilung-protokoll</value></data>
+  <data name="Nav_Roles" xml:space="preserve"><value>Partnerpflanzen</value></data>
+  <data name="Roles_Title" xml:space="preserve"><value>Partner von Hauptpflanzen</value></data>
+  <data name="Roles_Intro" xml:space="preserve"><value>Zu jeder Hauptpflanze gehören Nebenpflanzen, die dazwischen oder darunter stehen. Der Vorschlag stammt aus der Tabelle der guten Nachbarn (Hauptpflanze mit Nebenpflanze). Du kannst Partner entfernen oder weitere Nebenpflanzen hinzufügen; die Verteilung probiert deine Partner zuerst. Die Rolle selbst änderst du bei der Pflanzenart oder der Sorte.</value></data>
+  <data name="Roles_PartnersSecondary" xml:space="preserve"><value>Nebenpflanzen</value></data>
+  <data name="Roles_NoMain" xml:space="preserve"><value>Noch keine Pflanzenart ist als Hauptpflanze eingetragen.</value></data>
+  <data name="Roles_NoPartners" xml:space="preserve"><value>Keine Nebenpflanzen als Partner.</value></data>
+  <data name="Roles_Added" xml:space="preserve"><value>(von mir hinzugefügt)</value></data>
+  <data name="Roles_Remove" xml:space="preserve"><value>Entfernen</value></data>
+  <data name="Roles_Add" xml:space="preserve"><value>Nebenpflanze hinzufügen …</value></data>
+  <data name="Roles_Reset" xml:space="preserve"><value>Vorschlag wiederherstellen</value></data>
+  <data name="Roles_SuggestionIs" xml:space="preserve"><value>Vorschlag:</value></data>
+  <data name="Roles_Suggestion" xml:space="preserve"><value>Vorschlag</value></data>
+  <data name="Roles_Open" xml:space="preserve"><value>Partner anzeigen</value></data>
+  <data name="Col_Role" xml:space="preserve"><value>Rolle</value></data>
+  <data name="Role_Help" xml:space="preserve"><value>Vorschlag für alle; jede Nutzerin kann ihn für sich ändern.</value></data>
+  <data name="PlantRole_Main" xml:space="preserve"><value>Hauptpflanze</value></data>
+  <data name="PlantRole_Secondary" xml:space="preserve"><value>Nebenpflanze</value></data>
 </root>
