@@ -900,6 +900,168 @@ namespace SeedPlanner.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SeedPlanner.Domain.Plot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BoundaryJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("boundary_json");
+
+                    b.Property<string>("CutLineJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("cut_line_json");
+
+                    b.Property<string>("EdgeLengthsJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("edge_lengths_json");
+
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("bytea")
+                        .HasColumnName("image");
+
+                    b.Property<string>("ImageContentType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("image_content_type");
+
+                    b.Property<double?>("KnownAreaM2")
+                        .HasColumnType("double precision")
+                        .HasColumnName("known_area_m2");
+
+                    b.Property<string>("NeighborsJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("neighbors_json");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("owner_id");
+
+                    b.Property<string>("PlacedBedsJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("placed_beds_json");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_plots");
+
+                    b.HasIndex("OwnerId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_plots_owner_id");
+
+                    b.ToTable("plots", (string)null);
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.PlotZone", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("ColdFramePossible")
+                        .HasColumnType("boolean")
+                        .HasColumnName("cold_frame_possible");
+
+                    b.Property<bool>("IsShape")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_shape");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("Owner")
+                        .HasColumnType("integer")
+                        .HasColumnName("owner");
+
+                    b.Property<int>("PlotId")
+                        .HasColumnType("integer")
+                        .HasColumnName("plot_id");
+
+                    b.Property<string>("PointsJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("points_json");
+
+                    b.Property<string>("Slope")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("slope");
+
+                    b.Property<string>("Soil")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("soil");
+
+                    b.Property<int>("SplitGroup")
+                        .HasColumnType("integer")
+                        .HasColumnName("split_group");
+
+                    b.Property<string>("SplitLineJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("split_line_json");
+
+                    b.Property<string>("SplitParentJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("split_parent_json");
+
+                    b.Property<int>("SplitPart")
+                        .HasColumnType("integer")
+                        .HasColumnName("split_part");
+
+                    b.Property<string>("Sun")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sun");
+
+                    b.Property<string>("Use")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("use");
+
+                    b.Property<bool>("WaterNearby")
+                        .HasColumnType("boolean")
+                        .HasColumnName("water_nearby");
+
+                    b.Property<bool>("Waterlogged")
+                        .HasColumnType("boolean")
+                        .HasColumnName("waterlogged");
+
+                    b.HasKey("Id")
+                        .HasName("pk_plot_zones");
+
+                    b.HasIndex("PlotId")
+                        .HasDatabaseName("ix_plot_zones_plot_id");
+
+                    b.ToTable("plot_zones", (string)null);
+                });
+
             modelBuilder.Entity("SeedPlanner.Domain.Pot", b =>
                 {
                     b.Property<int>("Id")
@@ -1558,6 +1720,28 @@ namespace SeedPlanner.Infrastructure.Migrations
                     b.Navigation("RaisedBed");
                 });
 
+            modelBuilder.Entity("SeedPlanner.Domain.Plot", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_plots_asp_net_users_owner_id");
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.PlotZone", b =>
+                {
+                    b.HasOne("SeedPlanner.Domain.Plot", "Plot")
+                        .WithMany("Zones")
+                        .HasForeignKey("PlotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_plot_zones_plots_plot_id");
+
+                    b.Navigation("Plot");
+                });
+
             modelBuilder.Entity("SeedPlanner.Domain.Pot", b =>
                 {
                     b.HasOne("SeedPlanner.Domain.PotGroup", "PotGroup")
@@ -1708,6 +1892,11 @@ namespace SeedPlanner.Infrastructure.Migrations
                     b.Navigation("Plants");
 
                     b.Navigation("Translations");
+                });
+
+            modelBuilder.Entity("SeedPlanner.Domain.Plot", b =>
+                {
+                    b.Navigation("Zones");
                 });
 
             modelBuilder.Entity("SeedPlanner.Domain.Pot", b =>

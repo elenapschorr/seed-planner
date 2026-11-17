@@ -1,0 +1,585 @@
+@model SeedPlanner.Api.Pages.Garden.IndexModel
+@using System.Text.Json
+@{
+    var setup = (ViewData["GardenMode"] as string) != "edit";      // first page: the plot; second page: the own part, beds and areas
+    // Shapes: name, label of the first and of the second size (empty = the shape has only one size)
+    var shapes = new Dictionary<string, string[]>
+    {
+        ["rect"] = [L["Garden_ShapeRect"].Value, L["Garden_SizeWidth"].Value, L["Garden_SizeDepth"].Value],
+        ["circle"] = [L["Garden_ShapeCircle"].Value, L["Garden_SizeDiameter"].Value, ""],
+        ["ellipse"] = [L["Garden_ShapeEllipse"].Value, L["Garden_SizeDiameter1"].Value, L["Garden_SizeDiameter2"].Value],
+        ["triangle"] = [L["Garden_ShapeTriangle"].Value, L["Garden_SizeLeg1"].Value, L["Garden_SizeLeg2"].Value],
+        ["righttrapezoid"] = [L["Garden_ShapeRightTrapezoid"].Value, L["Garden_SizeBottom"].Value, L["Garden_SizeTop"].Value, L["Garden_SizeHeight"].Value],
+        ["trapezoid"] = [L["Garden_ShapeTrapezoid"].Value, L["Garden_SizeBottom"].Value, L["Garden_SizeTop"].Value, L["Garden_SizeHeight"].Value]
+    };
+    // The kinds of area: what an area means for the plot
+    var kinds = new List<KeyValuePair<string, string>>
+    {
+        new("Mine", L["Garden_KindMine"].Value),
+        new("Excluded", L["Garden_KindExcluded"].Value),
+        new("House", L["Garden_KindHouse"].Value),
+        new("Terrace", L["Garden_KindTerrace"].Value),
+        new("Garage", L["Garden_KindGarage"].Value),
+        new("Parking", L["Garden_KindParking"].Value),
+        new("Pond", L["Garden_KindPond"].Value),
+        new("Shed", L["Garden_KindShed"].Value),
+        new("Garden", L["Garden_KindGarden"].Value),
+        new("Occupied", L["Garden_KindOccupied"].Value)
+    };
+    // What the user can say about an area (for placing beds later)
+    var uses = new List<KeyValuePair<string, string>> { new("Beds", L["Garden_UseBeds"].Value), new("Lawn", L["Garden_UseLawn"].Value), new("Path", L["Garden_UsePath"].Value), new("Trees", L["Garden_UseTrees"].Value), new("Compost", L["Garden_UseCompost"].Value) };
+    var suns = new List<KeyValuePair<string, string>> { new("Full", L["Garden_SunFull"].Value), new("Partial", L["Garden_SunPartial"].Value), new("Shade", L["Garden_SunShade"].Value) };
+    var soils = new List<KeyValuePair<string, string>> { new("Sand", L["Garden_SoilSand"].Value), new("Loam", L["Garden_SoilLoam"].Value), new("Clay", L["Garden_SoilClay"].Value), new("Humus", L["Garden_SoilHumus"].Value) };
+    var slopes = new List<KeyValuePair<string, string>> { new("Flat", L["Garden_SlopeFlat"].Value), new("Gentle", L["Garden_SlopeGentle"].Value), new("Steep", L["Garden_SlopeSteep"].Value) };
+    var kindOptions = kinds.Where(k => k.Key != "Excluded").ToList();
+    var texts = new Dictionary<string, object>
+    {
+        ["boundary"] = L["Garden_Boundary"].Value,
+        ["zone"] = L["Garden_Zone"].Value,
+        ["cut"] = L["Garden_Cut"].Value,
+        ["occupied"] = L["Garden_Blocked"].Value,
+        ["warnFew"] = L["Garden_WarnFew"].Value,
+        ["warnCross"] = L["Garden_WarnCross"].Value,
+        ["warnDeviation"] = L["Garden_WarnDeviation"].Value,
+        ["noScale"] = L["Garden_NoScale"].Value,
+        ["placing"] = L["Garden_Placing"].Value,
+        ["zoneEdges"] = L["Garden_ZoneEdges"].Value,
+        ["scaleAreaNote"] = L["Garden_ScaleAreaNote"].Value,
+        ["scaleEdgesNote"] = L["Garden_ScaleEdgesNote"].Value,
+        ["cutDrawing"] = L["Garden_CutDrawing"].Value,
+        ["cutName"] = L["Garden_CutName"].Value,
+        ["cutGross"] = L["Garden_CutGross"].Value,
+        ["cutFree"] = L["Garden_CutFree"].Value,
+        ["orientH"] = L["Garden_OrientH"].Value,
+        ["orientEdge"] = L["Garden_OrientEdge"].Value,
+        ["splitBoundaryEdge"] = L["Garden_SplitBoundaryEdge"].Value,
+        ["splitZoneEdge"] = L["Garden_SplitZoneEdge"].Value,
+        ["shapes"] = shapes,
+        ["kinds"] = kinds.ToDictionary(k => k.Key, k => k.Value),
+        ["neighborName"] = L["Garden_NeighborName"].Value,
+        ["splitStored"] = L["Garden_SplitStored"].Value,
+        ["ownerMe"] = L["Garden_OwnerMe"].Value,
+        ["neighborAdd"] = L["Garden_AddNeighbor"].Value,
+        ["mineName"] = L["Garden_MineName"].Value,
+        ["restrictNone"] = L["Garden_RestrictNone"].Value,
+        ["restrictWarn"] = L["Garden_RestrictWarn"].Value,
+        ["bedNeedPlot"] = L["Garden_BedNeedPlot"].Value,
+        ["partName"] = L["Garden_PartName"].Value,
+        ["cutLineShort"] = L["Garden_CutLineShort"].Value,
+        ["rowEdit"] = L["Garden_RowEdit"].Value,
+        ["rowDelete"] = L["Garden_RowDelete"].Value,
+        ["rowDeleteConfirm"] = L["Garden_RowDeleteConfirm"].Value,
+        ["adopt"] = L["Garden_Adopt"].Value,
+        ["adoptConfirm"] = L["Garden_AdoptConfirm"].Value,
+        ["adoptDone"] = L["Garden_AdoptDone"].Value,
+        ["deleteCorner"] = L["Garden_DeleteCorner"].Value,
+        ["bedPlace"] = L["Garden_BedPlace"].Value,
+        ["bedCancel"] = L["Garden_BedCancel"].Value,
+        ["bedPlaceHint"] = L["Garden_BedPlaceHint"].Value,
+        ["bedNoBeds"] = L["Garden_BedNoBeds"].Value,
+        ["bedAllPlaced"] = L["Garden_BedAllPlaced"].Value,
+        ["bedAngle"] = L["Garden_BedAngle"].Value,
+        ["bedRemove"] = L["Garden_BedRemove"].Value,
+        ["bedOutside"] = L["Garden_BedOutside"].Value,
+        ["bedOverlap"] = L["Garden_BedOverlap"].Value,
+        ["bedOk"] = L["Garden_BedOk"].Value,
+        ["bedNoCover"] = L["Garden_BedNoCover"].Value,
+        ["bedUseOther"] = L["Garden_BedUseOther"].Value,
+        ["bedSum"] = L["Garden_BedSum"].Value,
+        ["traceHint"] = L["Garden_TraceHint"].Value,
+        ["insertHint"] = L["Garden_InsertHint"].Value,
+        ["drawingHint"] = L["Garden_DrawingHint"].Value,
+        ["cornerClosed"] = L["Garden_CornerClosed"].Value,
+        ["traceLine"] = L["Garden_TraceLine"].Value,
+        ["traceOpen"] = L["Garden_TraceOpen"].Value,
+        ["traceTiny"] = L["Garden_TraceTiny"].Value,
+        ["traceNoImage"] = L["Garden_TraceNoImage"].Value,
+        ["traceReplace"] = L["Garden_TraceReplace"].Value,
+        ["props"] = new Dictionary<string, object>
+        {
+            ["use"] = uses.ToDictionary(k => k.Key, k => k.Value),
+            ["sun"] = suns.ToDictionary(k => k.Key, k => k.Value),
+            ["soil"] = soils.ToDictionary(k => k.Key, k => k.Value),
+            ["slope"] = slopes.ToDictionary(k => k.Key, k => k.Value),
+            ["waterlogged"] = L["Garden_PropWaterlogged"].Value,
+            ["water"] = L["Garden_PropWater"].Value,
+            ["coldFrame"] = L["Garden_PropColdFrame"].Value
+        }
+    };
+}
+
+<h1 class="mb-1">@L[(setup ? "Garden_Title" : "Garden_TitleBeds")]</h1>
+<p class="text-muted">@L[(setup ? "Garden_Intro" : "Garden_IntroBeds")]</p>
+
+<nav class="d-flex flex-wrap gap-2 mb-3" aria-label="@L["Garden_Title"]">
+    <a asp-page="/Garden/Index" class="btn btn-sm @(setup ? "btn-outline-secondary" : "btn-dark")" aria-current="@(setup ? null : "page")">@L["Garden_TabGarden"]</a>
+    <a asp-page="/Garden/Setup" class="btn btn-sm @(setup ? "btn-dark" : "btn-outline-secondary")" aria-current="@(setup ? "page" : null)">@L["Garden_TabSetup"]</a>
+</nav>
+
+@if (Model.Message is not null)
+{
+    <div class="alert alert-success" role="status">@Model.Message</div>
+}
+@if (Model.Error is not null)
+{
+    <div class="alert alert-danger" role="alert">@Model.Error</div>
+}
+
+@if (setup)
+{
+<form method="post" asp-page-handler="Upload" enctype="multipart/form-data" class="d-flex flex-wrap align-items-end gap-2 mb-1">
+    <div>
+        <label for="garden-image" class="form-label mb-1">@L[Model.HasImage ? "Garden_Replace" : "Garden_Upload"]</label>
+        <input type="file" id="garden-image" name="image" class="form-control form-control-sm" accept="image/png,image/jpeg,image/webp" required />
+    </div>
+    <button type="submit" class="btn btn-outline-secondary btn-sm">@L[Model.HasImage ? "Garden_Replace" : "Garden_Upload"]</button>
+</form>
+<p class="small text-muted mb-4">@L["Garden_ImageHelp"]</p>
+}
+else if (!Model.HasImage)
+{
+    <div class="alert alert-warning" role="alert">@L["Garden_NeedSetup"] <a asp-page="/Garden/Setup">@L["Garden_ToSetup"]</a></div>
+}
+
+@if (Model.HasImage)
+{
+    <form method="post" asp-page-handler="Save" id="garden-form">
+        <input type="hidden" name="boundaryJson" id="f-boundary" />
+        <input type="hidden" name="lengthsJson" id="f-lengths" />
+        <input type="hidden" name="zonesJson" id="f-zones" />
+        <input type="hidden" name="neighborsJson" id="f-neighbors" />
+        <input type="hidden" name="cutLineJson" id="f-cutline" />
+        <input type="hidden" name="placedBedsJson" id="f-placed" />
+        <input type="hidden" name="knownArea" id="f-area" />
+
+        <div class="alert alert-warning" role="status" id="edit-need" hidden>@L["Garden_NeedSetup"] <a asp-page="/Garden/Setup">@L["Garden_ToSetup"]</a></div>
+
+        <div id="stage" data-mode="@(setup ? "setup" : "edit")" style="position: relative;">
+            <div id="plot-wrap" style="overflow: auto; height: calc(100vh - 6rem); min-height: 22rem; border: 1px solid var(--sp-line); background: var(--sp-field);">
+                <svg id="plot" data-src="@Url.Page("/Garden/Index", "Image", new { v = Model.ImageVersion })" viewBox="0 0 1000 1000"
+                     style="display: block; width: 100%; height: auto; margin: 0 auto; touch-action: manipulation; cursor: crosshair;"
+                     role="img" aria-label="@L["Garden_Title"]"></svg>
+            </div>
+
+            <div id="tools" style="position: absolute; top: .5rem; left: .5rem; z-index: 5; width: min(32rem, calc(100% - 1rem)); max-height: calc(100% - 1rem); display: flex; flex-direction: column;">
+                <button type="button" id="tools-toggle" class="btn btn-sm btn-dark align-self-start shadow" aria-expanded="true" aria-controls="tools-body">@L["Garden_Tools"]</button>
+                <div id="tools-body" class="border p-2 mt-1" style="overflow: auto; background: var(--sp-paper);">
+
+                    <div hidden="@(!setup)">
+                    <details class="mb-3" open>
+                        <summary class="fw-semibold">@L["Garden_GroupPlot"]</summary>
+                    <details class="border p-2 mb-2" id="trace-panel" open>
+                        <summary class="small fw-semibold">@L["Garden_TraceTitle"]</summary>
+                        <div class="small text-muted mt-2">@L["Garden_TraceBoundaryNote"]</div>
+                        <button type="button" id="trace-boundary" class="btn btn-outline-secondary btn-sm mt-1">@L["Garden_TraceBoundary"]</button>
+                        <div class="small text-muted mt-1" id="trace-msg-boundary" hidden></div>
+                    </details>
+
+                    <details class="border p-2 mb-2" id="cut-panel" open>
+                        <summary class="small fw-semibold">@L["Garden_CutTitle"]</summary>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            <button type="button" id="cut-draw" class="btn btn-outline-secondary btn-sm">@L["Garden_CutDraw"]</button>
+                            <button type="button" id="cut-clear" class="btn btn-outline-secondary btn-sm" hidden>@L["Garden_CutClear"]</button>
+                        </div>
+                        <div class="small text-muted mt-1" id="cut-msg" hidden></div>
+                        <div class="row g-3 mt-1" id="cut-result" hidden>
+                            @foreach (var part in new[] { 1, 2 })
+                            {
+                                <div class="col-12 col-sm-6">
+                                    <div class="fw-semibold">@L["Garden_SplitPart"] @part</div>
+                                    <div>@L["Garden_CutGross"]: <span id="cut-gross@(part)">–</span></div>
+                                    <div>@L["Garden_CutFree"]: <span id="cut-free@(part)">–</span></div>
+                                    <div id="cut-garden-row@(part)" hidden>@L["Garden_CutGarden"]: <span id="cut-garden@(part)">–</span></div>
+                                    <select id="cut-kind@(part)" class="form-select form-select-sm mt-1" aria-label="@L["Garden_ZoneKind"]">
+@foreach (var k in kindOptions)
+{
+    <option value="@k.Key" selected="@(k.Key == "Mine")">@k.Value</option>
+}
+</select>
+                                    <select id="cut-owner@(part)" class="form-select form-select-sm mt-1 owner-select" aria-label="@L["Garden_Owner"]"></select>
+<button type="button" id="cut-take@(part)" class="btn btn-outline-secondary btn-sm mt-1">@L["Garden_CutTake"]</button>
+                                </div>
+                            }
+                        </div>
+                        <div class="small text-muted mt-1">@L["Garden_CutHint"]</div>
+                    </details>
+
+                    <details class="border p-2 mb-2" id="mine-box" open>
+                        <summary class="small fw-semibold">@L["Garden_MineTitle"]</summary>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="mine-only" />
+                            <label class="form-check-label small fw-semibold" for="mine-only">@L["Garden_MineOnly"]</label>
+                        </div>
+                        <div class="small text-muted">@L["Garden_MineOnlyHint"]</div>
+                        <button type="button" id="restrict-mine" class="btn btn-outline-secondary btn-sm mt-1">@L["Garden_Restrict"]</button>
+                        <div class="small text-muted">@L["Garden_RestrictHint"]</div>
+                    </details>
+
+                    </details>
+                    </div>
+
+                    <div hidden="@(setup)">
+                    <details class="mb-3" open>
+                        <summary class="fw-semibold">@L["Garden_GroupBeds"]</summary>
+                        <details id="beds-panel" class="border p-2 mb-2" open>
+                            <summary class="small fw-semibold">@L["Garden_BedsTitle"]</summary>
+                            <div class="d-flex flex-wrap align-items-end gap-2 mt-2">
+                                <select id="bed-choose" class="form-select form-select-sm" style="max-width: 16rem;" aria-label="@L["Garden_BedChoose"]"></select>
+                                <button type="button" id="bed-place" class="btn btn-outline-secondary btn-sm"></button>
+                            </div>
+                            <div class="small text-muted mt-1" id="bed-msg"></div>
+                            <div id="bed-list" class="mt-2"></div>
+                            <div class="small fw-semibold mt-1" id="bed-sum"></div>
+                        </details>
+
+                    </details>
+                    </div>
+
+                    <div>
+                    <details class="mb-3" open>
+                        <summary class="fw-semibold">@L["Garden_GroupAreas"]</summary>
+                    <details class="border p-2 mb-2" open>
+                        <summary class="small fw-semibold mb-1">@L["Garden_NewArea"]</summary>
+                        <div class="d-flex flex-wrap align-items-end gap-2">
+                            <input type="text" id="zone-name" class="form-control form-control-sm" style="max-width: 14rem;" maxlength="100" placeholder="@L["Garden_ZoneName"]" aria-label="@L["Garden_ZoneName"]" />
+                            <select id="zone-kind" class="form-select form-select-sm" style="max-width: 18rem;" aria-label="@L["Garden_ZoneKind"]">
+@foreach (var k in kindOptions)
+{
+    <option value="@k.Key" selected="@(k.Key == "Garden")">@k.Value</option>
+}
+</select>
+                            <div>
+    <label for="zone-owner" class="form-label mb-0 small">@L["Garden_Owner"]</label>
+    <select id="zone-owner" class="form-select form-select-sm owner-select"></select>
+</div>
+</div>
+                        <div class="small fw-semibold mt-2">@L["Garden_NewAreaFree"]</div>
+                        <div class="d-flex flex-wrap align-items-end gap-2">
+                            <button type="button" id="add-zone" class="btn btn-outline-secondary btn-sm text-nowrap">@L["Garden_AddZone"]</button>
+                        </div>
+                        <div class="small fw-semibold mt-2">@L["Garden_NewAreaShape"]</div>
+                        <div class="d-flex flex-wrap align-items-end gap-2">
+                            <div>
+                                <label for="shape-type" class="form-label mb-0 small">@L["Garden_ShapeType"]</label>
+                                <select id="shape-type" class="form-select form-select-sm">
+                                    @foreach (var shape in shapes)
+                                    {
+                                        <option value="@shape.Key">@shape.Value[0]</option>
+                                    }
+                                </select>
+                            </div>
+                            <div>
+                                <label for="shape-a" id="shape-a-label" class="form-label mb-0 small"></label>
+                                <input type="number" id="shape-a" class="form-control form-control-sm" style="max-width: 7rem;" min="0.1" step="0.1" value="6" />
+                            </div>
+                            <div id="shape-b-box">
+                                <label for="shape-b" id="shape-b-label" class="form-label mb-0 small"></label>
+                                <input type="number" id="shape-b" class="form-control form-control-sm" style="max-width: 7rem;" min="0.1" step="0.1" value="3" />
+                            </div>
+                            <div id="shape-c-box" hidden>
+                                <label for="shape-c" id="shape-c-label" class="form-label mb-0 small"></label>
+                                <input type="number" id="shape-c" class="form-control form-control-sm" style="max-width: 7rem;" min="0.1" step="0.1" value="2" />
+                            </div>
+                            <div>
+                                <label for="shape-orient" class="form-label mb-0 small">@L["Garden_Orientation"]</label>
+                                <select id="shape-orient" class="form-select form-select-sm"></select>
+                            </div>
+<button type="button" id="place-shape" class="btn btn-outline-secondary btn-sm text-nowrap">@L["Garden_PlaceShape"]</button>
+                        </div>
+                        <div class="small text-muted mt-1" id="shape-msg" hidden></div>
+                        <div class="small text-muted mt-1">@L["Garden_ShapeNote"]</div>
+                        <div class="small fw-semibold mt-2">@L["Garden_NewAreaLines"]</div>
+                        <div class="d-flex flex-wrap align-items-end gap-2">
+                            <button type="button" id="trace-zone" class="btn btn-outline-secondary btn-sm text-nowrap">@L["Garden_TraceZone"]</button>
+                        </div>
+                        <div class="small text-muted mt-1" id="trace-msg-zone" hidden></div>
+                    </details>
+
+                    <details class="border p-2 mb-2" id="select-panel" open>
+                    <summary class="small fw-semibold">@L["Garden_AreaTitle"]</summary>
+                    <div class="d-flex flex-wrap align-items-end gap-2 mb-2 mt-2">
+                        <div>
+                            <label for="target" class="form-label mb-1 small">@L["Garden_Target"]</label>
+                            <select id="target" class="form-select form-select-sm"></select>
+                        </div>
+                        <div id="active-name-box" hidden>
+                            <label for="active-name" class="form-label mb-1 small">@L["Garden_ZoneName"]</label>
+                            <input type="text" id="active-name" class="form-control form-control-sm" style="max-width: 12rem;" maxlength="100" />
+                        </div>
+                        <div id="active-kind-box" hidden>
+                            <label for="active-kind" class="form-label mb-1 small">@L["Garden_ZoneKind"]</label>
+                            <select id="active-kind" class="form-select form-select-sm">
+@foreach (var k in kindOptions)
+{
+    <option value="@k.Key" selected="@(k.Key == "Garden")">@k.Value</option>
+}
+</select>
+                        </div>
+                        <div id="active-owner-box" hidden>
+<div>
+    <label for="active-owner" class="form-label mb-0 small">@L["Garden_Owner"]</label>
+    <select id="active-owner" class="form-select form-select-sm owner-select"></select>
+</div>
+</div>
+<button type="button" id="delete-point" class="btn btn-outline-secondary btn-sm" disabled>@L["Garden_DeletePoint"]</button>
+                        <button type="button" id="shape-to-corners" class="btn btn-outline-secondary btn-sm" hidden>@L["Garden_EditCorners"]</button>
+                        <button type="button" id="insert-corner" class="btn btn-outline-secondary btn-sm">@L["Garden_InsertCorner"]</button>
+                        <button type="button" id="undo" class="btn btn-outline-secondary btn-sm">@L["Garden_UndoCorner"]</button>
+                        <button type="button" id="clear" class="btn btn-outline-secondary btn-sm">@L["Garden_ClearShape"]</button>
+                        <button type="button" id="delete-zone" class="btn btn-outline-danger btn-sm" hidden>@L["Garden_DeleteZone"]</button>
+                        <button type="button" id="adopt-zone" class="btn btn-outline-secondary btn-sm" hidden>@L["Garden_Adopt"]</button>
+                        <button type="button" id="adopt-undo" class="btn btn-outline-secondary btn-sm" hidden>@L["Garden_AdoptUndo"]</button>
+                    </div>
+                    <div class="small text-muted mb-2" id="corner-msg" hidden></div>
+                    <div class="small text-muted mb-2" id="adopt-msg" hidden></div>
+                    </details>
+
+                    <details class="border p-2 mb-2" id="props-panel" hidden open>
+                        <summary class="small fw-semibold">@L["Garden_Props"]</summary>
+                        <div class="d-flex flex-wrap align-items-end gap-2 mt-2">
+                            <div>
+                                <label for="prop-use" class="form-label mb-0 small">@L["Garden_PropUse"]</label>
+                                <select id="prop-use" class="form-select form-select-sm">
+                                    <option value="">@L["Garden_PropNone"]</option>
+                                    @foreach (var k in uses) { <option value="@k.Key">@k.Value</option> }
+                                </select>
+                            </div>
+                            <div>
+                                <label for="prop-sun" class="form-label mb-0 small">@L["Garden_PropSun"]</label>
+                                <select id="prop-sun" class="form-select form-select-sm">
+                                    <option value="">@L["Garden_PropNone"]</option>
+                                    @foreach (var k in suns) { <option value="@k.Key">@k.Value</option> }
+                                </select>
+                            </div>
+                            <div>
+                                <label for="prop-soil" class="form-label mb-0 small">@L["Garden_PropSoil"]</label>
+                                <select id="prop-soil" class="form-select form-select-sm">
+                                    <option value="">@L["Garden_PropNone"]</option>
+                                    @foreach (var k in soils) { <option value="@k.Key">@k.Value</option> }
+                                </select>
+                            </div>
+                            <div>
+                                <label for="prop-slope" class="form-label mb-0 small">@L["Garden_PropSlope"]</label>
+                                <select id="prop-slope" class="form-select form-select-sm">
+                                    <option value="">@L["Garden_PropNone"]</option>
+                                    @foreach (var k in slopes) { <option value="@k.Key">@k.Value</option> }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-3 mt-2">
+                            <div class="form-check"><input type="checkbox" class="form-check-input" id="prop-waterlogged" /><label class="form-check-label small" for="prop-waterlogged">@L["Garden_PropWaterlogged"]</label></div>
+                            <div class="form-check"><input type="checkbox" class="form-check-input" id="prop-water" /><label class="form-check-label small" for="prop-water">@L["Garden_PropWater"]</label></div>
+                            <div class="form-check"><input type="checkbox" class="form-check-input" id="prop-coldframe" /><label class="form-check-label small" for="prop-coldframe">@L["Garden_PropColdFrame"]</label></div>
+                        </div>
+                        <div class="small text-muted mt-1">@L["Garden_PropsNote"]</div>
+                    </details>
+
+                    <div hidden="@(!setup)">
+                    <details class="border p-2 mb-2" id="split-panel">
+                        <summary class="small fw-semibold">@L["Garden_SplitTitle"]</summary>
+                        <div class="small text-muted mt-2" id="split-need">@L["Garden_SplitNeedZone"]</div>
+                        <div id="split-box" hidden>
+                            <div class="d-flex flex-wrap align-items-end gap-2 mt-2">
+                                <div>
+                                    <label for="split-ref" class="form-label mb-0 small">@L["Garden_SplitRef"]</label>
+                                    <select id="split-ref" class="form-select form-select-sm"></select>
+                                </div>
+                                <div>
+                                    <label for="split-pos" class="form-label mb-0 small">@L["Garden_SplitPosition"] <span id="split-pos-label">50 %</span></label>
+                                    <input type="range" id="split-pos" class="form-range" min="0" max="100" step="0.1" value="50" style="min-width: 10rem;" />
+                                </div>
+                                <div>
+                                    <label for="split-pos-num" class="form-label mb-0 small">@L["Garden_SplitPositionPercent"]</label>
+                                    <input type="number" id="split-pos-num" class="form-control form-control-sm" style="max-width: 6rem;" min="0" max="100" step="0.1" />
+                                </div>
+                                <div>
+                                    <label for="split-dist" class="form-label mb-0 small">@L["Garden_SplitDistance"]</label>
+                                    <input type="number" id="split-dist" class="form-control form-control-sm" style="max-width: 7rem;" min="0" step="0.01" />
+                                </div>
+                                <div>
+                                    <label for="split-area" class="form-label mb-0 small">@L["Garden_SplitArea"]</label>
+                                    <div class="input-group input-group-sm" style="max-width: 11rem;">
+                                        <input type="number" id="split-area" class="form-control" min="0" step="0.1" />
+                                        <button type="button" id="split-area-set" class="btn btn-outline-secondary" title="@L["Garden_SplitFromArea"]" aria-label="@L["Garden_SplitFromArea"]">↵</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="split-kind1" class="form-label mb-0 small">@L["Garden_SplitPart"] 1</label>
+                                    <select id="split-kind1" class="form-select form-select-sm">
+@foreach (var k in kindOptions)
+{
+    <option value="@k.Key" selected="@(k.Key == "Garden")">@k.Value</option>
+}
+</select>
+                                </div>
+                                <div>
+                                    <label for="split-kind2" class="form-label mb-0 small">@L["Garden_SplitPart"] 2</label>
+                                    <select id="split-kind2" class="form-select form-select-sm">
+@foreach (var k in kindOptions)
+{
+    <option value="@k.Key" selected="@(k.Key == "Mine")">@k.Value</option>
+}
+</select>
+                                </div>
+                                <div>
+    <label for="split-owner1" class="form-label mb-0 small">@L["Garden_Owner"] 1</label>
+    <select id="split-owner1" class="form-select form-select-sm owner-select"></select>
+</div>
+<div>
+    <label for="split-owner2" class="form-label mb-0 small">@L["Garden_Owner"] 2</label>
+    <select id="split-owner2" class="form-select form-select-sm owner-select"></select>
+</div>
+<button type="button" id="split-undo" class="btn btn-outline-secondary btn-sm" hidden>@L["Garden_SplitUndo"]</button>
+<button type="button" id="split-do" class="btn btn-outline-secondary btn-sm">@L["Garden_SplitDo"]</button>
+                            </div>
+                            <div class="small text-muted mt-1">@L["Garden_SplitHint"]</div>
+                        </div>
+                    </details>
+                    </div>
+
+                    </details>
+                    </div>
+
+
+                    <p class="small text-muted mb-0">@L["Garden_Hint"]</p>
+                </div>
+            </div>
+
+            <span class="btn-group btn-group-sm" role="group" aria-label="Zoom" style="position: absolute; top: .5rem; right: 1.5rem; z-index: 5; background: var(--sp-paper);">
+                <button type="button" id="zoom-out" class="btn btn-outline-secondary" title="@L["Garden_ZoomOut"]" aria-label="@L["Garden_ZoomOut"]">−</button>
+                <button type="button" id="zoom-fit" class="btn btn-outline-secondary" title="@L["Garden_ZoomFit"]" aria-label="@L["Garden_ZoomFit"]">⤢</button>
+                <button type="button" id="zoom-reset" class="btn btn-outline-secondary" title="@L["Garden_ZoomReset"]" aria-label="@L["Garden_ZoomReset"]">100 %</button>
+                <button type="button" id="zoom-in" class="btn btn-outline-secondary" title="@L["Garden_ZoomIn"]" aria-label="@L["Garden_ZoomIn"]">+</button>
+            </span>
+
+            <div class="small px-2 py-1 border" style="position: absolute; bottom: 1rem; right: 1.5rem; z-index: 5; background: var(--sp-paper);">
+                @L["Garden_Available"]: <strong id="chip-available">–</strong>
+            </div>
+        </div>
+
+        <div id="warnings" class="my-2"></div>
+
+        <details class="mb-3" open>
+        <summary class="h5">@L["Garden_AreasTitle"]</summary>
+        <div class="row g-3 mb-2">
+            <div class="col-6 col-sm-3">
+                <div class="small text-muted">@L["Garden_Total"]</div>
+                <div class="fs-4" id="sum-total">–</div>
+            </div>
+            <div class="col-6 col-sm-3">
+                <div class="small text-muted">@L["Garden_Cut"]</div>
+                <div class="fs-4" id="sum-cut">–</div>
+            </div>
+            <div class="col-6 col-sm-3">
+                <div class="small text-muted">@L["Garden_Blocked"]</div>
+                <div class="fs-4" id="sum-blocked">–</div>
+            </div>
+            <div class="col-6 col-sm-3">
+                <div class="small text-muted">@L["Garden_Available"]</div>
+                <div class="fs-4 fw-semibold" id="sum-available">–</div>
+            </div>
+        </div>
+        </details>
+
+        <details class="mb-3" id="owner-list-box" hidden open>
+            <summary class="h5">@L["Garden_Owners"]</summary>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle w-auto">
+                    <thead><tr><th>@L["Garden_ColTreeName"]</th><th>@L["Garden_ColKind"]</th><th>@L["Garden_ColArea"]</th><th>%</th><th>@L["Garden_ColProps"]</th><th></th></tr></thead>
+                    <tbody id="owner-list"></tbody>
+                </table>
+            </div>
+        </details>
+
+        <details class="mb-3" id="zone-list-box" hidden>
+            <summary class="h5">@L["Garden_ZoneList"]</summary>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle w-auto">
+                    <thead><tr><th>@L["Garden_ColName"]</th><th>@L["Garden_ColKind"]</th><th>@L["Garden_ColOwner"]</th><th>@L["Garden_ColArea"]</th><th>@L["Garden_ColAreaInside"]</th><th>@L["Garden_ColProps"]</th><th></th></tr></thead>
+                    <tbody id="zone-list"></tbody>
+                </table>
+            </div>
+        </details>
+
+        <details class="mb-3" id="zone-edges-box" hidden open>
+            <summary class="small fw-semibold" id="zone-edges-title"></summary>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle w-auto mb-1">
+                    <thead><tr><th>@L["Garden_ColEdge"]</th><th>@L["Garden_ColLength"]</th><th>@L["Garden_ColAngle"]</th><th>x (m)</th><th>y (m)</th><th></th></tr></thead>
+                    <tbody id="zone-edges"></tbody>
+                </table>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                <button type="button" id="add-corner" class="btn btn-outline-secondary btn-sm">@L["Garden_AddCorner"]</button>
+                <span class="small text-muted">@L["Garden_CornerNote"]</span>
+            </div>
+            <div class="small text-muted" id="zone-area"></div>
+        </details>
+
+        <div hidden="@(!setup)">
+        <details class="mb-3" id="scale-box" open>
+            <summary class="h5">@L["Garden_ScaleTitle"]</summary>
+            <div class="d-flex flex-wrap align-items-end gap-2">
+                <div>
+                    <label for="scale-mode" class="form-label mb-0 small">@L["Garden_ScaleChoose"]</label>
+                    <select id="scale-mode" class="form-select form-select-sm">
+                        <option value="edges">@L["Garden_ScaleEdges"]</option>
+                        <option value="area">@L["Garden_ScaleArea"]</option>
+                    </select>
+                </div>
+                <div id="area-box">
+                    <label for="plot-area" class="form-label mb-0 small">@L["Garden_PlotArea"]</label>
+                    <input type="number" id="plot-area" class="form-control form-control-sm" style="max-width: 9rem;" min="0.1" step="0.1" />
+                </div>
+                <button type="button" id="calc-edges" class="btn btn-outline-secondary btn-sm">@L["Garden_CalcEdges"]</button>
+            </div>
+            <div class="small text-muted mt-1" id="scale-note"></div>
+        </details>
+
+        <details class="mb-3" id="neighbors-box" open>
+            <summary class="h5">@L["Garden_Neighbors"]</summary>
+            <div class="d-flex flex-wrap align-items-end gap-2">
+                <div>
+                    <label for="neighbor-count" class="form-label mb-0 small">@L["Garden_Neighbors"]</label>
+                    <input type="number" id="neighbor-count" class="form-control form-control-sm" style="max-width: 6rem;" min="0" max="10" step="1" value="0" />
+                </div>
+                <div id="neighbor-names" class="d-flex flex-wrap gap-2"></div>
+            </div>
+        </details>
+
+        <details class="mb-3" open>
+            <summary class="h5">@L["Garden_Edges"]</summary>
+            <p class="small text-muted" id="edge-empty">@L["Garden_EdgesEmpty"]</p>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle" id="edge-table" hidden>
+                    <thead>
+                        <tr>
+                            <th>@L["Garden_ColEdge"]</th>
+                            <th>@L["Garden_ColLength"]</th>
+                            <th>@L["Garden_ColImage"]</th>
+                            <th>@L["Garden_ColDeviation"]</th>
+                            <th>@L["Garden_ColAngle"]</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <p class="small text-muted mb-0">@L["Garden_AllowNote"]</p>
+        </details>
+        </div>
+
+        <button type="submit" class="btn btn-success">@L["Action_Save"]</button>
+        @if (setup)
+        {
+            <a asp-page="/Garden/Index" class="btn btn-outline-secondary ms-2">@L["Garden_ToBeds"]</a>
+        }
+        else
+        {
+            <a asp-page="/Garden/Setup" class="btn btn-outline-secondary ms-2">@L["Garden_ToSetup"]</a>
+        }
+    </form>
+
+    <script type="application/json" id="garden-data">@Html.Raw(Model.DataJson)</script>
+    <script type="application/json" id="garden-text">@Html.Raw(JsonSerializer.Serialize(texts))</script>
+}
+

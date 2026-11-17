@@ -1,0 +1,15 @@
+@page
+@model SeedPlanner.Api.Pages.Garden.SetupModel
+@{
+    ViewData["Title"] = L["Garden_Title"].Value;
+    ViewData["Wide"] = true;
+    ViewData["GardenMode"] = "setup";
+}
+
+<partial name="_GardenEditor" model="Model" view-data="ViewData" />
+
+@section Scripts {
+    <script src="~/js/garden-geometry.js" asp-append-version="true"></script>
+    <script src="~/js/garden-trace.js" asp-append-version="true"></script>
+    <script src="~/js/garden-page.js" asp-append-version="true"></script>
+}

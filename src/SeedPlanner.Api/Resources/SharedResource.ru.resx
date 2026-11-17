@@ -593,4 +593,222 @@
   <data name="Role_Help" xml:space="preserve"><value>Предложение для всех; каждый пользователь может изменить его для себя.</value></data>
   <data name="PlantRole_Main" xml:space="preserve"><value>Основное растение</value></data>
   <data name="PlantRole_Secondary" xml:space="preserve"><value>Сопутствующее растение</value></data>
+  <data name="Nav_Garden" xml:space="preserve"><value>Сад</value></data>
+  <data name="Garden_Title" xml:space="preserve"><value>Участок и площадь сада</value></data>
+  <data name="Garden_Intro" xml:space="preserve"><value>Загрузите изображение участка (аэрофото или набросок) и отметьте углы. Из углов получится замкнутая линия. Введите длину хотя бы одной стороны в метрах или площадь участка, тогда будут рассчитаны размеры; чем больше длин вы введёте, тем лучше можно проверить рисунок. Затем нарисуйте области: садовые площади (можно несколько отдельных), дом, террасу, гараж, парковку, а также что принадлежит вам и что нет.</value></data>
+  <data name="Garden_Upload" xml:space="preserve"><value>Загрузить изображение</value></data>
+  <data name="Garden_Replace" xml:space="preserve"><value>Заменить изображение</value></data>
+  <data name="Garden_ImageHelp" xml:space="preserve"><value>JPG, PNG или WebP, не более 5 МБ. При замене изображения углы остаются на своих местах.</value></data>
+  <data name="Garden_Uploaded" xml:space="preserve"><value>Изображение сохранено.</value></data>
+  <data name="Garden_Saved" xml:space="preserve"><value>Сохранено.</value></data>
+  <data name="Garden_ErrNoFile" xml:space="preserve"><value>Выберите файл изображения.</value></data>
+  <data name="Garden_ErrType" xml:space="preserve"><value>Допустимы только изображения JPG, PNG или WebP.</value></data>
+  <data name="Garden_ErrSize" xml:space="preserve"><value>Изображение больше 5 МБ.</value></data>
+  <data name="Garden_ErrData" xml:space="preserve"><value>Не удалось сохранить ввод.</value></data>
+  <data name="Garden_ErrNoImage" xml:space="preserve"><value>Сначала загрузите изображение.</value></data>
+  <data name="Garden_Boundary" xml:space="preserve"><value>Участок</value></data>
+  <data name="Garden_Zone" xml:space="preserve"><value>Область</value></data>
+  <data name="Garden_ZoneName" xml:space="preserve"><value>Название области (напр. гараж, моя половина)</value></data>
+  <data name="Garden_AddZone" xml:space="preserve"><value>Нарисовать углы самому</value></data>
+  <data name="Garden_DeleteZone" xml:space="preserve"><value>Удалить область</value></data>
+  <data name="Garden_Target" xml:space="preserve"><value>Редактировать углы:</value></data>
+  <data name="Garden_UndoCorner" xml:space="preserve"><value>Убрать последний угол</value></data>
+  <data name="Garden_ClearShape" xml:space="preserve"><value>Очистить форму</value></data>
+  <data name="Garden_Hint" xml:space="preserve"><value>Щёлкните по изображению, чтобы поставить следующий угол. Перетащите угол, чтобы сдвинуть его. Щелчок выделяет угол (тёмный), затем его удаляют кнопкой «Удалить выбранный угол» или клавишей Delete; двойной щелчок или правая кнопка мыши удаляют сразу. Ставьте углы по порядку вокруг участка; линия замыкается сама. Масштаб — Ctrl + колёсико мыши; увеличенное изображение прокручивается мышью или пальцем.</value></data>
+  <data name="Garden_Total" xml:space="preserve"><value>Участок (нарисованный)</value></data>
+  <data name="Garden_Blocked" xml:space="preserve"><value>Застроено / занято</value></data>
+  <data name="Garden_Available" xml:space="preserve"><value>Садовая площадь (доступно)</value></data>
+  <data name="Garden_NoScale" xml:space="preserve"><value>Введите длину хотя бы одной стороны или площадь участка, тогда будут рассчитаны размеры.</value></data>
+  <data name="Garden_Edges" xml:space="preserve"><value>Стороны и углы</value></data>
+  <data name="Garden_ColEdge" xml:space="preserve"><value>Сторона</value></data>
+  <data name="Garden_ColLength" xml:space="preserve"><value>Длина (м)</value></data>
+  <data name="Garden_ColImage" xml:space="preserve"><value>На изображении (м)</value></data>
+  <data name="Garden_ColDeviation" xml:space="preserve"><value>Отклонение</value></data>
+  <data name="Garden_ColAngle" xml:space="preserve"><value>Угол в вершине</value></data>
+  <data name="Garden_WarnFew" xml:space="preserve"><value>Для площади нужно не менее 3 углов.</value></data>
+  <data name="Garden_WarnCross" xml:space="preserve"><value>Граница пересекает сама себя; проверьте порядок углов.</value></data>
+  <data name="Garden_WarnDeviation" xml:space="preserve"><value>Сторона {0} на изображении отличается от введённой длины на {1} %; проверьте длину и углы.</value></data>
+  <data name="Garden_AllowNote" xml:space="preserve"><value>Каждая область принадлежит вам или одному из соседей; их число и имена вы задаёте выше. Области соседей (например, половина гаража соседа) вычитаются из участка и засчитываются этому соседу; распределение по владельцам показано под изображением. Из ваших областей дом, терраса, гараж, парковка и «Прочее застроено» застроены и не входят в садовую площадь. Как только вы нарисуете садовые площади (можно несколько отдельных), доступна только их площадь; без садовой площади считается остаток вашего участка. «Прочая площадь» только отмечает и не меняет числа. Считается только часть внутри границы; пересекающиеся области не считаются дважды: области соседей важнее застройки, застройка важнее садовой площади.</value></data>
+  <data name="Garden_ZoomIn" xml:space="preserve"><value>Увеличить</value></data>
+  <data name="Garden_ZoomOut" xml:space="preserve"><value>Уменьшить</value></data>
+  <data name="Garden_ZoomReset" xml:space="preserve"><value>Всё изображение</value></data>
+  <data name="Garden_Cut" xml:space="preserve"><value>Соседи</value></data>
+  <data name="Garden_KindOccupied" xml:space="preserve"><value>Прочее застроено</value></data>
+  <data name="Garden_KindExcluded" xml:space="preserve"><value>Не мой участок</value></data>
+  <data name="Garden_ZoneKind" xml:space="preserve"><value>Вид области</value></data>
+  <data name="Garden_NewArea" xml:space="preserve"><value>Новая область</value></data>
+  <data name="Garden_ShapeType" xml:space="preserve"><value>Форма</value></data>
+  <data name="Garden_ShapeRect" xml:space="preserve"><value>Прямоугольник</value></data>
+  <data name="Garden_ShapeCircle" xml:space="preserve"><value>Круг</value></data>
+  <data name="Garden_ShapeEllipse" xml:space="preserve"><value>Эллипс</value></data>
+  <data name="Garden_ShapeTriangle" xml:space="preserve"><value>Треугольник (прямоугольный)</value></data>
+  <data name="Garden_SizeWidth" xml:space="preserve"><value>Ширина (м)</value></data>
+  <data name="Garden_SizeDepth" xml:space="preserve"><value>Глубина (м)</value></data>
+  <data name="Garden_SizeDiameter" xml:space="preserve"><value>Диаметр (м)</value></data>
+  <data name="Garden_SizeDiameter1" xml:space="preserve"><value>Диаметр 1 (м)</value></data>
+  <data name="Garden_SizeDiameter2" xml:space="preserve"><value>Диаметр 2 (м)</value></data>
+  <data name="Garden_SizeLeg1" xml:space="preserve"><value>Катет 1 (м)</value></data>
+  <data name="Garden_SizeLeg2" xml:space="preserve"><value>Катет 2 (м)</value></data>
+  <data name="Garden_Orientation" xml:space="preserve"><value>Направление</value></data>
+  <data name="Garden_OrientH" xml:space="preserve"><value>горизонтально</value></data>
+  <data name="Garden_OrientEdge" xml:space="preserve"><value>параллельно стороне {0}</value></data>
+  <data name="Garden_PlaceShape" xml:space="preserve"><value>Поставить форму</value></data>
+  <data name="Garden_Placing" xml:space="preserve"><value>Щёлкните по изображению, чтобы поставить форму (Esc — отмена).</value></data>
+  <data name="Garden_ShapeNote" xml:space="preserve"><value>Размер задаётся в метрах, поэтому должна быть известна длина хотя бы одной стороны. Поставленную форму можно перетащить. Чтобы изменить её, удалите и поставьте заново.</value></data>
+  <data name="Garden_SplitTitle" xml:space="preserve"><value>Разделить область параллельной линией</value></data>
+  <data name="Garden_SplitNeedZone" xml:space="preserve"><value>Выберите выше область для разделения (не менее 3 углов).</value></data>
+  <data name="Garden_SplitRef" xml:space="preserve"><value>Параллельно</value></data>
+  <data name="Garden_SplitBoundaryEdge" xml:space="preserve"><value>Участок, сторона {0}</value></data>
+  <data name="Garden_SplitZoneEdge" xml:space="preserve"><value>Область, сторона {0}</value></data>
+  <data name="Garden_SplitPosition" xml:space="preserve"><value>Положение линии</value></data>
+  <data name="Garden_SplitPart" xml:space="preserve"><value>Часть</value></data>
+  <data name="Garden_SplitDo" xml:space="preserve"><value>Применить разделение</value></data>
+  <data name="Garden_SplitHint" xml:space="preserve"><value>Пунктирная линия на изображении показывает разделение; части 1 и 2 лежат со стороны соответствующей цифры. 50 % делит посередине. Обе части получают выбранный здесь вид.</value></data>
+  <data name="Garden_ShapeTrapezoid" xml:space="preserve"><value>Трапеция (равнобедренная)</value></data>
+  <data name="Garden_SizeBottom" xml:space="preserve"><value>Нижнее основание (м)</value></data>
+  <data name="Garden_SizeTop" xml:space="preserve"><value>Верхнее основание (м)</value></data>
+  <data name="Garden_SizeHeight" xml:space="preserve"><value>Высота (м)</value></data>
+  <data name="Garden_SplitArea" xml:space="preserve"><value>Площадь части 1 (м²)</value></data>
+  <data name="Garden_SplitFromArea" xml:space="preserve"><value>Рассчитать положение линии по площади</value></data>
+  <data name="Garden_ZoneEdges" xml:space="preserve"><value>Стороны «{0}»</value></data>
+  <data name="Garden_ShapeRightTrapezoid" xml:space="preserve"><value>Трапеция (прямоугольная)</value></data>
+  <data name="Garden_CutTitle" xml:space="preserve"><value>Прямая линия через участок</value></data>
+  <data name="Garden_CutDraw" xml:space="preserve"><value>Нарисовать линию</value></data>
+  <data name="Garden_CutClear" xml:space="preserve"><value>Убрать линию</value></data>
+  <data name="Garden_CutDrawing" xml:space="preserve"><value>Щёлкните по изображению в начале и в конце линии (Esc — отмена).</value></data>
+  <data name="Garden_CutGross" xml:space="preserve"><value>Площадь</value></data>
+  <data name="Garden_CutFree" xml:space="preserve"><value>из них свободно (без застройки и соседей)</value></data>
+  <data name="Garden_CutTake" xml:space="preserve"><value>Создать как область</value></data>
+  <data name="Garden_CutName" xml:space="preserve"><value>Часть {0}</value></data>
+  <data name="Garden_CutHint" xml:space="preserve"><value>Линия прямая и проходит через весь участок; обе части подписаны своей площадью. Чтобы изменить, нарисуйте линию заново.</value></data>
+  <data name="Garden_Tools" xml:space="preserve"><value>Инструменты</value></data>
+  <data name="Garden_ScaleTitle" xml:space="preserve"><value>Масштаб</value></data>
+  <data name="Garden_ScaleEdges" xml:space="preserve"><value>Указать длины сторон по отдельности</value></data>
+  <data name="Garden_ScaleArea" xml:space="preserve"><value>Указать площадь участка</value></data>
+  <data name="Garden_PlotArea" xml:space="preserve"><value>Площадь (м²)</value></data>
+  <data name="Garden_ScaleEdgesNote" xml:space="preserve"><value>Введите под изображением длину хотя бы одной стороны; чем больше значений, тем лучше проверка.</value></data>
+  <data name="Garden_ScaleAreaNote" xml:space="preserve"><value>Длины сторон тогда рассчитываются по рисунку и площади (пропорции как нарисовано).</value></data>
+  <data name="Garden_CalcEdges" xml:space="preserve"><value>Рассчитать</value></data>
+  <data name="Garden_ZoomFit" xml:space="preserve"><value>Показать всё изображение</value></data>
+  <data name="Garden_DeletePoint" xml:space="preserve"><value>Удалить выбранный угол</value></data>
+  <data name="Garden_SplitPositionPercent" xml:space="preserve"><value>Положение (%)</value></data>
+  <data name="Garden_SplitDistance" xml:space="preserve"><value>Расстояние от стороны 1 (м)</value></data>
+  <data name="Garden_KindMine" xml:space="preserve"><value>Часть участка</value></data>
+  <data name="Garden_KindHouse" xml:space="preserve"><value>Дом</value></data>
+  <data name="Garden_KindTerrace" xml:space="preserve"><value>Терраса</value></data>
+  <data name="Garden_KindGarage" xml:space="preserve"><value>Гараж</value></data>
+  <data name="Garden_KindParking" xml:space="preserve"><value>Парковка</value></data>
+  <data name="Garden_KindGarden" xml:space="preserve"><value>Садовая площадь</value></data>
+  <data name="Garden_ZoneList" xml:space="preserve"><value>Все части и области (таблица)</value></data>
+  <data name="Garden_ColName" xml:space="preserve"><value>Название</value></data>
+  <data name="Garden_ColKind" xml:space="preserve"><value>Вид</value></data>
+  <data name="Garden_ColArea" xml:space="preserve"><value>Площадь</value></data>
+  <data name="Garden_Neighbors" xml:space="preserve"><value>Число соседей</value></data>
+  <data name="Garden_NeighborName" xml:space="preserve"><value>Сосед {0}</value></data>
+  <data name="Garden_Owner" xml:space="preserve"><value>Владелец</value></data>
+  <data name="Garden_OwnerMe" xml:space="preserve"><value>мне</value></data>
+  <data name="Garden_Owners" xml:space="preserve"><value>Участок: части и области</value></data>
+  <data name="Garden_ColOwner" xml:space="preserve"><value>Владелец</value></data>
+  <data name="Garden_AddNeighbor" xml:space="preserve"><value>+ Добавить соседа</value></data>
+  <data name="Garden_SplitUndo" xml:space="preserve"><value>Отменить разделение</value></data>
+  <data name="Garden_SplitStored" xml:space="preserve"><value>Сохранённая линия разделения</value></data>
+  <data name="Garden_EditCorners" xml:space="preserve"><value>Редактировать углы</value></data>
+  <data name="Garden_ColAreaInside" xml:space="preserve"><value>внутри участка</value></data>
+  <data name="Garden_CutGarden" xml:space="preserve"><value>из них садовая площадь</value></data>
+  <data name="Garden_KindPond" xml:space="preserve"><value>Пруд</value></data>
+  <data name="Garden_KindShed" xml:space="preserve"><value>Садовый домик</value></data>
+  <data name="Garden_UseBeds" xml:space="preserve"><value>Площадь под грядки</value></data>
+  <data name="Garden_UseLawn" xml:space="preserve"><value>Газон</value></data>
+  <data name="Garden_UsePath" xml:space="preserve"><value>Дорожка</value></data>
+  <data name="Garden_UseTrees" xml:space="preserve"><value>Деревья и кусты</value></data>
+  <data name="Garden_UseCompost" xml:space="preserve"><value>Компост</value></data>
+  <data name="Garden_SunFull" xml:space="preserve"><value>Полное солнце</value></data>
+  <data name="Garden_SunPartial" xml:space="preserve"><value>Полутень</value></data>
+  <data name="Garden_SunShade" xml:space="preserve"><value>Тень</value></data>
+  <data name="Garden_SoilSand" xml:space="preserve"><value>Песчаная</value></data>
+  <data name="Garden_SoilLoam" xml:space="preserve"><value>Суглинок</value></data>
+  <data name="Garden_SoilClay" xml:space="preserve"><value>Глинистая</value></data>
+  <data name="Garden_SoilHumus" xml:space="preserve"><value>Богатая гумусом</value></data>
+  <data name="Garden_SlopeFlat" xml:space="preserve"><value>Ровная</value></data>
+  <data name="Garden_SlopeGentle" xml:space="preserve"><value>Небольшой уклон</value></data>
+  <data name="Garden_SlopeSteep" xml:space="preserve"><value>Крутой склон</value></data>
+  <data name="Garden_Props" xml:space="preserve"><value>Свойства выбранной области</value></data>
+  <data name="Garden_PropUse" xml:space="preserve"><value>Использование</value></data>
+  <data name="Garden_PropSun" xml:space="preserve"><value>Солнце</value></data>
+  <data name="Garden_PropSoil" xml:space="preserve"><value>Почва</value></data>
+  <data name="Garden_PropSlope" xml:space="preserve"><value>Уклон</value></data>
+  <data name="Garden_PropNone" xml:space="preserve"><value>– не задано –</value></data>
+  <data name="Garden_PropWaterlogged" xml:space="preserve"><value>Застой воды</value></data>
+  <data name="Garden_PropWater" xml:space="preserve"><value>Водопроводный кран рядом</value></data>
+  <data name="Garden_PropColdFrame" xml:space="preserve"><value>Возможен парник</value></data>
+  <data name="Garden_PropsNote" xml:space="preserve"><value>Эти сведения сохраняются вместе с областью и позже используются для размещения грядок (солнце и почва — по потребностям растений, парники — только там, где возможно).</value></data>
+  <data name="Garden_ColProps" xml:space="preserve"><value>Свойства</value></data>
+  <data name="Garden_MineOnly" xml:space="preserve"><value>Показывать только мою часть (расставить грядки)</value></data>
+  <data name="Garden_MineOnlyHint" xml:space="preserve"><value>Скрывает соседей и застроенные области и приближает вашу часть. Ничего не удаляется; выключите, чтобы снова увидеть всё.</value></data>
+  <data name="Garden_BedsTitle" xml:space="preserve"><value>Расстановка грядок</value></data>
+  <data name="Garden_BedChoose" xml:space="preserve"><value>Грядка</value></data>
+  <data name="Garden_BedPlace" xml:space="preserve"><value>Поставить</value></data>
+  <data name="Garden_BedCancel" xml:space="preserve"><value>Отмена</value></data>
+  <data name="Garden_BedPlaceHint" xml:space="preserve"><value>Щёлкните по изображению, чтобы поставить грядку (Esc — отмена).</value></data>
+  <data name="Garden_BedNoBeds" xml:space="preserve"><value>Грядок пока нет. Создайте их в разделе «Грядки», затем расставьте здесь.</value></data>
+  <data name="Garden_BedAllPlaced" xml:space="preserve"><value>Все ваши грядки расставлены. Перетащите грядку, чтобы сдвинуть, угол поворачивает её.</value></data>
+  <data name="Garden_BedAngle" xml:space="preserve"><value>Поворот</value></data>
+  <data name="Garden_BedRemove" xml:space="preserve"><value>Убрать</value></data>
+  <data name="Garden_BedOutside" xml:space="preserve"><value>Лежит не полностью в вашей части (сосед, застроено или не садовая область).</value></data>
+  <data name="Garden_BedOverlap" xml:space="preserve"><value>Пересекается с: {0}</value></data>
+  <data name="Garden_BedOk" xml:space="preserve"><value>Лежит в вашей части.</value></data>
+  <data name="Garden_BedNoCover" xml:space="preserve"><value>Грядка с укрытием, но область не отмечена как «парник возможен».</value></data>
+  <data name="Garden_BedUseOther" xml:space="preserve"><value>Область отмечена как «{0}», не для грядок.</value></data>
+  <data name="Garden_BedSum" xml:space="preserve"><value>Площадь грядок: {0} м² из {1} м² доступно ({2} %)</value></data>
+  <data name="Garden_RowEdit" xml:space="preserve"><value>Изменить</value></data>
+  <data name="Garden_RowDelete" xml:space="preserve"><value>Удалить</value></data>
+  <data name="Garden_RowDeleteConfirm" xml:space="preserve"><value>Удалить область «{0}»?</value></data>
+  <data name="Garden_Adopt" xml:space="preserve"><value>Сделать мою часть моим участком</value></data>
+  <data name="Garden_AdoptUndo" xml:space="preserve"><value>Отменить</value></data>
+  <data name="Garden_AdoptConfirm" xml:space="preserve"><value>«{0}» ({1} м²) станет вашим участком. Всё остальное удаляется: прежний контур, линия, соседи и областей вне него: {2}. Масштаб сохраняется. Окончательно только после «Сохранить». Продолжить?</value></data>
+  <data name="Garden_AdoptDone" xml:space="preserve"><value>Принято как участок: {0} м². Областей осталось: {1}, их можно редактировать.</value></data>
+  <data name="Garden_DeleteCorner" xml:space="preserve"><value>Удалить угол</value></data>
+  <data name="Garden_AddCorner" xml:space="preserve"><value>Добавить угол</value></data>
+  <data name="Garden_CornerNote" xml:space="preserve"><value>Размеры в метрах от левого и верхнего края изображения; изменение применяется при выходе из поля.</value></data>
+  <data name="Garden_Restrict" xml:space="preserve"><value>Ограничить участок моей частью</value></data>
+  <data name="Garden_RestrictHint" xml:space="preserve"><value>Берёт вашу сторону линии и убирает все области соседей (например, его половину гаража); контуром остаётся только остаток. Остальное удаляется, отмена работает до сохранения.</value></data>
+  <data name="Garden_RestrictNone" xml:space="preserve"><value>Своей части не осталось. Проверьте владельцев линии и областей.</value></data>
+  <data name="Garden_RestrictWarn" xml:space="preserve"><value>Внимание: ещё отдельных частей будет отброшено: {0}. Области соседей, которые лежат целиком внутри и не доходят до края, нельзя вычесть, они остаются на месте: {1}. Чтобы вырезать их, протяните их за край.</value></data>
+  <data name="Garden_MineName" xml:space="preserve"><value>Моя часть</value></data>
+  <data name="Garden_ColTreeName" xml:space="preserve"><value>Владелец / часть / область</value></data>
+  <data name="Garden_PartName" xml:space="preserve"><value>Часть</value></data>
+  <data name="Garden_CutLineShort" xml:space="preserve"><value>линия раздела</value></data>
+  <data name="Garden_MineTitle" xml:space="preserve"><value>Задать мою часть</value></data>
+  <data name="Garden_AreaTitle" xml:space="preserve"><value>Редактировать углы: участок или зона</value></data>
+  <data name="Garden_AreasTitle" xml:space="preserve"><value>Площади</value></data>
+  <data name="Garden_ScaleChoose" xml:space="preserve"><value>Масштаб задаётся</value></data>
+  <data name="Garden_BedNeedPlot" xml:space="preserve"><value>Грядки можно расставлять, только когда ваш участок определён, то есть части соседа удалены. Сначала сделайте свою часть участком.</value></data>
+  <data name="Garden_TitleBeds" xml:space="preserve"><value>Мой сад: грядки и зоны</value></data>
+  <data name="Garden_IntroBeds" xml:space="preserve"><value>Здесь твоя часть участка. Размести грядки и задай зоны (сад, дом, терраса и так далее). Сам участок задаётся на первой странице.</value></data>
+  <data name="Garden_NeedSetup" xml:space="preserve"><value>Участок ещё не задан. Сначала задай его: убери части соседей и возьми свою часть как участок.</value></data>
+  <data name="Garden_ToSetup" xml:space="preserve"><value>К участку</value></data>
+  <data name="Garden_ToBeds" xml:space="preserve"><value>Дальше: грядки и зоны</value></data>
+  <data name="Garden_NewAreaFree" xml:space="preserve"><value>Свободная форма</value></data>
+  <data name="Garden_NewAreaShape" xml:space="preserve"><value>Готовая форма</value></data>
+  <data name="Garden_NewAreaLines" xml:space="preserve"><value>По линиям на изображении</value></data>
+  <data name="Garden_TraceZone" xml:space="preserve"><value>Зона по линиям на изображении</value></data>
+  <data name="Garden_TraceTitle" xml:space="preserve"><value>Участок по линиям на изображении</value></data>
+  <data name="Garden_TraceBoundary" xml:space="preserve"><value>Взять участок по линиям</value></data>
+  <data name="Garden_TraceBoundaryNote" xml:space="preserve"><value>Если на плане уже есть линии (границы участков, здания), щёлкни внутри участка, и его контур будет взят; углы потом можно изменить.</value></data>
+  <data name="Garden_TraceHint" xml:space="preserve"><value>Щёлкни внутри области в пределах линий, которую хочешь взять. Esc отменяет.</value></data>
+  <data name="Garden_TraceLine" xml:space="preserve"><value>Это точно на линии. Щёлкни в области рядом.</value></data>
+  <data name="Garden_TraceOpen" xml:space="preserve"><value>Контур не замкнут (разрыв в линии или область доходит до края изображения). Щёлкни в другой области или нарисуй область вручную.</value></data>
+  <data name="Garden_TraceTiny" xml:space="preserve"><value>Эта область слишком мала (надпись или точка). Щёлкни в области побольше.</value></data>
+  <data name="Garden_TraceNoImage" xml:space="preserve"><value>Изображение здесь не читается. Нарисуй углы вручную.</value></data>
+  <data name="Garden_TraceReplace" xml:space="preserve"><value>Контур участка будет заменён линиями. Продолжить?</value></data>
+  <data name="Garden_TabGarden" xml:space="preserve"><value>Мой сад (грядки)</value></data>
+  <data name="Garden_TabSetup" xml:space="preserve"><value>План и участок (загрузить, изменить)</value></data>
+  <data name="Garden_EdgesEmpty" xml:space="preserve"><value>Контура пока нет. Щёлкни по углам участка на изображении или возьми участок по линиям; как только будет не меньше трёх углов, здесь появятся рёбра.</value></data>
+  <data name="Garden_InsertCorner" xml:space="preserve"><value>Вставить угол</value></data>
+  <data name="Garden_InsertHint" xml:space="preserve"><value>Щёлкни по ребру, где должен появиться новый угол. Кнопкой это отключается.</value></data>
+  <data name="Garden_CornerClosed" xml:space="preserve"><value>Фигура замкнута, поэтому щелчок не добавляет угол. Чтобы вставить угол, включи «Вставить угол» и щёлкни по ребру.</value></data>
+  <data name="Garden_GroupPlot" xml:space="preserve"><value>Участок</value></data>
+  <data name="Garden_GroupBeds" xml:space="preserve"><value>Грядки</value></data>
+  <data name="Garden_GroupAreas" xml:space="preserve"><value>Зоны</value></data>
+  <data name="Garden_DrawingHint" xml:space="preserve"><value>Щёлкай по углам по очереди. Готово: Esc или нажми на существующий угол.</value></data>
 </root>

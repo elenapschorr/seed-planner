@@ -1,0 +1,15 @@
+@page
+@model SeedPlanner.Api.Pages.Garden.IndexModel
+@{
+    ViewData["Title"] = L["Garden_TitleBeds"].Value;
+    ViewData["Wide"] = true;
+    ViewData["GardenMode"] = "edit";
+}
+
+<partial name="_GardenEditor" model="Model" view-data="ViewData" />
+
+@section Scripts {
+    <script src="~/js/garden-geometry.js" asp-append-version="true"></script>
+    <script src="~/js/garden-trace.js" asp-append-version="true"></script>
+    <script src="~/js/garden-page.js" asp-append-version="true"></script>
+}

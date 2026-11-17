@@ -593,4 +593,222 @@
   <data name="Role_Help" xml:space="preserve"><value>Suggestion for all users; each user can change it for themselves.</value></data>
   <data name="PlantRole_Main" xml:space="preserve"><value>Main plant</value></data>
   <data name="PlantRole_Secondary" xml:space="preserve"><value>Secondary plant</value></data>
+  <data name="Nav_Garden" xml:space="preserve"><value>Garden</value></data>
+  <data name="Garden_Title" xml:space="preserve"><value>Plot and garden area</value></data>
+  <data name="Garden_Intro" xml:space="preserve"><value>Upload a picture of your plot (aerial photo or sketch) and mark the corners. The corners make a closed line. Enter the length of at least one edge in meters or the area of the plot, then the sizes are calculated; the more lengths you enter, the better the picture can be checked. Then draw areas: garden areas (several separate ones are possible), house, terrace, garage, parking space, and what belongs to you and what does not.</value></data>
+  <data name="Garden_Upload" xml:space="preserve"><value>Upload picture</value></data>
+  <data name="Garden_Replace" xml:space="preserve"><value>Replace picture</value></data>
+  <data name="Garden_ImageHelp" xml:space="preserve"><value>JPG, PNG or WebP, at most 5 MB. When you replace the picture the corners stay where they are.</value></data>
+  <data name="Garden_Uploaded" xml:space="preserve"><value>Picture saved.</value></data>
+  <data name="Garden_Saved" xml:space="preserve"><value>Saved.</value></data>
+  <data name="Garden_ErrNoFile" xml:space="preserve"><value>Please choose a picture file.</value></data>
+  <data name="Garden_ErrType" xml:space="preserve"><value>Only JPG, PNG or WebP pictures are allowed.</value></data>
+  <data name="Garden_ErrSize" xml:space="preserve"><value>The picture is larger than 5 MB.</value></data>
+  <data name="Garden_ErrData" xml:space="preserve"><value>The input could not be saved.</value></data>
+  <data name="Garden_ErrNoImage" xml:space="preserve"><value>Upload a picture first.</value></data>
+  <data name="Garden_Boundary" xml:space="preserve"><value>Plot</value></data>
+  <data name="Garden_Zone" xml:space="preserve"><value>Area</value></data>
+  <data name="Garden_ZoneName" xml:space="preserve"><value>Name of the area (e.g. garage, my half)</value></data>
+  <data name="Garden_AddZone" xml:space="preserve"><value>Draw corners yourself</value></data>
+  <data name="Garden_DeleteZone" xml:space="preserve"><value>Delete area</value></data>
+  <data name="Garden_Target" xml:space="preserve"><value>Edit corners of</value></data>
+  <data name="Garden_UndoCorner" xml:space="preserve"><value>Remove last corner</value></data>
+  <data name="Garden_ClearShape" xml:space="preserve"><value>Clear shape</value></data>
+  <data name="Garden_Hint" xml:space="preserve"><value>Click into the picture to set the next corner. Drag a corner to move it. A click selects it (dark); then “Delete selected corner” or the Delete key removes it; a double click or a right click removes it at once. Set the corners one after the other around the plot; the line closes by itself. Zoom with Ctrl + mouse wheel; scroll a zoomed picture with the mouse or your finger.</value></data>
+  <data name="Garden_Total" xml:space="preserve"><value>Plot (drawn)</value></data>
+  <data name="Garden_Blocked" xml:space="preserve"><value>Built on / taken</value></data>
+  <data name="Garden_Available" xml:space="preserve"><value>Garden area (available)</value></data>
+  <data name="Garden_NoScale" xml:space="preserve"><value>Enter the length of at least one edge or the area of the plot, then the sizes are calculated.</value></data>
+  <data name="Garden_Edges" xml:space="preserve"><value>Edges and angles</value></data>
+  <data name="Garden_ColEdge" xml:space="preserve"><value>Edge</value></data>
+  <data name="Garden_ColLength" xml:space="preserve"><value>Length (m)</value></data>
+  <data name="Garden_ColImage" xml:space="preserve"><value>In the picture (m)</value></data>
+  <data name="Garden_ColDeviation" xml:space="preserve"><value>Deviation</value></data>
+  <data name="Garden_ColAngle" xml:space="preserve"><value>Angle at the corner</value></data>
+  <data name="Garden_WarnFew" xml:space="preserve"><value>At least 3 corners are needed for an area.</value></data>
+  <data name="Garden_WarnCross" xml:space="preserve"><value>The boundary crosses itself; check the order of the corners.</value></data>
+  <data name="Garden_WarnDeviation" xml:space="preserve"><value>Edge {0} is {1} % off the entered length in the picture; check the length and the corners.</value></data>
+  <data name="Garden_AllowNote" xml:space="preserve"><value>Every area belongs to you or to one of the neighbours; you set their number and names above. Areas of the neighbours (for example the half of the garage that belongs to the neighbour) are taken off the plot and counted for that neighbour; the split by owner is shown below the picture. Of your own areas, house, terrace, garage, parking space and “Other built on” are built on and do not count to the garden area. As soon as you draw garden areas (several separate ones are possible), only their area is available; without a garden area the rest of your plot counts. “Other area” only marks and does not change the numbers. Only the part inside the boundary counts; overlapping areas are not counted twice, areas of the neighbours win over built-on areas and those over garden areas.</value></data>
+  <data name="Garden_ZoomIn" xml:space="preserve"><value>Zoom in</value></data>
+  <data name="Garden_ZoomOut" xml:space="preserve"><value>Zoom out</value></data>
+  <data name="Garden_ZoomReset" xml:space="preserve"><value>Whole picture</value></data>
+  <data name="Garden_Cut" xml:space="preserve"><value>Neighbours</value></data>
+  <data name="Garden_KindOccupied" xml:space="preserve"><value>Other built on</value></data>
+  <data name="Garden_KindExcluded" xml:space="preserve"><value>Does not belong to me</value></data>
+  <data name="Garden_ZoneKind" xml:space="preserve"><value>Kind of area</value></data>
+  <data name="Garden_NewArea" xml:space="preserve"><value>New area</value></data>
+  <data name="Garden_ShapeType" xml:space="preserve"><value>Shape</value></data>
+  <data name="Garden_ShapeRect" xml:space="preserve"><value>Rectangle</value></data>
+  <data name="Garden_ShapeCircle" xml:space="preserve"><value>Circle</value></data>
+  <data name="Garden_ShapeEllipse" xml:space="preserve"><value>Ellipse</value></data>
+  <data name="Garden_ShapeTriangle" xml:space="preserve"><value>Triangle (right-angled)</value></data>
+  <data name="Garden_SizeWidth" xml:space="preserve"><value>Width (m)</value></data>
+  <data name="Garden_SizeDepth" xml:space="preserve"><value>Depth (m)</value></data>
+  <data name="Garden_SizeDiameter" xml:space="preserve"><value>Diameter (m)</value></data>
+  <data name="Garden_SizeDiameter1" xml:space="preserve"><value>Diameter 1 (m)</value></data>
+  <data name="Garden_SizeDiameter2" xml:space="preserve"><value>Diameter 2 (m)</value></data>
+  <data name="Garden_SizeLeg1" xml:space="preserve"><value>Leg 1 (m)</value></data>
+  <data name="Garden_SizeLeg2" xml:space="preserve"><value>Leg 2 (m)</value></data>
+  <data name="Garden_Orientation" xml:space="preserve"><value>Direction</value></data>
+  <data name="Garden_OrientH" xml:space="preserve"><value>horizontal</value></data>
+  <data name="Garden_OrientEdge" xml:space="preserve"><value>parallel to edge {0}</value></data>
+  <data name="Garden_PlaceShape" xml:space="preserve"><value>Place shape</value></data>
+  <data name="Garden_Placing" xml:space="preserve"><value>Click into the picture to place the shape (Esc cancels).</value></data>
+  <data name="Garden_ShapeNote" xml:space="preserve"><value>You enter the size in meters, so at least one edge length must be known. You move a placed shape by dragging it. To change it, delete it and place it again.</value></data>
+  <data name="Garden_SplitTitle" xml:space="preserve"><value>Split an area with a parallel line</value></data>
+  <data name="Garden_SplitNeedZone" xml:space="preserve"><value>Choose an area to split at „You are drawing“ above (at least 3 corners).</value></data>
+  <data name="Garden_SplitRef" xml:space="preserve"><value>Parallel to</value></data>
+  <data name="Garden_SplitBoundaryEdge" xml:space="preserve"><value>Plot, edge {0}</value></data>
+  <data name="Garden_SplitZoneEdge" xml:space="preserve"><value>Area, edge {0}</value></data>
+  <data name="Garden_SplitPosition" xml:space="preserve"><value>Position of the line</value></data>
+  <data name="Garden_SplitPart" xml:space="preserve"><value>Part</value></data>
+  <data name="Garden_SplitDo" xml:space="preserve"><value>Apply the split</value></data>
+  <data name="Garden_SplitHint" xml:space="preserve"><value>The dashed line in the picture shows the split; parts 1 and 2 lie on the sides with the respective number. 50 % splits in the middle. Both parts get the kind you choose here.</value></data>
+  <data name="Garden_ShapeTrapezoid" xml:space="preserve"><value>Trapezoid (symmetric)</value></data>
+  <data name="Garden_SizeBottom" xml:space="preserve"><value>Bottom side (m)</value></data>
+  <data name="Garden_SizeTop" xml:space="preserve"><value>Top side (m)</value></data>
+  <data name="Garden_SizeHeight" xml:space="preserve"><value>Height (m)</value></data>
+  <data name="Garden_SplitArea" xml:space="preserve"><value>Area of part 1 (m²)</value></data>
+  <data name="Garden_SplitFromArea" xml:space="preserve"><value>Compute the line position from the area</value></data>
+  <data name="Garden_ZoneEdges" xml:space="preserve"><value>Edges of „{0}“</value></data>
+  <data name="Garden_ShapeRightTrapezoid" xml:space="preserve"><value>Trapezoid (right-angled)</value></data>
+  <data name="Garden_CutTitle" xml:space="preserve"><value>Straight line through the plot</value></data>
+  <data name="Garden_CutDraw" xml:space="preserve"><value>Draw line</value></data>
+  <data name="Garden_CutClear" xml:space="preserve"><value>Remove line</value></data>
+  <data name="Garden_CutDrawing" xml:space="preserve"><value>Click the start and the end of the line in the picture (Esc cancels).</value></data>
+  <data name="Garden_CutGross" xml:space="preserve"><value>Area</value></data>
+  <data name="Garden_CutFree" xml:space="preserve"><value>of which free (without built-on areas and neighbours)</value></data>
+  <data name="Garden_CutTake" xml:space="preserve"><value>Create as area</value></data>
+  <data name="Garden_CutName" xml:space="preserve"><value>Part {0}</value></data>
+  <data name="Garden_CutHint" xml:space="preserve"><value>The line is straight and runs through the whole plot; both parts are labelled with their area in the picture. To change it, draw the line again.</value></data>
+  <data name="Garden_Tools" xml:space="preserve"><value>Tools</value></data>
+  <data name="Garden_ScaleTitle" xml:space="preserve"><value>Scale</value></data>
+  <data name="Garden_ScaleEdges" xml:space="preserve"><value>Enter edge lengths one by one</value></data>
+  <data name="Garden_ScaleArea" xml:space="preserve"><value>Enter the area of the plot</value></data>
+  <data name="Garden_PlotArea" xml:space="preserve"><value>Area (m²)</value></data>
+  <data name="Garden_ScaleEdgesNote" xml:space="preserve"><value>Enter the length of at least one edge below the picture; the more you enter, the better the picture can be checked.</value></data>
+  <data name="Garden_ScaleAreaNote" xml:space="preserve"><value>The edge lengths then follow from the picture and the area (proportions as drawn).</value></data>
+  <data name="Garden_CalcEdges" xml:space="preserve"><value>Calculate</value></data>
+  <data name="Garden_ZoomFit" xml:space="preserve"><value>Fit the whole picture</value></data>
+  <data name="Garden_DeletePoint" xml:space="preserve"><value>Delete selected corner</value></data>
+  <data name="Garden_SplitPositionPercent" xml:space="preserve"><value>Position (%)</value></data>
+  <data name="Garden_SplitDistance" xml:space="preserve"><value>Distance from side 1 (m)</value></data>
+  <data name="Garden_KindMine" xml:space="preserve"><value>Part of the plot</value></data>
+  <data name="Garden_KindHouse" xml:space="preserve"><value>House</value></data>
+  <data name="Garden_KindTerrace" xml:space="preserve"><value>Terrace</value></data>
+  <data name="Garden_KindGarage" xml:space="preserve"><value>Garage</value></data>
+  <data name="Garden_KindParking" xml:space="preserve"><value>Parking space</value></data>
+  <data name="Garden_KindGarden" xml:space="preserve"><value>Garden area</value></data>
+  <data name="Garden_ZoneList" xml:space="preserve"><value>All parts and areas (table)</value></data>
+  <data name="Garden_ColName" xml:space="preserve"><value>Name</value></data>
+  <data name="Garden_ColKind" xml:space="preserve"><value>Kind</value></data>
+  <data name="Garden_ColArea" xml:space="preserve"><value>Area</value></data>
+  <data name="Garden_Neighbors" xml:space="preserve"><value>Number of neighbours</value></data>
+  <data name="Garden_NeighborName" xml:space="preserve"><value>Neighbour {0}</value></data>
+  <data name="Garden_Owner" xml:space="preserve"><value>Owner</value></data>
+  <data name="Garden_OwnerMe" xml:space="preserve"><value>me</value></data>
+  <data name="Garden_Owners" xml:space="preserve"><value>Plot: parts and areas</value></data>
+  <data name="Garden_ColOwner" xml:space="preserve"><value>Owner</value></data>
+  <data name="Garden_AddNeighbor" xml:space="preserve"><value>+ Add neighbour</value></data>
+  <data name="Garden_SplitUndo" xml:space="preserve"><value>Undo the split</value></data>
+  <data name="Garden_SplitStored" xml:space="preserve"><value>Saved split line</value></data>
+  <data name="Garden_EditCorners" xml:space="preserve"><value>Edit corners</value></data>
+  <data name="Garden_ColAreaInside" xml:space="preserve"><value>inside the plot</value></data>
+  <data name="Garden_CutGarden" xml:space="preserve"><value>of which garden area</value></data>
+  <data name="Garden_KindPond" xml:space="preserve"><value>Pond</value></data>
+  <data name="Garden_KindShed" xml:space="preserve"><value>Garden house</value></data>
+  <data name="Garden_UseBeds" xml:space="preserve"><value>Bed area</value></data>
+  <data name="Garden_UseLawn" xml:space="preserve"><value>Lawn</value></data>
+  <data name="Garden_UsePath" xml:space="preserve"><value>Path</value></data>
+  <data name="Garden_UseTrees" xml:space="preserve"><value>Trees and shrubs</value></data>
+  <data name="Garden_UseCompost" xml:space="preserve"><value>Compost</value></data>
+  <data name="Garden_SunFull" xml:space="preserve"><value>Full sun</value></data>
+  <data name="Garden_SunPartial" xml:space="preserve"><value>Partial shade</value></data>
+  <data name="Garden_SunShade" xml:space="preserve"><value>Shade</value></data>
+  <data name="Garden_SoilSand" xml:space="preserve"><value>Sandy</value></data>
+  <data name="Garden_SoilLoam" xml:space="preserve"><value>Loamy</value></data>
+  <data name="Garden_SoilClay" xml:space="preserve"><value>Clay</value></data>
+  <data name="Garden_SoilHumus" xml:space="preserve"><value>Humus-rich</value></data>
+  <data name="Garden_SlopeFlat" xml:space="preserve"><value>Flat</value></data>
+  <data name="Garden_SlopeGentle" xml:space="preserve"><value>Gentle slope</value></data>
+  <data name="Garden_SlopeSteep" xml:space="preserve"><value>Steep slope</value></data>
+  <data name="Garden_Props" xml:space="preserve"><value>Properties of the chosen area</value></data>
+  <data name="Garden_PropUse" xml:space="preserve"><value>Use</value></data>
+  <data name="Garden_PropSun" xml:space="preserve"><value>Sun</value></data>
+  <data name="Garden_PropSoil" xml:space="preserve"><value>Soil</value></data>
+  <data name="Garden_PropSlope" xml:space="preserve"><value>Slope</value></data>
+  <data name="Garden_PropNone" xml:space="preserve"><value>– not set –</value></data>
+  <data name="Garden_PropWaterlogged" xml:space="preserve"><value>Waterlogging</value></data>
+  <data name="Garden_PropWater" xml:space="preserve"><value>Water tap close by</value></data>
+  <data name="Garden_PropColdFrame" xml:space="preserve"><value>Cold frame possible</value></data>
+  <data name="Garden_PropsNote" xml:space="preserve"><value>These details are saved with the area and are used later to place beds in the right spots (sun and soil to match the plants, cold frames only where possible).</value></data>
+  <data name="Garden_ColProps" xml:space="preserve"><value>Properties</value></data>
+  <data name="Garden_MineOnly" xml:space="preserve"><value>Show only my part (place beds)</value></data>
+  <data name="Garden_MineOnlyHint" xml:space="preserve"><value>Hides neighbours and built-on areas and zooms to your part. Nothing is deleted; switch it off to see everything again.</value></data>
+  <data name="Garden_BedsTitle" xml:space="preserve"><value>Place beds</value></data>
+  <data name="Garden_BedChoose" xml:space="preserve"><value>Bed</value></data>
+  <data name="Garden_BedPlace" xml:space="preserve"><value>Place</value></data>
+  <data name="Garden_BedCancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Garden_BedPlaceHint" xml:space="preserve"><value>Click in the picture to put the bed down (Esc cancels).</value></data>
+  <data name="Garden_BedNoBeds" xml:space="preserve"><value>No beds have been created yet. Create them under “Beds”, then place them here.</value></data>
+  <data name="Garden_BedAllPlaced" xml:space="preserve"><value>All your beds are placed. Drag a bed to move it, use the angle to turn it.</value></data>
+  <data name="Garden_BedAngle" xml:space="preserve"><value>Rotation</value></data>
+  <data name="Garden_BedRemove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Garden_BedOutside" xml:space="preserve"><value>Not completely inside your part (neighbour, built on or not a garden area).</value></data>
+  <data name="Garden_BedOverlap" xml:space="preserve"><value>Overlaps: {0}</value></data>
+  <data name="Garden_BedOk" xml:space="preserve"><value>Lies inside your part.</value></data>
+  <data name="Garden_BedNoCover" xml:space="preserve"><value>Bed with a cover, but the area is not marked “cold frame possible”.</value></data>
+  <data name="Garden_BedUseOther" xml:space="preserve"><value>The area is marked “{0}”, not for beds.</value></data>
+  <data name="Garden_BedSum" xml:space="preserve"><value>Bed area: {0} m² of {1} m² available ({2} %)</value></data>
+  <data name="Garden_RowEdit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Garden_RowDelete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Garden_RowDeleteConfirm" xml:space="preserve"><value>Delete area “{0}”?</value></data>
+  <data name="Garden_Adopt" xml:space="preserve"><value>Use my part as my plot</value></data>
+  <data name="Garden_AdoptUndo" xml:space="preserve"><value>Undo</value></data>
+  <data name="Garden_AdoptConfirm" xml:space="preserve"><value>“{0}” ({1} m²) becomes your plot. Everything else is removed: the old outline, the line, the neighbours and {2} area(s) outside. The scale stays. Only “Save” makes it final. Continue?</value></data>
+  <data name="Garden_AdoptDone" xml:space="preserve"><value>Taken as the plot: {0} m². {1} area(s) stayed and can still be edited.</value></data>
+  <data name="Garden_DeleteCorner" xml:space="preserve"><value>Delete corner</value></data>
+  <data name="Garden_AddCorner" xml:space="preserve"><value>Add corner</value></data>
+  <data name="Garden_CornerNote" xml:space="preserve"><value>Measures in meters from the left and top edge of the picture; a change applies when you leave the field.</value></data>
+  <data name="Garden_Restrict" xml:space="preserve"><value>Restrict the plot to my part</value></data>
+  <data name="Garden_RestrictHint" xml:space="preserve"><value>Takes the side of the line that is yours and removes every area that belongs to a neighbour (for example his half of the garage); only what is left stays as the outline. The rest is removed, undo works until you save.</value></data>
+  <data name="Garden_RestrictNone" xml:space="preserve"><value>Nothing of your own is left. Check the owners of the line and of the areas.</value></data>
+  <data name="Garden_RestrictWarn" xml:space="preserve"><value>Attention: {0} further separate pieces are left out. Neighbour areas that lie completely inside and do not reach the edge cannot be taken off and stay where they are: {1}. Drag them over the edge if they are to be cut out.</value></data>
+  <data name="Garden_MineName" xml:space="preserve"><value>My part</value></data>
+  <data name="Garden_ColTreeName" xml:space="preserve"><value>Owner / part / area</value></data>
+  <data name="Garden_PartName" xml:space="preserve"><value>Part</value></data>
+  <data name="Garden_CutLineShort" xml:space="preserve"><value>dividing line</value></data>
+  <data name="Garden_MineTitle" xml:space="preserve"><value>Set my part</value></data>
+  <data name="Garden_AreaTitle" xml:space="preserve"><value>Edit corners: plot or area</value></data>
+  <data name="Garden_AreasTitle" xml:space="preserve"><value>Areas</value></data>
+  <data name="Garden_ScaleChoose" xml:space="preserve"><value>Set the scale by</value></data>
+  <data name="Garden_BedNeedPlot" xml:space="preserve"><value>Beds can only be placed once your plot is defined, that is, once the neighbour’s parts are removed. Use your part as the plot first.</value></data>
+  <data name="Garden_TitleBeds" xml:space="preserve"><value>My garden: beds and areas</value></data>
+  <data name="Garden_IntroBeds" xml:space="preserve"><value>This is your part of the plot. Place your beds here and define areas (garden, house, terrace and so on). The plot itself is set on the first page.</value></data>
+  <data name="Garden_NeedSetup" xml:space="preserve"><value>The plot is not defined yet. Set it first: remove the parts of the neighbours and take your part as your plot.</value></data>
+  <data name="Garden_ToSetup" xml:space="preserve"><value>To the plot</value></data>
+  <data name="Garden_ToBeds" xml:space="preserve"><value>Next: beds and areas</value></data>
+  <data name="Garden_NewAreaFree" xml:space="preserve"><value>Free form</value></data>
+  <data name="Garden_NewAreaShape" xml:space="preserve"><value>Ready-made shape</value></data>
+  <data name="Garden_NewAreaLines" xml:space="preserve"><value>From lines in the picture</value></data>
+  <data name="Garden_TraceZone" xml:space="preserve"><value>Area from lines in the picture</value></data>
+  <data name="Garden_TraceTitle" xml:space="preserve"><value>Plot from lines in the picture</value></data>
+  <data name="Garden_TraceBoundary" xml:space="preserve"><value>Take the plot from the lines</value></data>
+  <data name="Garden_TraceBoundaryNote" xml:space="preserve"><value>If the plan already has lines (boundaries of the plots, buildings), click into the plot and its outline is taken over; the corners can be changed afterwards.</value></data>
+  <data name="Garden_TraceHint" xml:space="preserve"><value>Click into the area inside the lines that you want to take over. Esc cancels.</value></data>
+  <data name="Garden_TraceLine" xml:space="preserve"><value>That is exactly on a line. Click into the area next to it.</value></data>
+  <data name="Garden_TraceOpen" xml:space="preserve"><value>The outline is not closed (a gap in the line, or the area reaches the edge of the picture). Click into another area or draw the area by hand.</value></data>
+  <data name="Garden_TraceTiny" xml:space="preserve"><value>This area is too small (lettering or a dot). Click into a larger area.</value></data>
+  <data name="Garden_TraceNoImage" xml:space="preserve"><value>The picture cannot be read here. Draw the corners by hand.</value></data>
+  <data name="Garden_TraceReplace" xml:space="preserve"><value>The outline of the plot is replaced by the lines. Continue?</value></data>
+  <data name="Garden_TabGarden" xml:space="preserve"><value>My garden (beds)</value></data>
+  <data name="Garden_TabSetup" xml:space="preserve"><value>Plan and plot (upload, edit)</value></data>
+  <data name="Garden_EdgesEmpty" xml:space="preserve"><value>There is no outline yet. Click the corners of the plot in the picture, or take the plot from the lines in the picture; as soon as there are at least three corners the edges appear here.</value></data>
+  <data name="Garden_InsertCorner" xml:space="preserve"><value>Insert corner</value></data>
+  <data name="Garden_InsertHint" xml:space="preserve"><value>Click on the edge where the new corner should be. Click the button again to stop.</value></data>
+  <data name="Garden_CornerClosed" xml:space="preserve"><value>The shape is closed, so a click does not add a corner. To insert one, switch on "Insert corner" and click on the edge.</value></data>
+  <data name="Garden_GroupPlot" xml:space="preserve"><value>Plot</value></data>
+  <data name="Garden_GroupBeds" xml:space="preserve"><value>Beds</value></data>
+  <data name="Garden_GroupAreas" xml:space="preserve"><value>Areas</value></data>
+  <data name="Garden_DrawingHint" xml:space="preserve"><value>Click the corners one after the other. Done: Esc, or press an existing corner.</value></data>
 </root>

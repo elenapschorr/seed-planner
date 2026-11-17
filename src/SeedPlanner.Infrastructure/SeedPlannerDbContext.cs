@@ -21,6 +21,8 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
     public DbSet<UserDemand> UserDemands => Set<UserDemand>();
     public DbSet<UserPlantRole> UserPlantRoles => Set<UserPlantRole>();
     public DbSet<UserPlantPartner> UserPlantPartners => Set<UserPlantPartner>();
+    public DbSet<Plot> Plots => Set<Plot>();
+    public DbSet<PlotZone> PlotZones => Set<PlotZone>();
     public DbSet<Plan> Plans => Set<Plan>();
     public DbSet<PlanItem> PlanItems => Set<PlanItem>();
     public DbSet<PlanLine> PlanLines => Set<PlanLine>();
@@ -202,6 +204,22 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.HasOne(r => r.PlantType).WithMany().HasForeignKey(r => r.PlantTypeId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<IdentityUser>().WithMany().HasForeignKey(r => r.OwnerId).OnDelete(DeleteBehavior.Cascade);
             e.HasQueryFilter(r => r.OwnerId == CurrentUserId);
+        });
+
+        // The plot of the garden: picture, boundary and blocked areas; personal data, one per user
+        modelBuilder.Entity<Plot>(e =>
+        {
+            e.Property(p => p.ImageContentType).HasMaxLength(50);
+            e.HasIndex(p => p.OwnerId).IsUnique();
+            e.HasOne<IdentityUser>().WithMany().HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(p => p.Zones).WithOne(z => z.Plot).HasForeignKey(z => z.PlotId).OnDelete(DeleteBehavior.Cascade);
+            e.HasQueryFilter(p => p.OwnerId == CurrentUserId);
+        });
+        modelBuilder.Entity<PlotZone>(e =>
+        {
+            e.Property(z => z.Name).HasMaxLength(100);
+            e.Property(z => z.Kind).HasConversion<string>();
+            e.HasQueryFilter(z => z.Plot!.OwnerId == CurrentUserId);
         });
 
         // The user's own changes of the partner list of a main plant: personal data

@@ -50,6 +50,7 @@ builder.Services.AddRazorPages(o =>
         o.Conventions.AuthorizeFolder("/Saucers");
         o.Conventions.AuthorizeFolder("/RaisedBeds");
         o.Conventions.AuthorizeFolder("/Roles");
+        o.Conventions.AuthorizeFolder("/Garden");
         o.Conventions.AuthorizeFolder("/Demand");
         o.Conventions.AuthorizeFolder("/Plans");
     })
