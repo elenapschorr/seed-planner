@@ -763,6 +763,7 @@
   <data name="Garden_RowEdit" xml:space="preserve"><value>Bearbeiten</value></data>
   <data name="Garden_RowDelete" xml:space="preserve"><value>Löschen</value></data>
   <data name="Garden_RowDeleteConfirm" xml:space="preserve"><value>Bereich „{0}“ löschen?</value></data>
+  <data name="Garden_ClearBoundaryConfirm" xml:space="preserve"><value>Grundstücksgrenze leeren? Alle Ecken werden entfernt (Strg+Z holt sie zurück).</value></data>
   <data name="Garden_Adopt" xml:space="preserve"><value>Meinen Teil als Grundstück übernehmen</value></data>
   <data name="Garden_AdoptUndo" xml:space="preserve"><value>Übernahme rückgängig</value></data>
   <data name="Garden_AdoptConfirm" xml:space="preserve"><value>„{0}“ ({1} m²) wird dein Grundstück. Alles andere wird entfernt: der bisherige Umriss, die Linie, die Nachbarn und {2} Bereich(e) außerhalb. Der Maßstab bleibt. Erst „Speichern“ macht es endgültig. Fortfahren?</value></data>

@@ -763,6 +763,7 @@
   <data name="Garden_RowEdit" xml:space="preserve"><value>Edit</value></data>
   <data name="Garden_RowDelete" xml:space="preserve"><value>Delete</value></data>
   <data name="Garden_RowDeleteConfirm" xml:space="preserve"><value>Delete area “{0}”?</value></data>
+  <data name="Garden_ClearBoundaryConfirm" xml:space="preserve"><value>Clear the plot boundary? All its corners are removed (Ctrl+Z brings them back).</value></data>
   <data name="Garden_Adopt" xml:space="preserve"><value>Use my part as my plot</value></data>
   <data name="Garden_AdoptUndo" xml:space="preserve"><value>Undo</value></data>
   <data name="Garden_AdoptConfirm" xml:space="preserve"><value>“{0}” ({1} m²) becomes your plot. Everything else is removed: the old outline, the line, the neighbours and {2} area(s) outside. The scale stays. Only “Save” makes it final. Continue?</value></data>

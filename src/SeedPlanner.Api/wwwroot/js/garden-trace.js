@@ -4,13 +4,26 @@
 (function (root) {
     "use strict";
 
+    // ---- thresholds
+    var LINE_MIN_RED = 170;             // a yellow line is bright ...
+    var LINE_GREEN_OF_RED = 0.8;        // ... green at least this much of red (roofs are orange, grass is green) ...
+    var LINE_BLUE_OF_GREEN = 0.65;      // ... and blue less than this much of green
+    var LINE_WIDTHS = [1, 2, 4, 8];     // the lines are widened more and more (times the gap) until the outline is closed
+    var ISLAND_SHARE = 0.5;             // an enclosed space counts when this part of its edge is next to the region
+    var SMALL_SPACE_AREA = 0.08;        // a space up to this part of the region is "small" (a shed) ...
+    var SMALL_SPACE_SHARE = 0.45;       // ... and counts with this part of its edge next to the region
+    var MIN_AREA = 100;                 // pixels: a smaller area is lettering or a dot
+    var DEFAULT_GAP_DIVISOR = 600;      // gap = longer side of the picture / this
+    var DEFAULT_OPEN_DIVISOR = 400;     // opening radius = longer side of the picture / this
+    var MIN_TOLERANCE = 1.5;            // pixels
+
     // The pixels that belong to a yellow line: bright, red and green about equal, little blue.
     // (roofs are orange: green clearly below red; grass is green: green above red)
     function lineMask(data, w, h) {
         var mask = new Uint8Array(w * h);
         for (var i = 0, p = 0; i < w * h; i++, p += 4) {
             var r = data[p], g = data[p + 1], b = data[p + 2];
-            if (r > 170 && g > 0.8 * r && b < 0.65 * g) mask[i] = 1;
+            if (r > LINE_MIN_RED && g > LINE_GREEN_OF_RED * r && b < LINE_BLUE_OF_GREEN * g) mask[i] = 1;
         }
         return mask;
     }
@@ -36,13 +49,18 @@
         return out;
     }
 
+    // The set of the pixels that are not in the mask
+    function invert(mask) {
+        var out = new Uint8Array(mask.length);
+        for (var i = 0; i < mask.length; i++) out[i] = mask[i] ? 0 : 1;
+        return out;
+    }
+
+    function onBorder(x, y, w, h) { return x === 0 || y === 0 || x === w - 1 || y === h - 1; }
+
     // Closing: widens the set and takes it back again; narrow cracks and links (a building that touches the boundary with its lines) close
     function close(mask, w, h, r) {
-        var grown = dilate(mask, w, h, r), inv = new Uint8Array(w * h), i;
-        for (i = 0; i < w * h; i++) inv[i] = grown[i] ? 0 : 1;
-        var shrunk = dilate(inv, w, h, r), out = new Uint8Array(w * h);
-        for (i = 0; i < w * h; i++) out[i] = shrunk[i] ? 0 : 1;
-        return out;
+        return invert(dilate(invert(dilate(mask, w, h, r)), w, h, r));
     }
 
     // The pixels that can be reached from the start without crossing a wall (4 neighbours); open = reaches the border of the picture
@@ -55,7 +73,7 @@
         while (head < tail) {
             var i = queue[head++], x = i % w, y = (i - x) / w;
             count++;
-            if (x === 0 || y === 0 || x === w - 1 || y === h - 1) open = true;
+            if (onBorder(x, y, w, h)) open = true;
             if (x > 0 && !region[i - 1] && !wall[i - 1]) { region[i - 1] = 1; queue[tail++] = i - 1; }
             if (x < w - 1 && !region[i + 1] && !wall[i + 1]) { region[i + 1] = 1; queue[tail++] = i + 1; }
             if (y > 0 && !region[i - w] && !wall[i - w]) { region[i - w] = 1; queue[tail++] = i - w; }
@@ -77,7 +95,7 @@
             label[s] = 1; queue[tail++] = s;
             while (head < tail) {
                 var i = queue[head++], x = i % w, y = (i - x) / w, onEdge = false;
-                if (x === 0 || y === 0 || x === w - 1 || y === h - 1) border = true;
+                if (onBorder(x, y, w, h)) border = true;
                 var nb = [x > 0 ? i - 1 : -1, x < w - 1 ? i + 1 : -1, y > 0 ? i - w : -1, y < h - 1 ? i + w : -1];
                 for (var k = 0; k < 4; k++) {
                     var j = nb[k];
@@ -88,7 +106,7 @@
                 if (onEdge) { edge++; if (near[i]) edgeNear++; }
             }
             // a small space that has at least 45 % of its edge at the region (a shed on the boundary) counts as well; a big one is another plot, and a building of the neighbour touches the region on one side only
-            var small = tail <= 0.08 * regionArea && edgeNear >= (smallShare || 0.45) * edge;
+            var small = tail <= SMALL_SPACE_AREA * regionArea && edgeNear >= (smallShare || SMALL_SPACE_SHARE) * edge;
             if (!border && edge > 0 && (edgeNear >= share * edge || small))
                 for (var q = 0; q < tail; q++) out[queue[q]] = 1;
         }
@@ -97,11 +115,7 @@
 
     // Opening: takes the set in and out again; spikes and bridges thinner than 2r vanish
     function open(mask, w, h, r) {
-        var inv = new Uint8Array(w * h), i;
-        for (i = 0; i < w * h; i++) inv[i] = mask[i] ? 0 : 1;
-        var eroded = dilate(inv, w, h, r), core = new Uint8Array(w * h);
-        for (i = 0; i < w * h; i++) core[i] = eroded[i] ? 0 : 1;
-        return dilate(core, w, h, r);
+        return dilate(invert(dilate(invert(mask), w, h, r)), w, h, r);
     }
 
     // The region reaches up to the middle of the lines: adds the line pixels next to it
@@ -204,6 +218,34 @@
         return null;
     }
 
+    // The region that the click is in when the lines are r pixels wide; { status: "line" | "open" } if there is none.
+    // Closed only with wide lines: the wide result limits the area, inside of it the thin lines are used again
+    // (otherwise buildings next to the boundary would melt into it).
+    function regionBetweenLines(base, w, h, px, py, gap, r) {
+        var wall = dilate(base, w, h, r);
+        var seed = nearestFree(wall, w, h, px, py, r + 2);
+        if (!seed) return { status: "line" };
+        var filled = fill(wall, w, h, seed[0], seed[1]);
+        if (filled.open) return { status: "open" };
+        if (r <= gap) return { status: "ok", region: filled.region, walls: wall };
+        var allowed = dilate(filled.region, w, h, r + 1), walls = new Uint8Array(w * h), thin = dilate(base, w, h, gap);
+        for (var i = 0; i < w * h; i++) walls[i] = thin[i] || !allowed[i] ? 1 : 0;
+        var seed2 = nearestFree(walls, w, h, px, py, r + 2);
+        if (!seed2) return { status: "line" };
+        return { status: "ok", region: fill(walls, w, h, seed2[0], seed2[1]).region, walls: thin };
+    }
+
+    // From the region to the corners: the spaces inside are added, the edge is smoothed and simplified
+    function cornersOfRegion(region, walls, w, h, r, gap, o) {
+        var reach = o.reach || gap * 2 + 4;       // the lines are several pixels thick: how far the region is from a space behind a line
+        region = grow(addIslands(region, walls, w, h, reach, o.share || ISLAND_SHARE, o.smallShare), walls, w, h, reach);
+        region = open(region, w, h, o.open || Math.max(1, Math.round(Math.max(w, h) / DEFAULT_OPEN_DIVISOR)));
+        var tol = o.tolerance || Math.max(MIN_TOLERANCE, r * 0.6 + 1);
+        return { corners: apart(simplify(trace(region, w, h), tol), tol), tolerance: tol };
+    }
+
+    function roundPoint(p) { return [Math.round(p[0] * 10) / 10, Math.round(p[1] * 10) / 10]; }
+
     // The area around the click up to the lines. Result: { status, points, gap }
     //   status "ok"    points = corners (picture pixels), gap = how much the lines were widened to close the gaps
     //   status "line"  the click is on a line (no area)
@@ -212,39 +254,20 @@
     // options: gap (first gap size in pixels), tolerance (corner simplification in pixels), minArea (pixels)
     function polygonAt(data, w, h, x, y, options) {
         var o = options || {};
-        var gap = o.gap || Math.max(1, Math.round(Math.max(w, h) / 600));
+        var gap = o.gap || Math.max(1, Math.round(Math.max(w, h) / DEFAULT_GAP_DIVISOR));
         var base = lineMask(data, w, h);
         var px = Math.max(0, Math.min(w - 1, Math.floor(x))), py = Math.max(0, Math.min(h - 1, Math.floor(y)));
-        var status = "open";
         if (base[py * w + px]) return { status: "line", points: [], gap: gap };       // exactly on a line: it is not clear which side is meant
-        var steps = [1, 2, 4, 8];       // widen the lines more and more until the outline is closed
-        for (var step = 0; step < steps.length; step++) {
-            var r = gap * steps[step];
-            var wall = dilate(base, w, h, r);
-            var seed = nearestFree(wall, w, h, px, py, r + 2);
-            if (!seed) return { status: "line", points: [], gap: r };
-            var f = fill(wall, w, h, seed[0], seed[1]);
-            if (f.open) { status = "open"; continue; }
-            var region = f.region, thin = wall;
-            if (r > gap) {
-                // closed only with wide lines: the wide result limits the area, inside of it the thin lines are used again
-                // (otherwise buildings next to the boundary would melt into it)
-                var allowed = dilate(f.region, w, h, r + 1), walls = new Uint8Array(w * h);
-                thin = dilate(base, w, h, gap);
-                for (var i = 0; i < w * h; i++) walls[i] = thin[i] || !allowed[i] ? 1 : 0;
-                var seed2 = nearestFree(walls, w, h, px, py, r + 2);
-                if (!seed2) return { status: "line", points: [], gap: r };
-                region = fill(walls, w, h, seed2[0], seed2[1]).region;
-            }
-            var reach = o.reach || gap * 2 + 4;       // the lines are several pixels thick: how far the region is from a space behind a line
-            region = grow(addIslands(region, thin, w, h, reach, o.share || 0.5, o.smallShare), thin, w, h, reach);
-            region = open(region, w, h, o.open || Math.max(1, Math.round(Math.max(w, h) / 400)));
-            var tol = o.tolerance || Math.max(1.5, r * 0.6 + 1);
-            var corners = apart(simplify(trace(region, w, h), tol), tol);
-            if (corners.length < 3 || polygonArea(corners) < (o.minArea || 100)) return { status: "tiny", points: [], gap: r };
-            return { status: "ok", points: corners.map(function (p) { return [Math.round(p[0] * 10) / 10, Math.round(p[1] * 10) / 10]; }), gap: r };
+        for (var step = 0; step < LINE_WIDTHS.length; step++) {
+            var r = gap * LINE_WIDTHS[step];
+            var found = regionBetweenLines(base, w, h, px, py, gap, r);
+            if (found.status === "line") return { status: "line", points: [], gap: r };
+            if (found.status === "open") continue;
+            var shape = cornersOfRegion(found.region, found.walls, w, h, r, gap, o);
+            if (shape.corners.length < 3 || polygonArea(shape.corners) < (o.minArea || MIN_AREA)) return { status: "tiny", points: [], gap: r };
+            return { status: "ok", points: shape.corners.map(roundPoint), gap: r };
         }
-        return { status: status, points: [], gap: gap * 8 };
+        return { status: "open", points: [], gap: gap * LINE_WIDTHS[LINE_WIDTHS.length - 1] };
     }
 
     var api = { lineMask: lineMask, dilate: dilate, fill: fill, addIslands: addIslands, trace: trace, simplify: simplify, polygonAt: polygonAt };

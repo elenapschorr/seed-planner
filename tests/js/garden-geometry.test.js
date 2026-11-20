@@ -157,3 +157,10 @@ test("subtracting polygons: notch, corner, hole, no overlap, concave subject", (
   // two clips one after the other
   near(total(G.subtractAll([sq], [rect(-10, -10, 30, 30), rect(70, 70, 110, 110)])), 10000 - 900 - 900, 3);
 });
+
+test("distance to an edge: beside it, beyond its end, and on a zero-length edge", () => {
+  near(G.distanceToSegment([50, 30], [0, 0], [100, 0]), 30);        // beside the edge: the foot of the perpendicular
+  near(G.distanceToSegment([130, 40], [0, 0], [100, 0]), 50);       // beyond the end: the distance to the end point
+  near(G.distanceToSegment([3, 4], [0, 0], [0, 0]), 5);             // an edge of length 0 is a point
+  assert.deepEqual(G.closestPointOnSegment([50, 30], [0, 0], [100, 0]), [50, 0]);
+});

@@ -763,6 +763,7 @@
   <data name="Garden_RowEdit" xml:space="preserve"><value>Изменить</value></data>
   <data name="Garden_RowDelete" xml:space="preserve"><value>Удалить</value></data>
   <data name="Garden_RowDeleteConfirm" xml:space="preserve"><value>Удалить область «{0}»?</value></data>
+  <data name="Garden_ClearBoundaryConfirm" xml:space="preserve"><value>Очистить границу участка? Все углы будут удалены (Ctrl+Z вернёт их).</value></data>
   <data name="Garden_Adopt" xml:space="preserve"><value>Сделать мою часть моим участком</value></data>
   <data name="Garden_AdoptUndo" xml:space="preserve"><value>Отменить</value></data>
   <data name="Garden_AdoptConfirm" xml:space="preserve"><value>«{0}» ({1} м²) станет вашим участком. Всё остальное удаляется: прежний контур, линия, соседи и областей вне него: {2}. Масштаб сохраняется. Окончательно только после «Сохранить». Продолжить?</value></data>
