@@ -311,35 +311,19 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             ModelState.AddModelError($"Input.{nameof(Input.PotSizeMinLiters)}", L["Error_PotSizeRequired"]);
     }
 
-    // Both months or none (a window may run across the new year, so from > to is fine).
-    // Within one month the end part must not come before the start part.
+    // Both months or none, and in one month the end part must not come before the start part (the rule is in WindowCheck)
     private void CheckWindows(string name, List<WindowInput> windows)
     {
         for (var i = 0; i < windows.Count; i++)
         {
             var w = windows[i];
-            var key = $"Input.{name}[{i}].FromMonth";
-
-            if ((w.FromMonth is null) != (w.ToMonth is null))
+            var message = WindowCheck.Check(w.FromMonth, w.FromPart, w.ToMonth, w.ToPart) switch
             {
-                ModelState.AddModelError(key, L["Error_WindowIncomplete"]);
-                continue;
-            }
-            if (w.FromMonth is null || w.ToMonth is null) continue;
-
-            if (w.FromMonth is < 1 or > 12 || w.ToMonth is < 1 or > 12)
-            {
-                ModelState.AddModelError(key, L["Error_WindowIncomplete"]);
-                continue;
-            }
-
-            var window = new SeasonWindow
-            {
-                StartMonth = w.FromMonth.Value, StartPart = w.FromPart,
-                EndMonth = w.ToMonth.Value, EndPart = w.ToPart
+                WindowProblem.Incomplete => L["Error_WindowIncomplete"],
+                WindowProblem.Order => L["Error_WindowOrder"],
+                _ => null
             };
-            if (window.StartMonth == window.EndMonth && window.StartThird > window.EndThird)
-                ModelState.AddModelError(key, L["Error_WindowOrder"]);
+            if (message is not null) ModelState.AddModelError($"Input.{name}[{i}].FromMonth", message);
         }
     }
 
