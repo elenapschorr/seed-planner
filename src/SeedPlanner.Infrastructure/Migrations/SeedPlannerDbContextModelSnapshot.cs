@@ -354,16 +354,20 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasDefaultValue(100)
                         .HasColumnName("spacing_percent");
 
-                    b.Property<int>("Year")
-                        .HasColumnType("integer")
-                        .HasColumnName("year");
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_from");
+
+                    b.Property<DateOnly>("ValidTo")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_to");
 
                     b.HasKey("Id")
                         .HasName("pk_plans");
 
-                    b.HasIndex("OwnerId", "Year", "Name")
+                    b.HasIndex("OwnerId", "ValidFrom", "Name")
                         .IsUnique()
-                        .HasDatabaseName("ix_plans_owner_id_year_name");
+                        .HasDatabaseName("ix_plans_owner_id_valid_from_name");
 
                     b.ToTable("plans", null, t =>
                         {
@@ -495,6 +499,14 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("calculated_plants");
 
+                    b.Property<DateOnly?>("HarvestDoneOn")
+                        .HasColumnType("date")
+                        .HasColumnName("harvest_done_on");
+
+                    b.Property<int>("HarvestedPlants")
+                        .HasColumnType("integer")
+                        .HasColumnName("harvested_plants");
+
                     b.Property<bool>("Include")
                         .HasColumnType("boolean")
                         .HasColumnName("include");
@@ -511,9 +523,17 @@ namespace SeedPlanner.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("plant_id");
 
+                    b.Property<DateOnly?>("PlantedOutOn")
+                        .HasColumnType("date")
+                        .HasColumnName("planted_out_on");
+
                     b.Property<int?>("PlantsOverride")
                         .HasColumnType("integer")
                         .HasColumnName("plants_override");
+
+                    b.Property<DateOnly?>("SownOn")
+                        .HasColumnType("date")
+                        .HasColumnName("sown_on");
 
                     b.HasKey("Id")
                         .HasName("pk_plan_lines");

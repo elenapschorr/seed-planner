@@ -23,10 +23,11 @@ public static partial class PlanAllocator
         double maxBedAreaM2 = 0,
         NoCoverStrategy noCover = NoCoverStrategy.NewCoveredBed,
         bool allowOthersInCoveredBeds = false,
-        IEnumerable<(int Main, int Secondary)>? partners = null)
+        IEnumerable<(int Main, int Secondary)>? partners = null,
+        double? newBedBudgetM2 = null)
     {
         var rel = new Rules(companions, allowOthersInCoveredBeds, partners);
-        var opt = new Opt(strategy, maxBedAreaM2, noCover);
+        var opt = new Opt(strategy, maxBedAreaM2, noCover, newBedBudgetM2);
         var unplaced = new List<UnplacedResult>();
         var head = new List<TraceEntry>();
 
@@ -44,7 +45,7 @@ public static partial class PlanAllocator
             if (probe.Left.Count == 0) usable.Add(p);
             else
             {
-                var reason = ReasonFor(p, strategy, maxBedAreaM2);
+                var reason = ReasonFor(p, strategy, maxBedAreaM2, newBedBudgetM2);
                 // Would it fit if the soil pH did not count? Then the pH is the reason.
                 if (reason is UnplacedReason.NoSuitableContainer or UnplacedReason.NotEnoughPots && (p.PhMin is not null || p.PhMax is not null) &&
                     Execute(new[] { p with { Count = 1, PhMin = null, PhMax = null } }, containers, rel, opt).Left.Count == 0)
@@ -95,7 +96,7 @@ public static partial class PlanAllocator
         else
         {
             foreach (var g in run.Left.GroupBy(p => p.PlantId))
-                unplaced.Add(new UnplacedResult(g.Key, g.Count(), ReasonFor(g.First(), strategy, maxBedAreaM2)));
+                unplaced.Add(new UnplacedResult(g.Key, g.Count(), ReasonFor(g.First(), strategy, maxBedAreaM2, newBedBudgetM2)));
         }
 
         var result = run.Boxes.Select(b => new ContainerResult(
@@ -139,7 +140,8 @@ public static partial class PlanAllocator
     {
         var boxes = inputs.Select(ToBox).ToList();
         var units = plants.SelectMany(p => Enumerable.Repeat(p with { Count = 1 }, Math.Max(0, p.Count))).ToList();
-        var retrofit = EnsureCover(units, boxes, rel, opt);
+        var budget = new BedBudget(opt.NewBedBudget);
+        var retrofit = EnsureCover(units, boxes, rel, opt, budget);
 
         if (rel.Trace is { } log)
         {
@@ -152,10 +154,10 @@ public static partial class PlanAllocator
         if (left.Count > 0 && opt.Strategy != ShortageStrategy.ShrinkProportionally)
             rel.Trace?.Add(new TraceEntry(TraceCode.PhaseShortage));
         if (opt.Strategy == ShortageStrategy.BuyPots) left = BuyPots(left, boxes, rel);
-        else if (opt.Strategy == ShortageStrategy.AddBeds) left = AddBeds(left, boxes, rel, opt.MaxBed);
+        else if (opt.Strategy == ShortageStrategy.AddBeds) left = AddBeds(left, boxes, rel, opt.MaxBed, budget);
 
         // Plants that must go into one kind of container get new ones, also if the strategy would not add any
-        left = AddForRequired(left, boxes, rel, opt);
+        left = AddForRequired(left, boxes, rel, opt, budget);
 
         // A bed that was meant to get a cover but holds no cold frame plant after all stays as it was
         if (retrofit is not null && retrofit.ColdCount == 0)
@@ -167,7 +169,7 @@ public static partial class PlanAllocator
         return (boxes, left);
     }
 
-    private static List<AllocPlant> AddForRequired(List<AllocPlant> left, List<Box> boxes, Rules rel, Opt opt)
+    private static List<AllocPlant> AddForRequired(List<AllocPlant> left, List<Box> boxes, Rules rel, Opt opt, BedBudget budget)
     {
         if (!left.Any(p => p.Required)) return left;
 
@@ -181,14 +183,14 @@ public static partial class PlanAllocator
         {
             var beds = left.Where(p => p.Required && p.Place == PlantPlace.Bed).ToList();
             if (beds.Count > 0)
-                left = left.Where(p => !(p.Required && p.Place == PlantPlace.Bed)).Concat(AddBeds(beds, boxes, rel, opt.MaxBed)).ToList();
+                left = left.Where(p => !(p.Required && p.Place == PlantPlace.Bed)).Concat(AddBeds(beds, boxes, rel, opt.MaxBed, budget)).ToList();
         }
         return left;
     }
 
     // Cold frame plants are planned but no chosen bed has a cover: retrofit one bed or add new covered beds.
     // Returns the retrofitted bed, if there is one.
-    private static Box? EnsureCover(List<AllocPlant> units, List<Box> boxes, Rules rel, Opt opt)
+    private static Box? EnsureCover(List<AllocPlant> units, List<Box> boxes, Rules rel, Opt opt, BedBudget budget)
     {
         var cold = units.Where(u => u.ColdFrame && u.AreaM2 is not null).ToList();
         if (cold.Count == 0 || boxes.Any(b => b.Kind == ContainerKind.Bed && b.HasCover)) return null;
@@ -216,9 +218,15 @@ public static partial class PlanAllocator
         // New covered beds (also when there is no bed to retrofit)
         var count = opt.MaxBed > 0 ? (int)Math.Ceiling(total / opt.MaxBed - Eps) : 1;
         var capacity = opt.MaxBed > 0 ? opt.MaxBed : total;
+        var added = 0;
         for (var n = 0; n < Math.Max(1, count); n++)
-            boxes.Add(new Box { Kind = ContainerKind.Bed, IsNew = true, Category = ContainerCategory.Bed, HasCover = true, Capacity = capacity });
-        rel.Trace?.Add(new TraceEntry(TraceCode.NewCoveredBeds, Count: Math.Max(1, count), Value: capacity));
+        {
+            var size = budget.Take(capacity);
+            if (size <= Eps) break;
+            boxes.Add(new Box { Kind = ContainerKind.Bed, IsNew = true, Category = ContainerCategory.Bed, HasCover = true, Capacity = size });
+            added++;
+        }
+        if (added > 0) rel.Trace?.Add(new TraceEntry(TraceCode.NewCoveredBeds, Count: added, Value: capacity));
         return null;
     }
 }

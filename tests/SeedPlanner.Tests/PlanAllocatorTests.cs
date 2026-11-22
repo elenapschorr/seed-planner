@@ -23,9 +23,9 @@ public class PlanAllocatorTests
         AllocPlant[] plants, AllocContainerInput[] containers,
         ShortageStrategy strategy = ShortageStrategy.ShrinkProportionally,
         double maxBed = 0, PlantTypeCompanion[]? relations = null,
-        NoCoverStrategy noCover = NoCoverStrategy.NewCoveredBed, bool allowOthers = false) =>
+        NoCoverStrategy noCover = NoCoverStrategy.NewCoveredBed, bool allowOthers = false, double? budget = null) =>
         PlanAllocator.Allocate(
-            plants, containers, relations ?? Array.Empty<PlantTypeCompanion>(), strategy, maxBed, noCover, allowOthers);
+            plants, containers, relations ?? Array.Empty<PlantTypeCompanion>(), strategy, maxBed, noCover, allowOthers, newBedBudgetM2: budget);
 
     private static AllocContainerInput Bed(int id, double squareMeters, bool cover = false, double? widthCm = null) =>
         new(ContainerKind.Bed, id, "Bed" + id, squareMeters, HasCover: cover, WidthCm: widthCm);
@@ -189,6 +189,42 @@ public class PlanAllocatorTests
         Assert.Equal(3, r.NewBeds.Count);
         Assert.Equal(5.0, r.NewBeds.Sum(b => b.Used), 6);
         Assert.All(r.NewBeds, b => Assert.True(b.Used <= 2.0 + 1e-9));
+    }
+
+    [Fact]
+    public void New_beds_together_stay_within_the_free_garden_area()
+    {
+        var r = Run(
+            [Plant(1, 1, count: 5, area: 1.0, place: PlantPlace.Bed)], [],
+            ShortageStrategy.AddBeds, maxBed: 2.0, budget: 3.0);
+
+        Assert.True(r.NewBeds.Sum(b => b.Capacity) <= 3.0 + 1e-9);
+        Assert.Equal(3.0, r.NewBeds.Sum(b => b.Used), 6);
+        var left = Assert.Single(r.Unplaced);
+        Assert.Equal(2, left.Count);
+        Assert.Equal(UnplacedReason.NoGardenArea, left.Reason);
+    }
+
+    [Fact]
+    public void Without_garden_area_no_new_bed_is_made()
+    {
+        var r = Run(
+            [Plant(1, 1, count: 2, area: 1.0, place: PlantPlace.Bed)], [],
+            ShortageStrategy.AddBeds, maxBed: 2.0, budget: 0);
+
+        Assert.Empty(r.NewBeds);
+        Assert.Equal(UnplacedReason.NoGardenArea, Assert.Single(r.Unplaced).Reason);
+    }
+
+    [Fact]
+    public void New_covered_beds_for_the_cold_frame_also_use_the_free_garden_area()
+    {
+        var r = Run(
+            [Plant(1, 1, count: 4, area: 1.0, place: PlantPlace.Bed, cold: true)], [],
+            ShortageStrategy.AddBeds, maxBed: 2.0, budget: 2.0);
+
+        Assert.True(r.NewBeds.Sum(b => b.Capacity) <= 2.0 + 1e-9);
+        Assert.Equal(2.0, r.NewBeds.Sum(b => b.Used), 6);
     }
 
     [Fact]

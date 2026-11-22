@@ -34,6 +34,9 @@ public class DistributionModel(SeedPlannerDbContext db, IStringLocalizer<SharedR
     [BindProperty] public List<int> PotIds { get; set; } = new();
     [BindProperty] public List<int> BedIds { get; set; } = new();
 
+    /// <summary>Free garden area in m² for new beds; null = the plot has no garden area (then no new beds are made).</summary>
+    public double? GardenFree { get; private set; }
+
     public bool Saved => Request.Query["saved"] == "1";
     public int? AppliedCount => int.TryParse(Request.Query["applied"], out var n) ? n : null;
 
@@ -48,6 +51,7 @@ public class DistributionModel(SeedPlannerDbContext db, IStringLocalizer<SharedR
         var plan = await LoadPlanAsync(id);
         if (plan is null) return NotFound();
 
+        GardenFree = await PlanAllocation.FreeGardenAsync(db);
         Shortage = plan.Shortage;
         NoCover = plan.NoCover;
         MaxBedArea = plan.MaxBedAreaSquareMeters > 0
@@ -136,7 +140,7 @@ public class DistributionModel(SeedPlannerDbContext db, IStringLocalizer<SharedR
         string YesNo(bool b) => b ? L["Log_Yes"].Value : L["Log_No"].Value;
         var culture = CultureInfo.CurrentCulture;
         var text = new System.Text.StringBuilder();
-        text.Append($"{Plan.Name} ({Plan.Year}) – {L["Log_Title"].Value}, {DateTime.Now.ToString("g", culture)}\r\n");
+        text.Append($"{Plan.Name} ({Plan.ValidFrom:d} – {Plan.ValidTo:d}) – {L["Log_Title"].Value}, {DateTime.Now.ToString("g", culture)}\r\n");
         text.Append(L["Log_Settings", StrategyText(Plan.Shortage), NoCoverText(Plan.NoCover),
             Plan.MaxBedAreaSquareMeters.ToString("0.##", culture), YesNo(Plan.AllowOthersInCoveredBeds)].Value + "\r\n");
         foreach (var group in TraceGroups())
@@ -240,7 +244,7 @@ public class DistributionModel(SeedPlannerDbContext db, IStringLocalizer<SharedR
                 [L["Report_Col_plantType"].Value, L["Report_Col_variety"].Value, L["Report_Col_count"].Value], seeds));
         }
 
-        return new ReportDocument(Plan.Name, $"{Plan.Year} · {L["Report_Generated", DateTime.Now.ToString("d", culture)].Value}", tables);
+        return new ReportDocument(Plan.Name, $"{Plan.ValidFrom:d} – {Plan.ValidTo:d} · {L["Report_Generated", DateTime.Now.ToString("d", culture)].Value}", tables);
     }
 
     public async Task<IActionResult> OnPostApplyAsync(int id)

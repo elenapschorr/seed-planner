@@ -43,6 +43,9 @@ public static class PlantOccupancy
         return start % OccupancyMask.Count;
     }
 
+    /// <summary>The third of the year in which the plant takes its place when it is sown in the given third: sowing date for direct sowing, planting out for plants started indoors. Empty without the weeks indoors.</summary>
+    public static int? StartThird(Plant p, int sowThird, int lastFrostThird) => StartOf(p, sowThird, lastFrostThird);
+
     // The end is the nearest end of a harvest window after the start
     private static int EndOf(List<SeasonWindow> ends, int start) =>
         ends.Select(w => w.EndThird)

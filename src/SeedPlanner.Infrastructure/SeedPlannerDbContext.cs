@@ -252,11 +252,13 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(p => p.Name).HasMaxLength(100);
             e.Property(p => p.Level).HasConversion<string>();
             e.Property(p => p.Shortage).HasConversion<string>().HasDefaultValue(ShortageStrategy.ShrinkProportionally);
-            e.Property(p => p.NoCover).HasConversion<string>().HasDefaultValue(NoCoverStrategy.NewCoveredBed);
+            e.Property(p => p.NoCover).HasConversion<string>().HasDefaultValue(NoCoverStrategy.NewCoveredBed)
+                .HasSentinel(NoCoverStrategy.NewCoveredBed);   // only this value falls back to the default, so RetrofitExistingBed is stored as chosen
             e.Property(p => p.AllocationHash).HasMaxLength(64);
             e.Property(p => p.SpacingPercent).HasDefaultValue(100);
             e.Property(p => p.LastFrostThird).HasDefaultValue(PlantOccupancy.DefaultLastFrostThird);
-            e.HasIndex(p => new { p.OwnerId, p.Year, p.Name }).IsUnique();
+            e.HasIndex(p => new { p.OwnerId, p.ValidFrom, p.Name }).IsUnique();
+            e.Ignore(p => p.Year);
             e.HasMany(p => p.Containers).WithOne(c => c.Plan).HasForeignKey(c => c.PlanId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<IdentityUser>().WithMany().HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
             e.HasMany(p => p.Items).WithOne(i => i.Plan).HasForeignKey(i => i.PlanId).OnDelete(DeleteBehavior.Cascade);
@@ -289,7 +291,7 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.Property(i => i.DemandAmount).HasPrecision(10, 2);
             e.Property(i => i.AmountOverride).HasPrecision(10, 2);
             e.Property(i => i.Unit).HasConversion<string>();
-            e.Property(i => i.SowingTiming).HasConversion<string>().HasDefaultValueSql("'Start'");
+            e.Property(i => i.SowingTiming).HasConversion<string>().HasDefaultValueSql("'Start'").HasSentinel(SowingTiming.Start);
             e.HasIndex(i => new { i.PlanId, i.PlantTypeId }).IsUnique();
             // Results can be calculated again, so a plant type that is deleted takes its plan items with it
             e.HasOne(i => i.PlantType).WithMany().HasForeignKey(i => i.PlantTypeId).OnDelete(DeleteBehavior.Cascade);
@@ -309,6 +311,7 @@ public class SeedPlannerDbContext(DbContextOptions<SeedPlannerDbContext> options
             e.HasOne(l => l.Plant).WithMany().HasForeignKey(l => l.PlantId).OnDelete(DeleteBehavior.Cascade);
             e.Ignore(l => l.Plants);
             e.Ignore(l => l.ToBuy);
+            e.Ignore(l => l.Progress);
             e.HasQueryFilter(l => l.PlanItem!.Plan!.OwnerId == CurrentUserId);
         });
     }

@@ -15,7 +15,7 @@
     </div>
 </div>
 <p class="text-muted">
-    @L["Plan_SummaryLine", Model.Plan.Year, Model.Plan.Persons, Model.LevelText]
+    @L["Plan_SummaryLine", $"{Model.Plan.ValidFrom:d} – {Model.Plan.ValidTo:d}", Model.Plan.Persons, Model.LevelText]
     @if (Model.Plan.IncludeOutOfStock)
     {
         <span> · @L["Plan_IncludeOutOfStockShort"]</span>

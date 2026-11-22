@@ -15,9 +15,14 @@
         <span asp-validation-for="Input.Name" class="text-danger"></span>
     </div>
     <div class="col-md-3">
-        <label asp-for="Input.Year" class="form-label">@L["Plan_Year"]</label>
-        <input asp-for="Input.Year" class="form-control" inputmode="numeric" />
-        <span asp-validation-for="Input.Year" class="text-danger"></span>
+        <label asp-for="Input.ValidFrom" class="form-label">@L["Plan_ValidFrom"]</label>
+        <input asp-for="Input.ValidFrom" type="date" class="form-control" />
+        <span asp-validation-for="Input.ValidFrom" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Input.ValidTo" class="form-label">@L["Plan_ValidTo"]</label>
+        <input asp-for="Input.ValidTo" type="date" class="form-control" />
+        <span asp-validation-for="Input.ValidTo" class="text-danger"></span>
     </div>
     <div class="col-md-3">
         <label asp-for="Input.Persons" class="form-label">@L["Plan_Persons"]</label>
@@ -58,5 +63,29 @@
         function update() { field.hidden = level.value !== "Custom"; }
         level.addEventListener("change", update);
         update();
+    })();
+
+    // Changing the start moves the end by the same number of days, so the length of the plan stays.
+    // If the end was the last day of a month, it stays the last day of a month (moved by the same number of months).
+    (function () {
+        var from = document.getElementById("Input_ValidFrom"), to = document.getElementById("Input_ValidTo");
+        var DAY = 24 * 60 * 60 * 1000;
+        function day(value) { return value ? Date.parse(value + "T00:00:00Z") : NaN; }
+        var previous = day(from.value);
+        function movedEnd(oldStart, newStart, oldEnd) {
+            var s0 = new Date(oldStart), s1 = new Date(newStart), e0 = new Date(oldEnd);
+            var lastOfMonth = new Date(Date.UTC(e0.getUTCFullYear(), e0.getUTCMonth() + 1, 0)).getUTCDate() === e0.getUTCDate();
+            if (!lastOfMonth) return new Date(oldEnd + (newStart - oldStart));
+            var months = (s1.getUTCFullYear() - s0.getUTCFullYear()) * 12 + s1.getUTCMonth() - s0.getUTCMonth();
+            return new Date(Date.UTC(e0.getUTCFullYear(), e0.getUTCMonth() + months + 1, 0));
+        }
+        from.addEventListener("change", function () {
+            var now = day(from.value), end = day(to.value);
+            if (!isNaN(now) && !isNaN(previous) && !isNaN(end))
+                to.value = movedEnd(previous, now, end).toISOString().slice(0, 10);
+            else if (!isNaN(now) && isNaN(end))
+                to.value = new Date(now + 364 * DAY).toISOString().slice(0, 10);
+            previous = now;
+        });
     })();
 </script>

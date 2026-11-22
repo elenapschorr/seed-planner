@@ -23,13 +23,28 @@ public static class PlanAllocation
         List<AllocContainerInput> Containers,
         List<PlantTypeCompanion> Companions,
         List<(int Main, int Secondary)> Partners,
-        string Hash);
+        string Hash,
+        double FreeGardenM2);
 
     // What the fingerprint is made of: every input of the calculation
     private sealed record Fingerprint(
-        ShortageStrategy Shortage, NoCoverStrategy NoCover, double MaxBed, bool AllowOthers,
+        ShortageStrategy Shortage, NoCoverStrategy NoCover, double MaxBed, double FreeGarden, bool AllowOthers,
         List<AllocPlant> Plants, List<AllocContainerInput> Containers, List<string> Companions,
-        List<string> Partners, int Version = 4); // raised when the result gets new content, so stored results are calculated again
+        List<string> Partners, int Version = 5); // raised when the result gets new content, so stored results are calculated again
+
+    /// <summary>
+    /// The garden area in m² that is still free for new beds (garden areas of the plot minus the existing beds); null if the user has
+    /// not set a garden area on the plot (or not its scale).
+    /// </summary>
+    public static async Task<double?> FreeGardenAsync(SeedPlannerDbContext db)
+    {
+        var plot = await db.Plots.AsNoTracking().Include(p => p.Zones).FirstOrDefaultAsync();
+        return GardenArea.FreeSquareMeters(plot, await db.RaisedBeds.AsNoTracking().ToListAsync());
+    }
+
+    // The size of one new bed: what the user set, otherwise as big as the free garden area
+    private static double EffectiveMaxBed(Plan plan, double freeGarden) =>
+        plan.MaxBedAreaSquareMeters > 0 ? Math.Min(plan.MaxBedAreaSquareMeters, freeGarden) : freeGarden;
 
     /// <summary>The plan has to be loaded with its items, their lines (with the varieties) and the chosen containers.</summary>
     public static async Task<Prepared> PrepareAsync(SeedPlannerDbContext db, Plan plan)
@@ -51,11 +66,12 @@ public static class PlanAllocation
         var categories = await db.PlantTypes.AsNoTracking().ToDictionaryAsync(t => t.Id, t => t.Category);
 
         // What this plan planted earlier does not count as occupied: the plan can be transferred again.
-        // Plantings of plans of other years do not count either; plantings made by hand always do.
+        // Plantings of plans of other periods do not count either; plantings made by hand always do.
+        var (validFrom, validTo) = (plan.ValidFrom, plan.ValidTo);
         var potIds = plan.Containers.Where(c => c.PotId is not null).Select(c => c.PotId!.Value).ToList();
         var pots = await db.Pots
             .Include(p => p.PotGroup).ThenInclude(g => g!.Pots)
-            .Include(p => p.Plantings.Where(x => x.PlanId != plan.Id && (x.PlanId == null || x.Plan!.Year == plan.Year))).ThenInclude(x => x.Plant)
+            .Include(p => p.Plantings.Where(x => x.PlanId != plan.Id && (x.PlanId == null || (x.Plan!.ValidFrom <= validTo && x.Plan.ValidTo >= validFrom)))).ThenInclude(x => x.Plant)
             .Where(p => potIds.Contains(p.Id))
             .ToListAsync();
         foreach (var pot in pots.OrderBy(p => p.Id))
@@ -63,7 +79,7 @@ public static class PlanAllocation
 
         var bedIds = plan.Containers.Where(c => c.RaisedBedId is not null).Select(c => c.RaisedBedId!.Value).ToList();
         var beds = await db.RaisedBeds
-            .Include(b => b.Plantings.Where(x => x.PlanId != plan.Id && (x.PlanId == null || x.Plan!.Year == plan.Year))).ThenInclude(x => x.Plant)
+            .Include(b => b.Plantings.Where(x => x.PlanId != plan.Id && (x.PlanId == null || (x.Plan!.ValidFrom <= validTo && x.Plan.ValidTo >= validFrom)))).ThenInclude(x => x.Plant)
             .Where(b => bedIds.Contains(b.Id))
             .ToListAsync();
         foreach (var bed in beds.OrderBy(b => b.Id))
@@ -79,14 +95,17 @@ public static class PlanAllocation
             .OrderBy(x => x.Main).ThenBy(x => x.Secondary)
             .ToList();
 
+        // New beds only go onto the free garden area of the plot; without one there are none
+        var freeGarden = await FreeGardenAsync(db) ?? 0;
+
         var print = new Fingerprint(
-            plan.Shortage, plan.NoCover, plan.MaxBedAreaSquareMeters, plan.AllowOthersInCoveredBeds,
+            plan.Shortage, plan.NoCover, plan.MaxBedAreaSquareMeters, freeGarden, plan.AllowOthersInCoveredBeds,
             plants, containers,
             companions.Select(c => $"{c.PlantTypeId}:{c.OtherPlantTypeId}:{c.Relation}").ToList(),
             partners.Select(x => $"{x.Main}:{x.Secondary}").ToList());
         var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(print, Json))));
 
-        return new Prepared(plants, containers, companions, partners, hash);
+        return new Prepared(plants, containers, companions, partners, hash, freeGarden);
     }
 
     /// <summary>
@@ -113,7 +132,8 @@ public static class PlanAllocation
 
         var result = PlanAllocator.Allocate(
             prepared.Plants, prepared.Containers, prepared.Companions,
-            plan.Shortage, plan.MaxBedAreaSquareMeters, plan.NoCover, plan.AllowOthersInCoveredBeds, prepared.Partners);
+            plan.Shortage, EffectiveMaxBed(plan, prepared.FreeGardenM2), plan.NoCover, plan.AllowOthersInCoveredBeds, prepared.Partners,
+            prepared.FreeGardenM2);
 
         plan.AllocationJson = JsonSerializer.Serialize(result, Json);
         plan.AllocationHash = prepared.Hash;

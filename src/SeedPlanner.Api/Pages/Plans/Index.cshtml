@@ -21,7 +21,7 @@ else
         <thead>
             <tr>
                 <th>@L["Col_Name"]</th>
-                <th class="text-end">@L["Plan_Year"]</th>
+                <th>@L["Plan_Period"]</th>
                 <th class="text-end">@L["Plan_Persons"]</th>
                 <th>@L["Plan_Level"]</th>
                 <th class="text-end">@L["Plan_Crops"]</th>
@@ -34,7 +34,7 @@ else
             {
                 <tr>
                     <td><a asp-page="Details" asp-route-id="@r.Id"><strong>@r.Name</strong></a></td>
-                    <td class="text-end">@r.Year</td>
+                    <td class="text-nowrap">@r.ValidFrom.ToString("d") – @r.ValidTo.ToString("d")</td>
                     <td class="text-end">@r.Persons</td>
                     <td>@(r.Level == DemandLevel.Custom ? L["DemandLevel_CustomShort", r.CustomPercent].Value : L["DemandLevel_" + r.Level].Value)</td>
                     <td class="text-end">@r.Crops</td>

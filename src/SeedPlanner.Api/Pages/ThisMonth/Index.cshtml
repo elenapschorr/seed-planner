@@ -1,0 +1,141 @@
+@page
+@model SeedPlanner.Api.Pages.ThisMonth.IndexModel
+@using SeedPlanner.Domain
+@{
+    ViewData["Title"] = L["ThisMonth_Title"].Value;
+}
+
+<h1>@L["ThisMonth_Title"]</h1>
+
+<div class="d-flex align-items-center gap-3 mb-3">
+    <a class="btn btn-outline-secondary" asp-page="Index" asp-route-planId="@Model.PlanId" asp-route-month="@Model.PreviousShown.Month" asp-route-year="@Model.PreviousShown.Year" aria-label="@L["ThisMonth_Prev"]" title="@L["ThisMonth_Prev"]">‹</a>
+    <h2 class="h4 mb-0">@Model.MonthName @Model.YearNumber</h2>
+    <a class="btn btn-outline-secondary" asp-page="Index" asp-route-planId="@Model.PlanId" asp-route-month="@Model.NextShown.Month" asp-route-year="@Model.NextShown.Year" aria-label="@L["ThisMonth_Next"]" title="@L["ThisMonth_Next"]">›</a>
+</div>
+
+<h2 class="h5">@L["ThisMonth_PlanTitle"]</h2>
+@if (Model.Plans.Count == 0)
+{
+    <p class="text-muted">@L["ThisMonth_NoPlans"]</p>
+}
+else
+{
+    <form method="get" class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <label for="planId" class="mb-0">@L["ThisMonth_Plan"]</label>
+        <select id="planId" name="planId" class="form-select w-auto">
+            @foreach (var p in Model.Plans)
+            {
+                <option value="@p.Id" selected="@(p.Id == Model.PlanId)">@p.Name (@p.ValidFrom.ToString("d") – @p.ValidTo.ToString("d"))</option>
+            }
+        </select>
+        <input type="hidden" name="month" value="@Model.MonthNumber" />
+        <input type="hidden" name="year" value="@Model.YearNumber" />
+        <button type="submit" class="btn btn-outline-secondary">@L["ThisMonth_Show"]</button>
+    </form>
+
+    @if (Model.Period == SeedPlanner.Api.Pages.ThisMonth.IndexModel.PlanPeriod.NotStarted)
+    {
+        <p class="text-muted">@L["ThisMonth_PlanNotStarted", Model.PlanStart!.Value.ToString("d")]</p>
+    }
+    else if (Model.Period == SeedPlanner.Api.Pages.ThisMonth.IndexModel.PlanPeriod.Ended)
+    {
+        <p class="text-muted">@L["ThisMonth_PlanEnded", Model.PlanEnd!.Value.ToString("d")]</p>
+    }
+    else if (Model.Groups.Count == 0)
+    {
+        <p class="text-muted">@L["ThisMonth_Empty"]</p>
+    }
+    else
+    {
+        foreach (var g in Model.Groups)
+        {
+            <details class="mb-3" open>
+                <summary><strong>@L["Task_" + g.Kind]</strong> <span class="text-muted">(@g.Rows.Count)</span></summary>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mt-2">
+                        <tbody>
+                            @foreach (var row in g.Rows)
+                            {
+                                <tr>
+                                    <td>
+                                        @row.Crop
+                                        @if (row.IsUnnamed) { <span class="text-muted fst-italic">@L["Plant_Unnamed"]</span> } else { <span>@row.Variety</span> }
+                                        @if (row.Overdue) { <span class="badge text-bg-warning ms-1">@L["ThisMonth_Overdue", row.DueMonthName]</span> }
+                                    </td>
+                                    <td class="text-end">@L["ThisMonth_Plants", row.Plants]</td>
+                                    <td class="text-muted">@L["TaskPart_" + row.Part]</td>
+                                    <td class="text-end">
+                                        @if (row.Kind == TaskKind.Harvest)
+                                        {
+                                            <form method="post" asp-page-handler="Mark" class="d-inline-flex align-items-center gap-1 flex-wrap justify-content-end">
+                                                <input type="hidden" name="lineId" value="@row.LineId" />
+                                                <input type="hidden" name="planId" value="@Model.PlanId" />
+                                                <input type="hidden" name="month" value="@Model.MonthNumber" />
+                                                <input type="hidden" name="year" value="@Model.YearNumber" />
+                                                <input type="number" name="plants" value="@row.Harvested" min="0" max="@row.Plants" class="form-control form-control-sm" style="width:5rem" aria-label="@L["ThisMonth_HarvestedOf", row.Plants]" />
+                                                <span class="text-muted">@L["ThisMonth_HarvestedOf", row.Plants]</span>
+                                                <button type="submit" name="what" value="harvested" class="btn btn-sm btn-outline-secondary">@L["ThisMonth_Save"]</button>
+                                                <button type="submit" name="what" value="harvestfinished" class="btn btn-sm btn-outline-success">@L["ThisMonth_HarvestFinished"]</button>
+                                                @if (row.Harvested > 0)
+                                                {
+                                                    <button type="submit" name="what" value="harvestreset" class="btn btn-sm btn-outline-secondary">@L["ThisMonth_HarvestReset"]</button>
+                                                }
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" asp-page-handler="Mark" class="d-inline">
+                                                <input type="hidden" name="lineId" value="@row.LineId" />
+                                                <input type="hidden" name="planId" value="@Model.PlanId" />
+                                                <input type="hidden" name="month" value="@Model.MonthNumber" />
+                                                <input type="hidden" name="year" value="@Model.YearNumber" />
+                                                @if (row.Done)
+                                                {
+                                                    <span class="text-success me-2">✓ @L["ThisMonth_Done"]</span>
+                                                    <button type="submit" name="what" value="@Model.UndoOf(row.Kind)" class="btn btn-sm btn-outline-secondary">@L["ThisMonth_Undo"]</button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="submit" name="what" value="@Model.DoOf(row.Kind)" class="btn btn-sm btn-outline-success">@L["ThisMonth_Mark_" + row.Kind]</button>
+                                                }
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        }
+    }
+}
+
+<h2 class="h5 mt-4">@L["ThisMonth_SowableTitle"]</h2>
+@if (Model.Sowable.Count == 0)
+{
+    <p class="text-muted">@L["ThisMonth_SowableEmpty"]</p>
+}
+else
+{
+    <details class="mb-3" open>
+        <summary><strong>@L["Task_Sow"]</strong> <span class="text-muted">(@Model.Sowable.Count)</span></summary>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mt-2">
+                <tbody>
+                    @foreach (var v in Model.Sowable)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-page="/Plants/Edit" asp-route-id="@v.Id">
+                                    @v.Crop
+                                    @if (v.IsUnnamed) { <span class="text-muted fst-italic">@L["Plant_Unnamed"]</span> } else { <span>@v.Variety</span> }
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </details>
+}

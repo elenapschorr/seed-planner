@@ -10,6 +10,7 @@ Portfolio project, all rights reserved.
 - **Seed collection:** plant types, varieties, sowing and harvest windows, germination temperature, height and spacing, pot size needs
 - **Containers and beds:** pot groups, single pots, raised beds (with optional cover), plantings in a pot or a bed
 - **Demand and plans:** yearly need per person for each plant type, named plans per year (persons, min/middle/max, own numbers), shopping list for varieties that are not in stock
+- **This month:** what to sow, sow indoors, plant out and harvest in a month, worked out from the plan and the sowing and harvest windows of the varieties
 - **Distribution:** places the planned plants into the chosen pots and beds (size, height, good and bad neighbours, cold frames) and explains its decisions
 - **Garden plot editor:** upload a plan of the plot, trace its outline from the lines in the picture, mark areas and neighbours, split by a line, place beds; undo with Ctrl+Z
 - **Multi-user:** one shared database, every record belongs to an owner; registration only with an invitation code

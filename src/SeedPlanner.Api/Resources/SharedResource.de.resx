@@ -325,6 +325,38 @@
   <data name="Filter_Group_Occupancy" xml:space="preserve"><value>Belegung</value></data>
   <data name="Nav_Demand" xml:space="preserve"><value>Bedarf</value></data>
   <data name="Nav_Plans" xml:space="preserve"><value>Pläne</value></data>
+  <data name="Nav_ThisMonth" xml:space="preserve"><value>Diesen Monat</value></data>
+  <data name="ThisMonth_PlanNotStarted" xml:space="preserve"><value>Der Plan beginnt am {0}, deshalb gibt es noch keine Aufgaben.</value></data>
+  <data name="ThisMonth_PlanEnded" xml:space="preserve"><value>Der Plan endete am {0}.</value></data>
+  <data name="ThisMonth_Overdue" xml:space="preserve"><value>überfällig seit {0}</value></data>
+  <data name="ThisMonth_Done" xml:space="preserve"><value>Erledigt</value></data>
+  <data name="ThisMonth_Undo" xml:space="preserve"><value>Rückgängig</value></data>
+  <data name="ThisMonth_Mark_Sow" xml:space="preserve"><value>Gesät</value></data>
+  <data name="ThisMonth_Mark_SowIndoors" xml:space="preserve"><value>Vorgezogen</value></data>
+  <data name="ThisMonth_Mark_PlantOut" xml:space="preserve"><value>Ausgepflanzt</value></data>
+  <data name="ThisMonth_HarvestedOf" xml:space="preserve"><value>von {0} geerntet</value></data>
+  <data name="ThisMonth_Save" xml:space="preserve"><value>Speichern</value></data>
+  <data name="ThisMonth_HarvestFinished" xml:space="preserve"><value>Fertig geerntet</value></data>
+  <data name="ThisMonth_HarvestReset" xml:space="preserve"><value>Zurücksetzen</value></data>
+  <data name="ThisMonth_PlanTitle" xml:space="preserve"><value>Aus meinem Plan</value></data>
+  <data name="ThisMonth_SowableTitle" xml:space="preserve"><value>Könnte jetzt außerdem gesät werden (vorrätig)</value></data>
+  <data name="ThisMonth_SowableEmpty" xml:space="preserve"><value>Keine weitere vorrätige Sorte kann in diesem Monat gesät werden.</value></data>
+  <data name="ThisMonth_Title" xml:space="preserve"><value>Das ist diesen Monat zu tun</value></data>
+  <data name="ThisMonth_Plan" xml:space="preserve"><value>Plan</value></data>
+  <data name="ThisMonth_Show" xml:space="preserve"><value>Anzeigen</value></data>
+  <data name="ThisMonth_Prev" xml:space="preserve"><value>Voriger Monat</value></data>
+  <data name="ThisMonth_Next" xml:space="preserve"><value>Nächster Monat</value></data>
+  <data name="ThisMonth_NoPlans" xml:space="preserve"><value>Es gibt noch keinen Plan. Lege einen auf der Seite Pläne an.</value></data>
+  <data name="ThisMonth_Empty" xml:space="preserve"><value>In diesem Monat gibt es nichts zu tun.</value></data>
+  <data name="ThisMonth_Plants" xml:space="preserve"><value>{0} Pflanzen</value></data>
+  <data name="Task_Sow" xml:space="preserve"><value>Aussäen</value></data>
+  <data name="Task_SowIndoors" xml:space="preserve"><value>Drinnen vorziehen</value></data>
+  <data name="Task_PlantOut" xml:space="preserve"><value>Auspflanzen</value></data>
+  <data name="Task_Harvest" xml:space="preserve"><value>Ernten</value></data>
+  <data name="TaskPart_Early" xml:space="preserve"><value>Anfang des Monats</value></data>
+  <data name="TaskPart_Mid" xml:space="preserve"><value>Mitte des Monats</value></data>
+  <data name="TaskPart_Late" xml:space="preserve"><value>Ende des Monats</value></data>
+  <data name="TaskPart_Whole" xml:space="preserve"><value>ganzer Monat</value></data>
   <data name="Demand_Title" xml:space="preserve"><value>Bedarf pro Person</value></data>
   <data name="Demand_Intro" xml:space="preserve"><value>Die Pflanzenart liefert den Standardwert. Trage eigene Werte ein, um sie stattdessen in deinen Plänen zu verwenden; auch die Einheit kann abweichen, z. B. Kräuter in Quadratmetern.</value></data>
   <data name="Demand_Saved" xml:space="preserve"><value>Gespeichert.</value></data>
@@ -339,6 +371,11 @@
   <data name="Plans_New" xml:space="preserve"><value>Neuer Plan</value></data>
   <data name="Plans_Empty" xml:space="preserve"><value>Noch keine Pläne. Lege einen an, um zu berechnen, wie viele Pflanzen du brauchst.</value></data>
   <data name="Plan_Year" xml:space="preserve"><value>Jahr</value></data>
+  <data name="Plan_ValidFrom" xml:space="preserve"><value>Gültig ab</value></data>
+  <data name="Plan_ValidTo" xml:space="preserve"><value>Gültig bis</value></data>
+  <data name="Plan_Period" xml:space="preserve"><value>Zeitraum</value></data>
+  <data name="PlanError_Period" xml:space="preserve"><value>Das Ende darf nicht vor dem Anfang liegen.</value></data>
+  <data name="PlanError_PeriodLong" xml:space="preserve"><value>Ein Plan kann höchstens ein Jahr umfassen.</value></data>
   <data name="Plan_Persons" xml:space="preserve"><value>Personen</value></data>
   <data name="Plan_Level" xml:space="preserve"><value>Bedarf</value></data>
   <data name="Plan_Crops" xml:space="preserve"><value>Pflanzenarten</value></data>
@@ -397,7 +434,10 @@
   <data name="Distribution_NoCover" xml:space="preserve"><value>Wenn kein Beet mit Abdeckung gewählt ist (Frühbeet-Pflanzen)</value></data>
   <data name="Distribution_AllowOthers" xml:space="preserve"><value>Andere Pflanzen dürfen freie Fläche in abgedeckten Beeten nutzen</value></data>
   <data name="Distribution_MaxBed" xml:space="preserve"><value>Größte Fläche eines neuen Beets (m²)</value></data>
-  <data name="Distribution_MaxBedHelp" xml:space="preserve"><value>Gilt für neue Beete. Leer = keine Begrenzung.</value></data>
+  <data name="Distribution_MaxBedHelp" xml:space="preserve"><value>Größe eines einzelnen neuen Beets. Leer = so groß wie die freie Gartenfläche.</value></data>
+  <data name="Distribution_GardenFree" xml:space="preserve"><value>Freie Gartenfläche für neue Beete: {0} m² (Gartenbereiche des Grundstücks minus vorhandene Beete).</value></data>
+  <data name="Distribution_GardenUnknown" xml:space="preserve"><value>Im Grundstück ist keine Gartenfläche festgelegt, deshalb werden keine neuen Beete angelegt.</value></data>
+  <data name="Distribution_GardenSet" xml:space="preserve"><value>Gartenfläche festlegen</value></data>
   <data name="Distribution_Pots" xml:space="preserve"><value>Töpfe</value></data>
   <data name="Distribution_Beds" xml:space="preserve"><value>Beete</value></data>
   <data name="Distribution_SelectFree" xml:space="preserve"><value>Alle freien</value></data>
@@ -435,6 +475,7 @@
   <data name="Unplaced_NotEnoughPots" xml:space="preserve"><value>Töpfe reichen nicht – nicht verteilt (Kulturort Topf, wird nicht ins Beet gesetzt)</value></data>
   <data name="Unplaced_MissingTimeData" xml:space="preserve"><value>Zeiten fehlen – nicht verteilt (Aussaat, Vorkultur-Wochen und Ernte bei der Sorte nachtragen)</value></data>
   <data name="Unplaced_SoilMismatch" xml:space="preserve"><value>Boden-pH passt nicht – nicht verteilt (pH der gewählten Töpfe/Beete liegt außerhalb des Bereichs der Pflanzenart)</value></data>
+  <data name="Unplaced_NoGardenArea" xml:space="preserve"><value>Keine freie Gartenfläche für ein neues Beet</value></data>
   <data name="Distribution_PlacementsSummary" xml:space="preserve"><value>{0} Sorten, {1} Pflanzen</value></data>
   <data name="Field_IndoorWeeks" xml:space="preserve"><value>Vorkultur in Wochen (min/max)</value></data>
   <data name="Field_IndoorWeeksHelp" xml:space="preserve"><value>Wochen von der Aussaat bis zum Auspflanzen; nur bei Vorkultur.</value></data>

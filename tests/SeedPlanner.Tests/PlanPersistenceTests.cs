@@ -75,7 +75,7 @@ public class PlanPersistenceTests
     private static async Task<int> CreatePlanAsync(string connectionString, string userId, string name = "Basic")
     {
         await using var db = CreateContext(connectionString, userId);
-        var plan = new Plan { Name = name, Year = 2027, Persons = 2, Level = DemandLevel.Middle };
+        var plan = new Plan { Name = name, ValidFrom = new DateOnly(2027, 1, 1), ValidTo = new DateOnly(2027, 12, 31), Persons = 2, Level = DemandLevel.Middle };
         db.Plans.Add(plan);
         await RebuildAsync(db, plan);
         await db.SaveChangesAsync();
@@ -221,7 +221,7 @@ public class PlanPersistenceTests
         await CreatePlanAsync(connection, UserA, "With guests");
 
         await using var db = CreateContext(connection, UserA);
-        db.Plans.Add(new Plan { Name = "Basic", Year = 2027 });
+        db.Plans.Add(new Plan { Name = "Basic", ValidFrom = new DateOnly(2027, 1, 1), ValidTo = new DateOnly(2027, 12, 31) });
 
         await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
     }

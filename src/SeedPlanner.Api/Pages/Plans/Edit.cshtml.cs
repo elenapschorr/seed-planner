@@ -17,7 +17,12 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
         [Required, StringLength(100)]
         public string Name { get; set; } = "";
 
-        public int Year { get; set; } = DateTime.Today.Year;
+        [DataType(DataType.Date)]
+        public DateOnly ValidFrom { get; set; } = new(DateTime.Today.Year, 1, 1);
+
+        [DataType(DataType.Date)]
+        public DateOnly ValidTo { get; set; } = new(DateTime.Today.Year, 12, 31);
+
         public int Persons { get; set; } = 2;
         public DemandLevel Level { get; set; } = DemandLevel.Middle;
         public int CustomPercent { get; set; } = 50;
@@ -40,7 +45,7 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             if (plan is null) return NotFound();
             Input = new InputModel
             {
-                Name = plan.Name, Year = plan.Year, Persons = plan.Persons, Level = plan.Level,
+                Name = plan.Name, ValidFrom = plan.ValidFrom, ValidTo = plan.ValidTo, Persons = plan.Persons, Level = plan.Level,
                 CustomPercent = plan.CustomPercent, IncludeOutOfStock = plan.IncludeOutOfStock
             };
         }
@@ -60,9 +65,11 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
 
         Input.Name = Input.Name?.Trim() ?? "";
         if (Input.Name.Length > 0 &&
-            await db.Plans.AnyAsync(p => p.Year == Input.Year && p.Name == Input.Name && p.Id != (id ?? 0)))
+            await db.Plans.AnyAsync(p => p.ValidFrom == Input.ValidFrom && p.Name == Input.Name && p.Id != (id ?? 0)))
             ModelState.AddModelError("Input.Name", L["PlanError_NameExists"]);
-        if (Input.Year is < 2000 or > 2100) ModelState.AddModelError("Input.Year", L["PlanError_Year"]);
+        if (Input.ValidFrom.Year is < 2000 or > 2100) ModelState.AddModelError("Input.ValidFrom", L["PlanError_Year"]);
+        else if (Input.ValidTo < Input.ValidFrom) ModelState.AddModelError("Input.ValidTo", L["PlanError_Period"]);
+        else if (Input.ValidTo > Input.ValidFrom.AddYears(1).AddDays(-1)) ModelState.AddModelError("Input.ValidTo", L["PlanError_PeriodLong"]);
         if (Input.Persons < 1) ModelState.AddModelError("Input.Persons", L["PlanError_Persons"]);
         if (Input.CustomPercent is < 0 or > 100) ModelState.AddModelError("Input.CustomPercent", L["PlanError_Percent"]);
         if (!ModelState.IsValid)
@@ -77,7 +84,8 @@ public class EditModel(SeedPlannerDbContext db, IStringLocalizer<SharedResource>
             db.Plans.Add(plan);
         }
         plan.Name = Input.Name;
-        plan.Year = Input.Year;
+        plan.ValidFrom = Input.ValidFrom;
+        plan.ValidTo = Input.ValidTo;
         plan.Persons = Input.Persons;
         plan.Level = Input.Level;
         plan.CustomPercent = Input.CustomPercent;

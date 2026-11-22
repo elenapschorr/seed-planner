@@ -38,7 +38,10 @@ public enum UnplacedReason
     MissingTimeData,
 
     /// <summary>Containers would fit, but their soil pH is outside the range of the variety.</summary>
-    SoilMismatch
+    SoilMismatch,
+
+    /// <summary>A new bed would be needed, but the free garden area of the plot is not enough (or no garden area is set).</summary>
+    NoGardenArea
 }
 
 /// <summary>

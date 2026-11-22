@@ -1,5 +1,6 @@
 @page "{id:int}"
 @model SeedPlanner.Api.Pages.Plans.DistributionModel
+@using System.Globalization
 @using SeedPlanner.Domain
 @{
     ViewData["Title"] = L["Distribution_Title"].Value + " – " + Model.Plan.Name;
@@ -55,6 +56,16 @@
                 <label class="form-label" for="max-bed">@L["Distribution_MaxBed"]</label>
                 <input class="form-control" id="max-bed" name="MaxBedArea" value="@Model.MaxBedArea" inputmode="decimal" autocomplete="off" />
                 <div class="form-text">@L["Distribution_MaxBedHelp"]</div>
+                @if (Model.GardenFree is { } gardenFree)
+                {
+                    <div class="form-text">@L["Distribution_GardenFree", gardenFree.ToString("0.##", CultureInfo.CurrentCulture)]</div>
+                }
+                else
+                {
+                    <div class="alert alert-warning py-2 mt-2 mb-0" role="status">
+                        @L["Distribution_GardenUnknown"] <a asp-page="/Garden/Index">@L["Distribution_GardenSet"]</a>
+                    </div>
+                }
                 <label class="form-label mt-3" for="spacing">@L["Distribution_Spacing"]</label>
                 <input class="form-control" id="spacing" name="SpacingPercent" type="number" min="50" max="100" step="5" value="@Model.SpacingPercent" />
                 <div class="form-text">@L["Distribution_SpacingHelp"]</div>

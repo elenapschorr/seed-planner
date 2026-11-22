@@ -325,6 +325,38 @@
   <data name="Filter_Group_Occupancy" xml:space="preserve"><value>Занятость</value></data>
   <data name="Nav_Demand" xml:space="preserve"><value>Потребность</value></data>
   <data name="Nav_Plans" xml:space="preserve"><value>Планы</value></data>
+  <data name="Nav_ThisMonth" xml:space="preserve"><value>Этот месяц</value></data>
+  <data name="ThisMonth_PlanNotStarted" xml:space="preserve"><value>План начинается {0}, поэтому задач пока нет.</value></data>
+  <data name="ThisMonth_PlanEnded" xml:space="preserve"><value>План закончился {0}.</value></data>
+  <data name="ThisMonth_Overdue" xml:space="preserve"><value>просрочено с {0}</value></data>
+  <data name="ThisMonth_Done" xml:space="preserve"><value>Готово</value></data>
+  <data name="ThisMonth_Undo" xml:space="preserve"><value>Отменить</value></data>
+  <data name="ThisMonth_Mark_Sow" xml:space="preserve"><value>Посеяно</value></data>
+  <data name="ThisMonth_Mark_SowIndoors" xml:space="preserve"><value>Посеяно на рассаду</value></data>
+  <data name="ThisMonth_Mark_PlantOut" xml:space="preserve"><value>Высажено</value></data>
+  <data name="ThisMonth_HarvestedOf" xml:space="preserve"><value>из {0} собрано</value></data>
+  <data name="ThisMonth_Save" xml:space="preserve"><value>Сохранить</value></data>
+  <data name="ThisMonth_HarvestFinished" xml:space="preserve"><value>Сбор завершён</value></data>
+  <data name="ThisMonth_HarvestReset" xml:space="preserve"><value>Сбросить</value></data>
+  <data name="ThisMonth_PlanTitle" xml:space="preserve"><value>Из моего плана</value></data>
+  <data name="ThisMonth_SowableTitle" xml:space="preserve"><value>Можно посеять сейчас дополнительно (в наличии)</value></data>
+  <data name="ThisMonth_SowableEmpty" xml:space="preserve"><value>Других сортов в наличии для посева в этом месяце нет.</value></data>
+  <data name="ThisMonth_Title" xml:space="preserve"><value>Что делать в этом месяце</value></data>
+  <data name="ThisMonth_Plan" xml:space="preserve"><value>План</value></data>
+  <data name="ThisMonth_Show" xml:space="preserve"><value>Показать</value></data>
+  <data name="ThisMonth_Prev" xml:space="preserve"><value>Предыдущий месяц</value></data>
+  <data name="ThisMonth_Next" xml:space="preserve"><value>Следующий месяц</value></data>
+  <data name="ThisMonth_NoPlans" xml:space="preserve"><value>Плана ещё нет. Создайте его на странице «Планы».</value></data>
+  <data name="ThisMonth_Empty" xml:space="preserve"><value>В этом месяце дел нет.</value></data>
+  <data name="ThisMonth_Plants" xml:space="preserve"><value>{0} раст.</value></data>
+  <data name="Task_Sow" xml:space="preserve"><value>Посев</value></data>
+  <data name="Task_SowIndoors" xml:space="preserve"><value>Посев на рассаду</value></data>
+  <data name="Task_PlantOut" xml:space="preserve"><value>Высадка</value></data>
+  <data name="Task_Harvest" xml:space="preserve"><value>Сбор урожая</value></data>
+  <data name="TaskPart_Early" xml:space="preserve"><value>в начале месяца</value></data>
+  <data name="TaskPart_Mid" xml:space="preserve"><value>в середине месяца</value></data>
+  <data name="TaskPart_Late" xml:space="preserve"><value>в конце месяца</value></data>
+  <data name="TaskPart_Whole" xml:space="preserve"><value>весь месяц</value></data>
   <data name="Demand_Title" xml:space="preserve"><value>Потребность на человека</value></data>
   <data name="Demand_Intro" xml:space="preserve"><value>Значение по умолчанию задаётся культурой. Введите свои значения, чтобы использовать их в своих планах; единица тоже может отличаться, например, зелень в квадратных метрах.</value></data>
   <data name="Demand_Saved" xml:space="preserve"><value>Сохранено.</value></data>
@@ -339,6 +371,11 @@
   <data name="Plans_New" xml:space="preserve"><value>Новый план</value></data>
   <data name="Plans_Empty" xml:space="preserve"><value>Планов пока нет. Создайте план, чтобы рассчитать, сколько растений нужно.</value></data>
   <data name="Plan_Year" xml:space="preserve"><value>Год</value></data>
+  <data name="Plan_ValidFrom" xml:space="preserve"><value>Действует с</value></data>
+  <data name="Plan_ValidTo" xml:space="preserve"><value>Действует до</value></data>
+  <data name="Plan_Period" xml:space="preserve"><value>Период</value></data>
+  <data name="PlanError_Period" xml:space="preserve"><value>Конец не может быть раньше начала.</value></data>
+  <data name="PlanError_PeriodLong" xml:space="preserve"><value>План может охватывать не более одного года.</value></data>
   <data name="Plan_Persons" xml:space="preserve"><value>Человек</value></data>
   <data name="Plan_Level" xml:space="preserve"><value>Уровень потребности</value></data>
   <data name="Plan_Crops" xml:space="preserve"><value>Культуры</value></data>
@@ -397,7 +434,10 @@
   <data name="Distribution_NoCover" xml:space="preserve"><value>Если не выбрана грядка с укрытием (растения для парника)</value></data>
   <data name="Distribution_AllowOthers" xml:space="preserve"><value>Другие растения могут занимать свободное место в грядках с укрытием</value></data>
   <data name="Distribution_MaxBed" xml:space="preserve"><value>Максимальная площадь новой грядки (м²)</value></data>
-  <data name="Distribution_MaxBedHelp" xml:space="preserve"><value>Для новых грядок. Пусто = без ограничения.</value></data>
+  <data name="Distribution_MaxBedHelp" xml:space="preserve"><value>Размер одной новой грядки. Пусто = столько, сколько свободной площади сада.</value></data>
+  <data name="Distribution_GardenFree" xml:space="preserve"><value>Свободная площадь сада для новых грядок: {0} м² (садовые зоны участка минус существующие грядки).</value></data>
+  <data name="Distribution_GardenUnknown" xml:space="preserve"><value>На участке не задана площадь сада, поэтому новые грядки не создаются.</value></data>
+  <data name="Distribution_GardenSet" xml:space="preserve"><value>Задать площадь сада</value></data>
   <data name="Distribution_Pots" xml:space="preserve"><value>Горшки</value></data>
   <data name="Distribution_Beds" xml:space="preserve"><value>Грядки</value></data>
   <data name="Distribution_SelectFree" xml:space="preserve"><value>Все свободные</value></data>
@@ -435,6 +475,7 @@
   <data name="Unplaced_NotEnoughPots" xml:space="preserve"><value>горшков не хватает – не размещено (место выращивания горшок, в грядку не сажается)</value></data>
   <data name="Unplaced_MissingTimeData" xml:space="preserve"><value>нет сроков – не размещено (укажите посев, недели рассады и сбор у сорта)</value></data>
   <data name="Unplaced_SoilMismatch" xml:space="preserve"><value>не подходит pH почвы – не размещено (pH выбранных горшков/грядок вне диапазона для культуры)</value></data>
+  <data name="Unplaced_NoGardenArea" xml:space="preserve"><value>Нет свободной площади сада для новой грядки</value></data>
   <data name="Distribution_PlacementsSummary" xml:space="preserve"><value>сортов: {0}, растений: {1}</value></data>
   <data name="Field_IndoorWeeks" xml:space="preserve"><value>Недель рассады (мин/макс)</value></data>
   <data name="Field_IndoorWeeksHelp" xml:space="preserve"><value>Недель от посева до высадки; только при предварительном выращивании.</value></data>

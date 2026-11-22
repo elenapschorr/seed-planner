@@ -338,4 +338,17 @@ public class PlanCalculatorTests
         Assert.Equal(0, item.Lines[0].Plants);
         Assert.Empty(plan.ShoppingList);
     }
+
+    [Fact]
+    public void A_plan_has_a_period_and_the_year_is_the_one_it_starts_in()
+    {
+        var autumn = new Plan { ValidFrom = new DateOnly(2026, 10, 1), ValidTo = new DateOnly(2027, 9, 30) };
+        var spring = new Plan { ValidFrom = new DateOnly(2027, 3, 1), ValidTo = new DateOnly(2027, 11, 30) };
+        var earlier = new Plan { ValidFrom = new DateOnly(2026, 1, 1), ValidTo = new DateOnly(2026, 9, 30) };
+
+        Assert.Equal(2026, autumn.Year);
+        Assert.True(autumn.Overlaps(spring));
+        Assert.True(spring.Overlaps(autumn));
+        Assert.False(earlier.Overlaps(autumn));
+    }
 }

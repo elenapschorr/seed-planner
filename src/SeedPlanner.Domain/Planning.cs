@@ -74,7 +74,17 @@ public class Plan : IOwnedByUser
     public string OwnerId { get; set; } = "";
 
     public string Name { get; set; } = "";
-    public int Year { get; set; } = DateTime.Today.Year;
+    /// <summary>First day the plan is valid (default: the first day of this year).</summary>
+    public DateOnly ValidFrom { get; set; } = new(DateTime.Today.Year, 1, 1);
+
+    /// <summary>Last day the plan is valid; at most one year after <see cref="ValidFrom"/>, may run over the turn of the year.</summary>
+    public DateOnly ValidTo { get; set; } = new(DateTime.Today.Year, 12, 31);
+
+    /// <summary>The year the plan starts in (not stored).</summary>
+    public int Year => ValidFrom.Year;
+
+    /// <summary>Whether the periods of the two plans share at least one day.</summary>
+    public bool Overlaps(Plan other) => ValidFrom <= other.ValidTo && other.ValidFrom <= ValidTo;
 
     // ---- settings
     public int Persons { get; set; } = 1;
@@ -218,6 +228,21 @@ public class PlanLine
     public int? PlantsOverride { get; set; }
 
     public int Plants => Include ? PlantsOverride ?? CalculatedPlants : 0;
+
+    // ---- progress: what the user has marked as done (see MonthlyTasks)
+    /// <summary>When the sowing (indoors or directly) was marked as done.</summary>
+    public DateOnly? SownOn { get; set; }
+
+    /// <summary>When the plants started indoors were marked as planted out.</summary>
+    public DateOnly? PlantedOutOn { get; set; }
+
+    /// <summary>How many plants are harvested so far (a harvest may be partial).</summary>
+    public int HarvestedPlants { get; set; }
+
+    /// <summary>When the harvest was marked as finished (all plants harvested or the rest given up).</summary>
+    public DateOnly? HarvestDoneOn { get; set; }
+
+    public TaskProgress Progress => new(SownOn is not null, PlantedOutOn is not null, HarvestedPlants, HarvestDoneOn is not null);
 
     /// <summary>Goes on the shopping list.</summary>
     public bool ToBuy => Include && OutOfStock;

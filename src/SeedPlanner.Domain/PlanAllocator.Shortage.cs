@@ -38,21 +38,23 @@ public static partial class PlanAllocator
 
     // New beds of at most maxBed m² until nothing more can be placed. As long as cold frame plants are left,
     // the new bed gets a cover; if that places nothing, the next try is a bed without a cover.
-    private static List<AllocPlant> AddBeds(List<AllocPlant> left, List<Box> boxes, Rules rel, double maxBed)
+    private static List<AllocPlant> AddBeds(List<AllocPlant> left, List<Box> boxes, Rules rel, double maxBed, BedBudget budget)
     {
         var tryCover = left.Any(p => p.ColdFrame);
-        while (left.Count > 0 && maxBed > 0)
+        while (left.Count > 0 && maxBed > 0 && !budget.Exhausted)
         {
-            var bed = new Box { Kind = ContainerKind.Bed, IsNew = true, Category = ContainerCategory.Bed, HasCover = tryCover, Capacity = maxBed };
+            var size = budget.Take(maxBed);
+            var bed = new Box { Kind = ContainerKind.Bed, IsNew = true, Category = ContainerCategory.Bed, HasCover = tryCover, Capacity = size };
             boxes.Add(bed);
             var mark = rel.Trace?.Entries.Count ?? 0;
-            rel.Trace?.Add(new TraceEntry(tryCover ? TraceCode.NewBedCovered : TraceCode.NewBed, Kind: ContainerKind.Bed, IsNew: true, Value: maxBed));
+            rel.Trace?.Add(new TraceEntry(tryCover ? TraceCode.NewBedCovered : TraceCode.NewBed, Kind: ContainerKind.Bed, IsNew: true, Value: size));
             var next = PlaceAll(left, boxes, rel, top: false);
             if (next.Count == left.Count)
             {
                 // nothing fitted into the new bed: take the notes of this try back
                 if (rel.Trace is { } log) log.Entries.RemoveRange(mark, log.Entries.Count - mark);
                 boxes.Remove(bed);
+                budget.Refund(size);
                 if (!tryCover) break;
                 tryCover = false;
                 continue;
@@ -63,7 +65,7 @@ public static partial class PlanAllocator
         return left;
     }
 
-    private static UnplacedReason ReasonFor(AllocPlant p, ShortageStrategy strategy, double maxBed)
+    private static UnplacedReason ReasonFor(AllocPlant p, ShortageStrategy strategy, double maxBed, double? newBedBudget)
     {
         var potPossible = !p.ColdFrame && p.Place != PlantPlace.Bed && p.PotLitersMin is not null;
         var bedPossible = (p.ColdFrame || p.Place != PlantPlace.Pot) && p.AreaM2 is not null;
@@ -72,6 +74,8 @@ public static partial class PlanAllocator
         // A pot plant is never put into a bed: the pots are not enough
         if (p.Place == PlantPlace.Pot) return UnplacedReason.NotEnoughPots;
         if ((strategy == ShortageStrategy.AddBeds || p.ColdFrame || p.Required) && !potPossible && p.AreaM2 > maxBed) return UnplacedReason.TooBigForBed;
+        // New beds were the way out, but the free garden area does not allow them
+        if (newBedBudget is not null && !potPossible && bedPossible && (strategy == ShortageStrategy.AddBeds || p.ColdFrame || p.Required)) return UnplacedReason.NoGardenArea;
         return UnplacedReason.NoSuitableContainer;
     }
 }

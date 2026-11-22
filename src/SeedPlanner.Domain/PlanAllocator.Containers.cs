@@ -100,7 +100,30 @@ public static partial class PlanAllocator
         }
     }
 
-    private sealed record Opt(ShortageStrategy Strategy, double MaxBed, NoCoverStrategy NoCover);
+    /// <param name="NewBedBudget">Total area in m² all new beds together may have; null = no limit.</param>
+    private sealed record Opt(ShortageStrategy Strategy, double MaxBed, NoCoverStrategy NoCover, double? NewBedBudget = null);
+
+    /// <summary>The area that is left for new beds in one run; every new bed takes its size from it.</summary>
+    private sealed class BedBudget(double? total)
+    {
+        private double? _left = total;
+
+        public bool Limited => _left is not null;
+
+        public bool Exhausted => _left is { } left && left <= Eps;
+
+        /// <summary>Gives back the area of a bed that was not kept.</summary>
+        public void Refund(double size) => _left += size;
+
+        /// <summary>The area a new bed may get when it would like <paramref name="wanted"/> m²; 0 if nothing is left.</summary>
+        public double Take(double wanted)
+        {
+            if (_left is not { } left) return wanted;
+            var given = Math.Max(0, Math.Min(wanted, left));
+            _left = left - given;
+            return given;
+        }
+    }
 
     private static Box ToBox(AllocContainerInput i) => new()
     {
