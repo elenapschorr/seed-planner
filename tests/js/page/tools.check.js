@@ -1,0 +1,14 @@
+const { load, fire } = require("./mock.js");
+const data = { boundary: [[100,100],[900,100],[900,900],[100,900]], lengths: [null,null,null,null], zones: [], knownArea: 300, neighbors: [], cutLine: null, beds: [], placed: [] };
+const { els } = load(data);
+const ok = (name, cond) => console.log(cond ? "ok  " : "FAIL", name);
+fire(els["cut-draw"], "click", {});
+ok("cut tool on: message shown", els["cut-msg"].hidden === false);
+fire(els["shape-place"] || els["place-shape"] || els["place"] || Object.values(els).find(e => e.id && /place/.test(e.id) && e.listeners.click), "click", {});
+ok("starting the shape tool ends the cut tool", els["cut-msg"].hidden === true);
+fire(els["plot"], "keydown", {});
+fire(els["trace-boundary"], "click", {});
+fire(els["plot"], "click", { clientX: 300, clientY: 300 });
+ok("trace tool: without readable pixels the click shows a message instead of failing", els["trace-msg-boundary"].textContent !== "");
+fire(els["cut-draw"], "click", {});
+ok("starting the cut tool ends the trace tool", els["trace-msg-boundary"].hidden === true);

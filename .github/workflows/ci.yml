@@ -18,7 +18,7 @@ jobs:
       # The isolation tests start PostgreSQL in Docker (available on GitHub runners)
       - run: dotnet test --no-build --configuration Release
       # Tests of the browser scripts (geometry and taking areas from lines in the picture) run with Node, which is on the runner
-      - run: node --test tests/js/garden-geometry.test.js tests/js/garden-trace.test.js tests/js/garden-model.test.js tests/js/garden-history.test.js
+      - run: node --test tests/js/garden-geometry.test.js tests/js/garden-trace.test.js tests/js/garden-model.test.js tests/js/garden-history.test.js tests/js/page/page.test.js
 
   docker-image:
     runs-on: ubuntu-latest

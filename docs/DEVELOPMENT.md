@@ -106,6 +106,14 @@ dotnet run --project src/SeedPlanner.Api
 dotnet test
 ```
 
+JavaScript of the garden page (Node.js 20 or newer, no packages needed):
+
+```powershell
+node --test tests/js/garden-geometry.test.js tests/js/garden-trace.test.js tests/js/garden-model.test.js tests/js/garden-history.test.js tests/js/page/page.test.js
+```
+
+`tests/js/page` runs the page script and all its modules against a small DOM mock (`mock.js`); every `*.check.js` file is one scenario.
+
 ## 7. Backup and restore
 
 After the Excel file is retired, the database is the only copy of the data. Back it up regularly:

@@ -1,0 +1,10 @@
+const { load, fire } = require("./mock.js");
+const data = { boundary: [[100,100],[900,100],[900,900],[100,900]], lengths: [null,null,null,null], zones: [], knownArea: 300, neighbors: [], cutLine: null, beds: [], placedBeds: [] };
+const { els } = load(data);
+const ok = (n, c) => console.log(c ? "ok  " : "FAIL", n);
+fire(els["zoom-in"], "click", {});
+ok("zoom in shows 150 %", els["zoom-reset"].textContent === "150 %");
+fire(els["zoom-out"], "click", {}); fire(els["zoom-out"], "click", {});
+ok("zoom out twice shows 67 %", els["zoom-reset"].textContent === "67 %");
+fire(els["zoom-reset"], "click", {});
+ok("reset shows 100 %", els["zoom-reset"].textContent === "100 %");

@@ -403,11 +403,8 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# VS Code files for those working on multiple tools
+# VS Code: tasks, launch and extensions are shared, settings are personal
 .vscode/settings.json
-.vscode/tasks.json
-.vscode/launch.json
-.vscode/extensions.json
 .vscode/*.code-snippets
 
 # Local History for Visual Studio Code
@@ -429,3 +426,6 @@ FodyWeavers.xsd
 *.local.json
 data/
 *.md
+
+# Files waiting to be deleted by hand
+_to_delete/

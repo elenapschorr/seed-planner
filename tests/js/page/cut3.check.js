@@ -1,0 +1,13 @@
+const { load, fire } = require("./mock.js");
+const data = { boundary: [[100,100],[900,100],[900,900],[100,900]], lengths: [null,null,null,null], zones: [], knownArea: 300, neighbors: [], cutLine: null, beds: [], placed: [] };
+const h = load(data), { els } = h, svg = els.plot;
+const overlay = () => (els.plot.children||[]).length;
+fire(els["cut-draw"], "click", {});
+fire(svg, "pointerdown", { clientX: 500, clientY: 200 }); fire(svg, "click", { clientX: 500, clientY: 200 });
+fire(svg, "pointermove", { clientX: 500, clientY: 800 });
+console.log("after move, overlay tags:", JSON.stringify(Object.values(els).filter(e=>e&&e.children&&e.children.length).map(e=>[e.id||e.tag, e.children.map(c=>c.tag||c.name).join(",")])));
+fire(svg, "pointerdown", { clientX: 500, clientY: 800 }); fire(svg, "click", { clientX: 500, clientY: 800 });
+console.log("after click 2:", JSON.stringify(Object.values(els).filter(e=>e&&e.children&&e.children.length).map(e=>[e.id||e.tag, e.children.map(c=>c.tag||c.name).join(",")])));
+const gs = els.plot.children.filter(c => c.tag === "g");
+console.log("g children after click 2:", gs.map(g => g.children.map(c => c.tag).join(",")));
+fire(svg, "pointermove", { clientX: 500, clientY: 800 });
