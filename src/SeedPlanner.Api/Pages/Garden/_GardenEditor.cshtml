@@ -167,16 +167,16 @@ else if (!Model.HasImage)
                 <div id="tools-body" class="border p-2 mt-1" style="overflow: auto; background: var(--sp-paper);">
 
                     <div hidden="@(!setup)">
-                    <details class="mb-3" open>
+                    <details class="mb-3">
                         <summary class="fw-semibold">@L["Garden_GroupPlot"]</summary>
-                    <details class="border p-2 mb-2" id="trace-panel" open>
+                    <details class="border p-2 mb-2" id="trace-panel">
                         <summary class="small fw-semibold">@L["Garden_TraceTitle"]</summary>
                         <div class="small text-muted mt-2">@L["Garden_TraceBoundaryNote"]</div>
                         <button type="button" id="trace-boundary" class="btn btn-outline-secondary btn-sm mt-1">@L["Garden_TraceBoundary"]</button>
                         <div class="small text-muted mt-1" id="trace-msg-boundary" hidden></div>
                     </details>
 
-                    <details class="border p-2 mb-2" id="cut-panel" open>
+                    <details class="border p-2 mb-2" id="cut-panel">
                         <summary class="small fw-semibold">@L["Garden_CutTitle"]</summary>
                         <div class="d-flex flex-wrap gap-2 mt-2">
                             <button type="button" id="cut-draw" class="btn btn-outline-secondary btn-sm">@L["Garden_CutDraw"]</button>
@@ -205,7 +205,7 @@ else if (!Model.HasImage)
                         <div class="small text-muted mt-1">@L["Garden_CutHint"]</div>
                     </details>
 
-                    <details class="border p-2 mb-2" id="mine-box" open>
+                    <details class="border p-2 mb-2" id="mine-box">
                         <summary class="small fw-semibold">@L["Garden_MineTitle"]</summary>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="mine-only" />
@@ -220,9 +220,9 @@ else if (!Model.HasImage)
                     </div>
 
                     <div hidden="@(setup)">
-                    <details class="mb-3" open>
+                    <details class="mb-3">
                         <summary class="fw-semibold">@L["Garden_GroupBeds"]</summary>
-                        <details id="beds-panel" class="border p-2 mb-2" open>
+                        <details id="beds-panel" class="border p-2 mb-2">
                             <summary class="small fw-semibold">@L["Garden_BedsTitle"]</summary>
                             <div class="d-flex flex-wrap align-items-end gap-2 mt-2">
                                 <select id="bed-choose" class="form-select form-select-sm" style="max-width: 16rem;" aria-label="@L["Garden_BedChoose"]"></select>
@@ -237,9 +237,9 @@ else if (!Model.HasImage)
                     </div>
 
                     <div>
-                    <details class="mb-3" open>
+                    <details class="mb-3">
                         <summary class="fw-semibold">@L["Garden_GroupAreas"]</summary>
-                    <details class="border p-2 mb-2" open>
+                    <details class="border p-2 mb-2">
                         <summary class="small fw-semibold mb-1">@L["Garden_NewArea"]</summary>
                         <div class="d-flex flex-wrap align-items-end gap-2">
                             <input type="text" id="zone-name" class="form-control form-control-sm" style="max-width: 14rem;" maxlength="100" placeholder="@L["Garden_ZoneName"]" aria-label="@L["Garden_ZoneName"]" />
@@ -296,7 +296,7 @@ else if (!Model.HasImage)
                         <div class="small text-muted mt-1" id="trace-msg-zone" hidden></div>
                     </details>
 
-                    <details class="border p-2 mb-2" id="select-panel" open>
+                    <details class="border p-2 mb-2" id="select-panel">
                     <summary class="small fw-semibold">@L["Garden_AreaTitle"]</summary>
                     <div class="d-flex flex-wrap align-items-end gap-2 mb-2 mt-2">
                         <div>
@@ -460,7 +460,7 @@ else if (!Model.HasImage)
 
         <div id="warnings" class="my-2"></div>
 
-        <details class="mb-3" open>
+        <details class="mb-3">
         <summary class="h5">@L["Garden_AreasTitle"]</summary>
         <div class="row g-3 mb-2">
             <div class="col-6 col-sm-3">
@@ -518,7 +518,7 @@ else if (!Model.HasImage)
         </details>
 
         <div hidden="@(!setup)">
-        <details class="mb-3" id="scale-box" open>
+        <details class="mb-3" id="scale-box">
             <summary class="h5">@L["Garden_ScaleTitle"]</summary>
             <div class="d-flex flex-wrap align-items-end gap-2">
                 <div>
@@ -537,7 +537,7 @@ else if (!Model.HasImage)
             <div class="small text-muted mt-1" id="scale-note"></div>
         </details>
 
-        <details class="mb-3" id="neighbors-box" open>
+        <details class="mb-3" id="neighbors-box">
             <summary class="h5">@L["Garden_Neighbors"]</summary>
             <div class="d-flex flex-wrap align-items-end gap-2">
                 <div>
@@ -548,7 +548,7 @@ else if (!Model.HasImage)
             </div>
         </details>
 
-        <details class="mb-3" open>
+        <details class="mb-3">
             <summary class="h5">@L["Garden_Edges"]</summary>
             <p class="small text-muted" id="edge-empty">@L["Garden_EdgesEmpty"]</p>
             <div class="table-responsive">

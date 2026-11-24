@@ -30,7 +30,6 @@
             <th><a href="@Model.SortUrl("nutrient")" class="text-decoration-none text-reset">@L["Col_NutrientDemand"]@Model.Arrow("nutrient")</a></th>
             <th><a href="@Model.SortUrl("exposure")" class="text-decoration-none text-reset">@L["Col_Exposure"]@Model.Arrow("exposure")</a></th>
             <th><a href="@Model.SortUrl("tobuy")" class="text-decoration-none text-reset">@L["Badge_ToBuy"]@Model.Arrow("tobuy")</a></th>
-            <th></th>
             </tr>
         </thead>
         <tbody>
@@ -39,14 +38,16 @@
                 <tr>
                         <td><a asp-page="/PlantTypes/Details" asp-route-id="@r.TypeId" class="text-decoration-none">@r.TypeName</a></td>
                         <td>
-                            @if (r.IsUnnamed)
-                            {
-                                <span class="text-muted fst-italic">@L["Plant_Unnamed"]</span>
-                            }
-                            else
-                            {
-                                <strong>@r.Name</strong>
-                            }
+                            <a asp-page="Edit" asp-route-id="@r.Id" asp-route-returnUrl="@Model.ReturnUrl" title="@L["Action_Edit"].Value" class="text-decoration-none">
+                                @if (r.IsUnnamed)
+                                {
+                                    <span class="text-muted fst-italic">@L["Plant_Unnamed"]</span>
+                                }
+                                else
+                                {
+                                    <strong>@r.Name</strong>
+                                }
+                            </a>
                         </td>
                         <td>@(r.Lifecycle is null ? "–" : L["Lifecycle_" + r.Lifecycle].Value)</td>
                     <td>@(r.SeedType is null ? "–" : L["SeedType_" + r.SeedType].Value)</td>
@@ -63,7 +64,6 @@
                             else { @L["Exposure_" + r.Exposure] }
                         </td>
                     <td>@if (r.ShouldBuy) { <span class="badge text-bg-warning">@L["Badge_ToBuy"]</span> }</td>
-                    <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id" asp-route-returnUrl="@Model.ReturnUrl">@L["Action_Edit"]</a></td>
                 </tr>
             }
         </tbody>
@@ -88,7 +88,6 @@
             <th><a href="@Model.SortUrl("nutrient")" class="text-decoration-none text-reset">@L["Col_NutrientDemand"]@Model.Arrow("nutrient")</a></th>
             <th><a href="@Model.SortUrl("exposure")" class="text-decoration-none text-reset">@L["Col_Exposure"]@Model.Arrow("exposure")</a></th>
             <th class="text-end"><a href="@Model.SortUrl("pots")" class="text-decoration-none text-reset">@L["Col_Pots"]@Model.Arrow("pots")</a></th>
-            <th></th>
             </tr>
         </thead>
         <tbody>
@@ -97,14 +96,16 @@
                 <tr>
                         <td><a asp-page="/PlantTypes/Details" asp-route-id="@r.TypeId" class="text-decoration-none">@r.TypeName</a></td>
                         <td>
-                            @if (r.IsUnnamed)
-                            {
-                                <span class="text-muted fst-italic">@L["Plant_Unnamed"]</span>
-                            }
-                            else
-                            {
-                                <strong>@r.Name</strong>
-                            }
+                            <a asp-page="Edit" asp-route-id="@r.Id" asp-route-returnUrl="@Model.ReturnUrl" title="@L["Action_Edit"].Value" class="text-decoration-none">
+                                @if (r.IsUnnamed)
+                                {
+                                    <span class="text-muted fst-italic">@L["Plant_Unnamed"]</span>
+                                }
+                                else
+                                {
+                                    <strong>@r.Name</strong>
+                                }
+                            </a>
                         </td>
                     <td>@L["Propagation_" + r.Propagation]</td>
                         <td>@(r.Lifecycle is null ? "–" : L["Lifecycle_" + r.Lifecycle].Value)</td>
@@ -121,7 +122,6 @@
                             else { @L["Exposure_" + r.Exposure] }
                         </td>
                     <td class="text-end">@(r.PotCount == 0 ? "–" : r.PotCount.ToString())</td>
-                    <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id" asp-route-returnUrl="@Model.ReturnUrl">@L["Action_Edit"]</a></td>
                 </tr>
             }
         </tbody>

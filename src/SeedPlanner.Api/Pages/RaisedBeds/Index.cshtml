@@ -30,7 +30,6 @@
             <th class="text-end"><a href="@Model.Filter.SortUrl("volume")" class="text-decoration-none text-reset">@L["Col_SoilVolume"]@Model.Filter.Arrow("volume")</a></th>
             <th><a href="@Model.Filter.SortUrl("plantings")" class="text-decoration-none text-reset">@L["Col_Plantings"]@Model.Filter.Arrow("plantings")</a></th>
             <th><a href="@Model.Filter.SortUrl("note")" class="text-decoration-none text-reset">@L["Col_Note"]@Model.Filter.Arrow("note")</a></th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -47,7 +46,6 @@
                 <td class="text-end">@(r.VolumeLiters is null ? "–" : r.VolumeLiters.Value.ToString("0", CultureInfo.CurrentCulture))</td>
                 <td>@r.Plantings</td>
                 <td>@(r.Note ?? "")</td>
-                <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id">@L["Action_Edit"]</a></td>
             </tr>
         }
     </tbody>

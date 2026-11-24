@@ -32,7 +32,6 @@
             <th><a href="@Model.Filter.SortUrl("saucer")" class="text-decoration-none text-reset">@L["Col_Saucer"]@Model.Filter.Arrow("saucer")</a></th>
             <th><a href="@Model.Filter.SortUrl("uses")" class="text-decoration-none text-reset">@L["Col_UsedFor"]@Model.Filter.Arrow("uses")</a></th>
             <th><a href="@Model.Filter.SortUrl("note")" class="text-decoration-none text-reset">@L["Col_Note"]@Model.Filter.Arrow("note")</a></th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -58,7 +57,6 @@
                 <td>@(r.Saucer ?? "–")</td>
                 <td class="col-uses">@(r.Uses.Length == 0 ? "–" : r.Uses)</td>
                 <td class="col-note">@(r.Note ?? "")</td>
-                <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id">@L["Action_Edit"]</a></td>
             </tr>
         }
     </tbody>

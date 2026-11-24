@@ -24,7 +24,6 @@
             <th class="text-end"><a href="@Model.Filter.SortUrl("quantity")" class="text-decoration-none text-reset">@L["Col_Quantity"]@Model.Filter.Arrow("quantity")</a></th>
             <th class="text-end"><a href="@Model.Filter.SortUrl("pots")" class="text-decoration-none text-reset">@L["Col_AssignedPots"]@Model.Filter.Arrow("pots")</a></th>
             <th><a href="@Model.Filter.SortUrl("note")" class="text-decoration-none text-reset">@L["Col_Note"]@Model.Filter.Arrow("note")</a></th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -36,7 +35,6 @@
                 <td class="text-end">@r.Quantity</td>
                 <td class="text-end">@r.PotCount</td>
                 <td>@(r.Note ?? "")</td>
-                <td class="text-end"><a asp-page="Edit" asp-route-id="@r.Id">@L["Action_Edit"]</a></td>
             </tr>
         }
     </tbody>

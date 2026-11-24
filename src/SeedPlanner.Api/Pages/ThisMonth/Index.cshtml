@@ -49,7 +49,7 @@ else
     {
         foreach (var g in Model.Groups)
         {
-            <details class="mb-3" open>
+            <details class="mb-3">
                 <summary><strong>@L["Task_" + g.Kind]</strong> <span class="text-muted">(@g.Rows.Count)</span></summary>
                 <div class="table-responsive">
                     <table class="table table-sm align-middle mt-2">
@@ -118,7 +118,7 @@ else
 }
 else
 {
-    <details class="mb-3" open>
+    <details class="mb-3">
         <summary><strong>@L["Task_Sow"]</strong> <span class="text-muted">(@Model.Sowable.Count)</span></summary>
         <div class="table-responsive">
             <table class="table table-sm align-middle mt-2">
