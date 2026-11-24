@@ -41,6 +41,10 @@ dotnet test
 node --test tests/js/garden-geometry.test.js tests/js/garden-trace.test.js tests/js/garden-model.test.js tests/js/garden-history.test.js tests/js/page/page.test.js
 ```
 
+## Reference data
+
+The neighbour table (`tools/companions.csv`) and the nutrient demand and exposure values (`tools/crop_attributes.sql`) are compiled by the author from gardening reference tables, among them a Russian review table. They are meant as guidance for planning, not as authoritative horticultural advice. Third-party components and fonts are listed in [THIRD-PARTY.md](THIRD-PARTY.md).
+
 ## Structure
 
 | Path | Content |
