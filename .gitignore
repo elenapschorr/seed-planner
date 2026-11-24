@@ -425,7 +425,9 @@ FodyWeavers.xsd
 
 *.local.json
 data/
-*.md
 
 # Files waiting to be deleted by hand
 _to_delete/
+
+# Personal notes for Claude Code (detailed status and design notes)
+CLAUDE.local.md
