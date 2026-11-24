@@ -245,7 +245,7 @@
   <data name="Error_PotSizeRequired" xml:space="preserve"><value>For pot culture the pot size (min and max) is required.</value></data>
   <data name="Action_ShowSpacing" xml:space="preserve"><value>Specify spacing</value></data>
   <data name="Home_Kicker" xml:space="preserve"><value>Inventory as of today</value></data>
-  <data name="Home_Heading" xml:space="preserve"><value>What is in the cabinet, what is in the garden.</value></data>
+  <data name="Home_Heading" xml:space="preserve"><value>What's in the seed box, what's in the garden.</value></data>
   <data name="Home_Stat_Varieties" xml:space="preserve"><value>Varieties</value></data>
   <data name="Home_Stat_Pots" xml:space="preserve"><value>Pots in {0} groups</value></data>
   <data name="Home_Stat_Planted" xml:space="preserve"><value>of them planted</value></data>

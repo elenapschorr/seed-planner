@@ -245,7 +245,7 @@
   <data name="Error_PotSizeRequired" xml:space="preserve"><value>Для выращивания в горшке размер горшка (мин и макс) обязателен.</value></data>
   <data name="Action_ShowSpacing" xml:space="preserve"><value>Указать расстояния</value></data>
   <data name="Home_Kicker" xml:space="preserve"><value>Запасы на сегодня</value></data>
-  <data name="Home_Heading" xml:space="preserve"><value>Что лежит в шкафу, что растёт в саду.</value></data>
+  <data name="Home_Heading" xml:space="preserve"><value>Что в коробке с семенами, что растёт в саду.</value></data>
   <data name="Home_Stat_Varieties" xml:space="preserve"><value>Сортов</value></data>
   <data name="Home_Stat_Pots" xml:space="preserve"><value>Горшков в {0} группах</value></data>
   <data name="Home_Stat_Planted" xml:space="preserve"><value>из них занято</value></data>
