@@ -5,6 +5,16 @@ The goal of the collection is to reproduce seeds yourself, so the app knows whic
 
 Portfolio project, all rights reserved.
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Start page](docs/screenshots/start.png) | ![Varieties](docs/screenshots/varieties.png) |
+| ![Calendar of sowing, bloom and harvest](docs/screenshots/calendar.png) | ![Distribution over pots and beds](docs/screenshots/distribution.png) |
+| ![Garden plot editor](docs/screenshots/garden-editor.png) | |
+
+The screenshots show the author's own seed collection and plans. The aerial picture of the plot in the garden editor is mirrored, and the account name is replaced.
+
 ## Features
 
 - **Seed collection:** plant types, varieties, sowing and harvest windows, germination temperature, height and spacing, pot size needs
