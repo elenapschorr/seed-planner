@@ -853,4 +853,15 @@
   <data name="Garden_GroupBeds" xml:space="preserve"><value>Грядки</value></data>
   <data name="Garden_GroupAreas" xml:space="preserve"><value>Зоны</value></data>
   <data name="Garden_DrawingHint" xml:space="preserve"><value>Щёлкай по углам по очереди. Готово: Esc или нажми на существующий угол.</value></data>
+  <data name="Privacy_Title" xml:space="preserve"><value>Конфиденциальность</value></data>
+  <data name="Privacy_Intro" xml:space="preserve"><value>Seed Planner — частное приложение, доступное только по приглашению. На этой странице сказано, какие данные хранятся и зачем.</value></data>
+  <data name="Privacy_StoredTitle" xml:space="preserve"><value>Что хранится</value></data>
+  <data name="Privacy_Stored1" xml:space="preserve"><value>Ваш адрес электронной почты и хеш пароля (сам пароль не хранится) — чтобы вы могли входить.</value></data>
+  <data name="Privacy_Stored2" xml:space="preserve"><value>Всё, что вы вводите: сорта, горшки, грядки, планы и план сада с загруженным изображением. Это используется только для показа и расчёта ваших планов и не видно другим пользователям.</value></data>
+  <data name="Privacy_Stored3" xml:space="preserve"><value>Выбранный вами язык.</value></data>
+  <data name="Privacy_CookiesTitle" xml:space="preserve"><value>Файлы cookie</value></data>
+  <data name="Privacy_Cookies" xml:space="preserve"><value>Используются два необходимых файла cookie: для входа и для языка. Нет отслеживания, аналитики и рекламы, данные не передаются третьим лицам. Шрифты и скрипты поставляет само приложение.</value></data>
+  <data name="Privacy_RightsTitle" xml:space="preserve"><value>Ваши права</value></data>
+  <data name="Privacy_Rights" xml:space="preserve"><value>Вы можете в любое время попросить оператора этого экземпляра (человека, давшего вам код приглашения) выдать копию ваших данных или удалить ваш аккаунт вместе со всеми данными.</value></data>
+  <data name="Footer_Privacy" xml:space="preserve"><value>Конфиденциальность</value></data>
 </root>

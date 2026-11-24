@@ -853,4 +853,15 @@
   <data name="Garden_GroupBeds" xml:space="preserve"><value>Beds</value></data>
   <data name="Garden_GroupAreas" xml:space="preserve"><value>Areas</value></data>
   <data name="Garden_DrawingHint" xml:space="preserve"><value>Click the corners one after the other. Done: Esc, or press an existing corner.</value></data>
+  <data name="Privacy_Title" xml:space="preserve"><value>Privacy</value></data>
+  <data name="Privacy_Intro" xml:space="preserve"><value>Seed Planner is a private application that can only be used with an invitation. This page says which data it stores and why.</value></data>
+  <data name="Privacy_StoredTitle" xml:space="preserve"><value>What is stored</value></data>
+  <data name="Privacy_Stored1" xml:space="preserve"><value>Your e-mail address and a hash of your password (never the password itself), so that you can sign in.</value></data>
+  <data name="Privacy_Stored2" xml:space="preserve"><value>Everything you enter: varieties, pots, beds, plans and the garden plan with the picture you upload. It is used only to show and calculate your own plans and is not visible to other users.</value></data>
+  <data name="Privacy_Stored3" xml:space="preserve"><value>Your choice of language.</value></data>
+  <data name="Privacy_CookiesTitle" xml:space="preserve"><value>Cookies</value></data>
+  <data name="Privacy_Cookies" xml:space="preserve"><value>There are two cookies, both necessary: the sign-in cookie and the language cookie. There is no tracking, no analytics and no advertising, and no data is passed on to third parties. Fonts and scripts are delivered by the application itself.</value></data>
+  <data name="Privacy_RightsTitle" xml:space="preserve"><value>Your rights</value></data>
+  <data name="Privacy_Rights" xml:space="preserve"><value>You can ask the operator of this instance (the person who gave you the invitation code) at any time for a copy of your data or for your account to be deleted together with all your data.</value></data>
+  <data name="Footer_Privacy" xml:space="preserve"><value>Privacy</value></data>
 </root>

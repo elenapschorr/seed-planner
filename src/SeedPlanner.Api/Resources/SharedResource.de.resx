@@ -853,4 +853,15 @@
   <data name="Garden_GroupBeds" xml:space="preserve"><value>Beete</value></data>
   <data name="Garden_GroupAreas" xml:space="preserve"><value>Bereiche</value></data>
   <data name="Garden_DrawingHint" xml:space="preserve"><value>Klicke die Ecken der Reihe nach. Fertig: Esc oder eine vorhandene Ecke anklicken.</value></data>
+  <data name="Privacy_Title" xml:space="preserve"><value>Datenschutz</value></data>
+  <data name="Privacy_Intro" xml:space="preserve"><value>Seed Planner ist eine private Anwendung, die nur mit Einladung genutzt werden kann. Diese Seite sagt, welche Daten gespeichert werden und wozu.</value></data>
+  <data name="Privacy_StoredTitle" xml:space="preserve"><value>Was gespeichert wird</value></data>
+  <data name="Privacy_Stored1" xml:space="preserve"><value>Deine E-Mail-Adresse und ein Hash deines Passworts (nie das Passwort selbst), damit du dich anmelden kannst.</value></data>
+  <data name="Privacy_Stored2" xml:space="preserve"><value>Alles, was du eingibst: Sorten, Töpfe, Beete, Pläne und der Gartenplan mit dem Bild, das du hochlädst. Es dient nur dazu, deine eigenen Pläne anzuzeigen und zu berechnen, und ist für andere Nutzer nicht sichtbar.</value></data>
+  <data name="Privacy_Stored3" xml:space="preserve"><value>Deine Sprachwahl.</value></data>
+  <data name="Privacy_CookiesTitle" xml:space="preserve"><value>Cookies</value></data>
+  <data name="Privacy_Cookies" xml:space="preserve"><value>Es gibt zwei Cookies, beide notwendig: das Anmelde-Cookie und das Sprach-Cookie. Es gibt kein Tracking, keine Analyse und keine Werbung, und es werden keine Daten an Dritte weitergegeben. Schriften und Skripte liefert die Anwendung selbst aus.</value></data>
+  <data name="Privacy_RightsTitle" xml:space="preserve"><value>Deine Rechte</value></data>
+  <data name="Privacy_Rights" xml:space="preserve"><value>Du kannst jederzeit beim Betreiber dieser Instanz (die Person, die dir den Einladungscode gegeben hat) eine Kopie deiner Daten verlangen oder dein Konto samt aller Daten löschen lassen.</value></data>
+  <data name="Footer_Privacy" xml:space="preserve"><value>Datenschutz</value></data>
 </root>
